@@ -18,9 +18,9 @@ export default function Home() {
       <ModeBanner />
       <main className="home">
         <h1 className="home__title">
-          <span aria-hidden>🗺️</span> 우리 동네 장소감 지도
+          <span aria-hidden>🗺️</span> 우리 동네 지도 탐구
         </h1>
-        <p className="home__sub">초등 사회 3학년 1학기 · (1) 우리가 사는 곳</p>
+        <p className="home__sub">초등 사회 3~4학년 · 장소감 지도, 방위와 거리 미션, 지역문제 해결</p>
 
         <div className="home__actions">
           <button type="button" className="big-btn big-btn--student" onClick={() => go('/join')}>
@@ -36,6 +36,12 @@ export default function Home() {
             선생님: 학급 만들기
           </button>
         </div>
+
+        {isClassMode && (
+          <p className="home__login">
+            <a href="#/teacher/login">🔑 다른 기기에서 내 학급 관리하기</a>
+          </p>
+        )}
 
         {classes.length > 0 && (
           <section className="card my-classes" aria-labelledby="my-classes-title">

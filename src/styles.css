@@ -1052,3 +1052,451 @@ form.panel {
   padding: 2px 6px;
   opacity: 0.85;
 }
+
+/* ---------- 방위표·축척 ---------- */
+.compass {
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+.leaflet-control-scale-line {
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-width: 3px;
+  border-color: #334155;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+}
+
+.pin__label {
+  position: absolute;
+  top: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.pin__badge {
+  min-width: 22px;
+  width: auto;
+  padding: 0 3px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border-radius: 999px;
+}
+
+/* ---------- 활동 탭 묶음 ---------- */
+.tab-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tab-group__label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 700;
+  padding-left: 4px;
+}
+
+.tab-group__tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tabs {
+  align-items: flex-end;
+}
+
+/* ---------- 미션 ---------- */
+.mission {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mission-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress {
+  position: relative;
+  height: 28px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--good);
+  transition: width 0.3s;
+}
+
+.progress__text {
+  position: relative;
+  display: block;
+  text-align: center;
+  line-height: 28px;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.mission-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mission-item {
+  width: 100%;
+  min-height: 84px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px;
+}
+
+.mission-item:hover {
+  border-color: var(--primary);
+}
+
+.mission-item--ok {
+  border-color: var(--good);
+  background: var(--good-soft);
+}
+
+.mission-item__emoji {
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.mission-item__title {
+  font-weight: 800;
+}
+
+.mission-item__state {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.feedback {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.feedback > span {
+  font-size: 1.5rem;
+}
+
+.feedback p {
+  margin: 0;
+}
+
+.feedback--ok {
+  background: var(--good-soft);
+  color: #14532d;
+}
+
+.feedback--hint {
+  background: var(--warn-soft);
+  color: #78350f;
+}
+
+.celebrate {
+  margin: 0;
+  padding: 12px;
+  background: var(--good-soft);
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.guide__steps li.done {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.helper summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* ---------- 문제 해결 ---------- */
+.solve {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.steps-preview {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--muted);
+}
+
+.stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.stepper button {
+  width: 100%;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  color: var(--muted);
+}
+
+.stepper button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.stepper__n {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.stepper__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  word-break: keep-all;
+  text-align: center;
+}
+
+.stepper__item--done .stepper__n {
+  background: var(--good);
+  color: #fff;
+}
+
+.stepper__item--on .stepper__n {
+  background: var(--primary);
+  color: #fff;
+}
+
+.stepper__item--on button {
+  color: var(--primary);
+}
+
+.hint--ok {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.recap {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+
+.option-edit {
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-edit > legend {
+  font-weight: 800;
+  padding: 0 6px;
+  color: var(--primary);
+}
+
+.option-edit .choice {
+  min-height: 60px;
+}
+
+.choice-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.choice-card:hover {
+  border-color: var(--primary);
+}
+
+.choice-card:focus-within {
+  outline: 3px solid var(--accent);
+}
+
+.choice-card--on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.solve-detail {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.92rem;
+}
+
+.solve-detail dt {
+  font-weight: 800;
+  color: var(--primary);
+  margin-top: 4px;
+}
+
+.solve-detail dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.option--chosen {
+  background: var(--good-soft);
+}
+
+/* ---------- 교사: 미션 진행표 ---------- */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.progress-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.progress-table th,
+.progress-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 4px;
+  text-align: center;
+}
+
+.progress-table tbody th {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.progress-table__sum {
+  font-weight: 800;
+}
+
+.cell {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 8px;
+}
+
+.cell:hover {
+  background: var(--primary-soft);
+}
+
+.cell small {
+  font-size: 0.65rem;
+  color: var(--muted);
+  vertical-align: super;
+}
+
+.question-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.settings > .btn {
+  margin-top: 8px;
+  align-self: flex-start;
+}
+
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account .btn {
+  align-self: flex-start;
+}
+
+.home__login {
+  margin-top: 20px;
+}
+
+.class-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.class-links a {
+  text-decoration: none;
+  color: var(--text);
+}

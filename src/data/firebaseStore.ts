@@ -6,8 +6,18 @@
  *   classes/{학급코드}              학급 정보
  *   classes/{학급코드}/pins/{핀ID}  학생이 남긴 핀
  */
-import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth, signInAnonymously, onAuthStateChanged, type User } from 'firebase/auth';
+import { initializeApp, type FirebaseError } from 'firebase/app';
+import {
+  GoogleAuthProvider,
+  connectAuthEmulator,
+  getAuth,
+  linkWithCredential,
+  linkWithPopup,
+  signInAnonymously,
+  signInWithCredential,
+  signOut,
+  type User,
+} from 'firebase/auth';
 import {
   collection,
   connectFirestoreEmulator,
@@ -40,23 +50,26 @@ if (useEmulator) {
 
 let userPromise: Promise<User> | null = null;
 
+/**
+ * 로그인된 사용자를 돌려줍니다. 이전에 로그인한 적이 있으면(익명이든 Google이든) 그 사용자를 그대로 쓰고,
+ * 처음이면 익명으로 로그인합니다.
+ */
 function ensureUser(): Promise<User> {
   if (!userPromise) {
-    userPromise = new Promise<User>((resolve, reject) => {
-      const off = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          off();
-          resolve(user);
-        }
-      });
-      signInAnonymously(auth).catch((err) => {
-        off();
-        userPromise = null;
-        reject(err);
-      });
+    userPromise = (async () => {
+      await auth.authStateReady();
+      if (auth.currentUser) return auth.currentUser;
+      return (await signInAnonymously(auth)).user;
+    })().catch((err) => {
+      userPromise = null;
+      throw err;
     });
   }
   return userPromise;
+}
+
+function googleEmail(user: User): string | null {
+  return user.providerData.find((p) => p.providerId === 'google.com')?.email ?? null;
 }
 
 const classRef = (code: string) => doc(db, 'classes', code);
@@ -172,6 +185,7 @@ export const firebaseStore: Store = {
       createdAt: Date.now(),
     };
     await setDoc(ref, full);
+    return ref.id;
   },
 
   async updatePin(code, id, patch) {
@@ -198,5 +212,50 @@ export const firebaseStore: Store = {
       snap.docs.slice(i, i + 400).forEach((d) => batch.delete(d.ref));
       await batch.commit();
     }
+  },
+
+  async listMyClasses() {
+    const user = await ensureUser();
+    const snap = await getDocs(query(collection(db, 'classes'), where('teacherUid', '==', user.uid)));
+    return snap.docs
+      .map((d) => d.data() as ClassRoom)
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map((c) => ({ code: c.code, name: c.name }));
+  },
+
+  async getAccount() {
+    const user = await ensureUser();
+    return { uid: user.uid, email: googleEmail(user) };
+  },
+
+  async connectGoogle() {
+    const user = await ensureUser();
+    if (googleEmail(user)) return { uid: user.uid, email: googleEmail(user), switched: false };
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    // 개발용(에뮬레이터 자동 테스트): 팝업 대신 가짜 Google 토큰으로 연결합니다.
+    const testToken = useEmulator ? (window as { __scmTestGoogleToken?: string }).__scmTestGoogleToken : undefined;
+    try {
+      // 지금 기기의 ID를 그대로 둔 채 Google 계정을 연결합니다 → 이 기기에서 만든 학급이 그대로 유지됩니다.
+      const res = testToken
+        ? await linkWithCredential(user, GoogleAuthProvider.credential(testToken))
+        : await linkWithPopup(user, provider);
+      return { uid: res.user.uid, email: googleEmail(res.user), switched: false };
+    } catch (err) {
+      const e = err as FirebaseError;
+      if (e.code !== 'auth/credential-already-in-use') throw err;
+      // 이미 다른 기기에서 연결한 Google 계정 → 그 계정으로 로그인합니다.
+      const cred =
+        GoogleAuthProvider.credentialFromError(e) ?? (testToken ? GoogleAuthProvider.credential(testToken) : null);
+      if (!cred) throw err;
+      const res = await signInWithCredential(auth, cred);
+      userPromise = Promise.resolve(res.user);
+      return { uid: res.user.uid, email: googleEmail(res.user), switched: true };
+    }
+  },
+
+  async signOut() {
+    await signOut(auth);
+    userPromise = null;
   },
 };

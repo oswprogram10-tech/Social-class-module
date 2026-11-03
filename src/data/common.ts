@@ -1,3 +1,4 @@
+import { ACTIVITIES, type ActivityId } from '../activities';
 import type { ClassRoom, Pin } from './types';
 
 /** 헷갈리는 글자(0, O, 1, I, L)를 뺀 학급 코드용 문자 */
@@ -21,7 +22,16 @@ export function makeId(): string {
 export function visibleToStudent(pin: Pin, cls: ClassRoom, uid: string): boolean {
   if (pin.authorUid === uid) return true;
   if (!cls.showOthers) return false;
+  // 미션 답은 친구에게 보이지 않게, 문제 해결은 완성한 것만 보이게 합니다.
+  if (pin.activity === 'mission') return false;
+  if (pin.activity === 'solve' && (pin.step ?? 0) < 4) return false;
   return pin.approved && !pin.hidden;
+}
+
+/** 학급에서 쓰는 생각 도우미 질문 (교사가 고친 것이 있으면 그것을 씁니다) */
+export function questionsFor(cls: ClassRoom, activity: ActivityId): string[] {
+  const custom = cls.questions?.[activity];
+  return custom && custom.length > 0 ? custom : ACTIVITIES[activity].questions;
 }
 
 export const LIMITS = {
@@ -29,4 +39,10 @@ export const LIMITS = {
   text: 150,
   nickname: 10,
   className: 30,
+  /** 문제 해결: 해결 방법 설명 */
+  detail: 60,
+  /** 문제 해결: 좋은 점·아쉬운 점 */
+  proCon: 80,
+  question: 80,
+  questionCount: 5,
 };

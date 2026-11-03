@@ -1,17 +1,86 @@
 import type { ReactNode } from 'react';
-import { FEELINGS, FIXES, PROBLEMS, findChoice } from '../activities';
+import { FEELINGS, FIXES, PROBLEMS, SOLUTIONS, SOLVE_STEPS, findChoice, findMission } from '../activities';
 import type { Pin } from '../data/types';
+import { isMissionCorrect, type LatLng } from '../geo';
 import { pinEmoji } from './MapView';
 import Speak from './Speak';
 
+function optionText(type?: string, detail?: string): string {
+  const c = findChoice(SOLUTIONS, type);
+  return [c ? `${c.emoji} ${c.label}` : '', detail ?? ''].filter(Boolean).join(' – ');
+}
+
 export function describePin(pin: Pin): string {
-  if (pin.activity === 'better') {
-    const p = findChoice(PROBLEMS, pin.problem)?.label ?? '';
-    const f = findChoice(FIXES, pin.fix)?.label ?? '';
-    return `${pin.placeName}. ${p}. ${f}이(가) 있으면 좋겠어요. ${pin.text}`;
+  switch (pin.activity) {
+    case 'better': {
+      const p = findChoice(PROBLEMS, pin.problem)?.label ?? '';
+      const f = findChoice(FIXES, pin.fix)?.label ?? '';
+      return `${pin.placeName}. ${p}. ${f}이(가) 있으면 좋겠어요. ${pin.text}`;
+    }
+    case 'mission':
+      return `${findMission(pin.missionId)?.title ?? '미션'}. ${pin.placeName}.`;
+    case 'solve': {
+      const chosen = pin.chosen === 'A' ? optionText(pin.optAType, pin.optADetail) : optionText(pin.optBType, pin.optBDetail);
+      return [
+        `${pin.placeName}의 문제. ${pin.problemText ?? ''}`,
+        pin.cause ? `원인은 ${pin.cause}` : '',
+        pin.chosen ? `해결 방법은 ${chosen.replace(/[^\p{L}\p{N}\s.,–-]/gu, '')}. ${pin.text}` : '',
+      ]
+        .filter(Boolean)
+        .join(' ');
+    }
+    default: {
+      const feel = findChoice(FEELINGS, pin.feeling)?.label ?? '';
+      return `${pin.placeName}. ${feel}. ${pin.text}`;
+    }
   }
-  const feel = findChoice(FEELINGS, pin.feeling)?.label ?? '';
-  return `${pin.placeName}. ${feel}. ${pin.text}`;
+}
+
+function SolveDetail({ pin }: { pin: Pin }) {
+  const step = pin.step ?? 1;
+  const opt = (k: 'A' | 'B') => {
+    const type = k === 'A' ? pin.optAType : pin.optBType;
+    if (!type) return null;
+    const detail = k === 'A' ? pin.optADetail : pin.optBDetail;
+    const good = k === 'A' ? pin.optAGood : pin.optBGood;
+    const bad = k === 'A' ? pin.optABad : pin.optBBad;
+    return (
+      <div className={`option ${pin.chosen === k ? 'option--chosen' : ''}`}>
+        <strong>
+          방법 {k}. {optionText(type, detail)} {pin.chosen === k && <span className="tag tag--good">선택</span>}
+        </strong>
+        {good && <span>👍 {good}</span>}
+        {bad && <span>🤔 {bad}</span>}
+      </div>
+    );
+  };
+  return (
+    <dl className="solve-detail">
+      <dt>① {SOLVE_STEPS[0]}</dt>
+      <dd>{pin.problemText || '–'}</dd>
+      {step >= 2 && (
+        <>
+          <dt>② {SOLVE_STEPS[1]}</dt>
+          <dd>{pin.cause || '–'}</dd>
+        </>
+      )}
+      {step >= 3 && (
+        <>
+          <dt>③ {SOLVE_STEPS[2]}</dt>
+          <dd>
+            {opt('A')}
+            {opt('B')}
+          </dd>
+        </>
+      )}
+      {step >= 4 && (
+        <>
+          <dt>④ {SOLVE_STEPS[3]}</dt>
+          <dd>{pin.text || '–'}</dd>
+        </>
+      )}
+    </dl>
+  );
 }
 
 interface Props {
@@ -20,12 +89,18 @@ interface Props {
   author?: string;
   children?: ReactNode;
   compact?: boolean;
+  /** 미션 정답 확인에 쓰는 학교 위치 */
+  school?: LatLng;
 }
 
-export default function PinCard({ pin, author, children, compact }: Props) {
+export default function PinCard({ pin, author, children, compact, school }: Props) {
   const feel = findChoice(FEELINGS, pin.feeling);
   const problem = findChoice(PROBLEMS, pin.problem);
   const fix = findChoice(FIXES, pin.fix);
+  const mission = findMission(pin.missionId);
+  const missionOk = pin.activity === 'mission' && school ? isMissionCorrect(pin.missionId, school, pin) : undefined;
+  const step = pin.step ?? 1;
+  const body = pin.activity === 'solve' ? pin.problemText : pin.text;
   return (
     <article className={`pin-card ${compact ? 'pin-card--compact' : ''}`}>
       <div className="pin-card__head">
@@ -46,18 +121,36 @@ export default function PinCard({ pin, author, children, compact }: Props) {
                 {fix.emoji} {fix.label}
               </span>
             )}
-            {!pin.approved && <span className="tag tag--muted">선생님 확인 중</span>}
+            {mission && <span className="tag">{mission.title}</span>}
+            {missionOk !== undefined &&
+              (missionOk ? <span className="tag tag--good">✅ 성공</span> : <span className="tag tag--warn">🔁 다시 도전</span>)}
+            {pin.activity === 'mission' && pin.attempts ? <span className="tag tag--muted">{pin.attempts}번 시도</span> : null}
+            {pin.activity === 'solve' &&
+              (step >= 4 ? (
+                <span className="tag tag--good">완성</span>
+              ) : (
+                <span className="tag tag--muted">
+                  {step}/4 {SOLVE_STEPS[step - 1]}
+                </span>
+              ))}
+            {!pin.approved && pin.activity !== 'mission' && <span className="tag tag--muted">선생님 확인 중</span>}
             {pin.hidden && <span className="tag tag--muted">숨김</span>}
           </span>
         </div>
         {!compact && <Speak text={describePin(pin)} />}
       </div>
-      {pin.text && <p className="pin-card__text">{pin.text}</p>}
+      {pin.activity === 'solve' && !compact ? (
+        <SolveDetail pin={pin} />
+      ) : (
+        body && <p className="pin-card__text">{body}</p>
+      )}
       <div className="pin-card__foot">
         {author && <span className="pin-card__author">{author}</span>}
-        <span className="pin-card__likes" aria-label={`공감 ${pin.likes}개`}>
-          💛 {pin.likes}
-        </span>
+        {pin.activity !== 'mission' && (
+          <span className="pin-card__likes" aria-label={`공감 ${pin.likes}개`}>
+            💛 {pin.likes}
+          </span>
+        )}
       </div>
       {children && <div className="pin-card__actions">{children}</div>}
     </article>

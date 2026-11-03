@@ -101,6 +101,7 @@ export const localStore: Store = {
       createdAt: Date.now(),
     };
     setPins(code, [...getPins(code), full]);
+    return full.id;
   },
 
   async updatePin(code, id, patch) {
@@ -126,5 +127,17 @@ export const localStore: Store = {
 
   async clearPins(code) {
     setPins(code, []);
+  },
+
+  async listMyClasses() {
+    const uid = await this.getUid();
+    const list: ClassRoom[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith(`${PREFIX}class:`)) continue;
+      const cls = read<ClassRoom>(key.slice(PREFIX.length));
+      if (cls && cls.teacherUid === uid) list.push(cls);
+    }
+    return list.sort((a, b) => b.createdAt - a.createdAt).map((c) => ({ code: c.code, name: c.name }));
   },
 };

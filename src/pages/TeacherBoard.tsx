@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ACTIVITIES, ACTIVITY_ORDER, FEELINGS, FIXES, PROBLEMS, findChoice, type ActivityId } from '../activities';
+import { ACTIVITIES, FEELINGS, FIXES, PROBLEMS, SOLUTIONS, UNITS, findChoice, findMission } from '../activities';
 import MapView from '../components/MapView';
 import PinCard from '../components/PinCard';
+import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
+import { questionsFor } from '../data/common';
 import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
+import { isMissionCorrect } from '../geo';
 import { joinUrl, rememberClass, useClassRoom, usePins, useStore } from '../hooks';
 import { ModeBanner } from './Home';
 
@@ -13,9 +16,15 @@ function authorLabel(pin: Pin) {
 }
 
 function downloadCsv(cls: ClassRoom, pins: Pin[]) {
-  const header = ['활동', '번호', '별명', '장소', '느낌', '문제', '바꾸고 싶은 것', '이유', '공감', '승인', '숨김', '위도', '경도', '작성시각'];
+  const school = { lat: cls.lat, lng: cls.lng };
+  const opt = (type?: string, detail?: string) => [findChoice(SOLUTIONS, type)?.label, detail].filter(Boolean).join(': ');
+  const header = [
+    '활동', '번호', '별명', '장소', '느낌', '문제', '바꾸고 싶은 것', '이유·결론', '미션', '미션 결과', '시도 횟수',
+    '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
+    '공감', '승인', '숨김', '위도', '경도', '작성시각',
+  ];
   const rows = pins.map((p) => [
-    ACTIVITIES[p.activity].title,
+    ACTIVITIES[p.activity]?.title ?? p.activity,
     p.studentNo,
     p.nickname,
     p.placeName,
@@ -23,6 +32,19 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     findChoice(PROBLEMS, p.problem)?.label ?? '',
     findChoice(FIXES, p.fix)?.label ?? '',
     p.text,
+    findMission(p.missionId)?.title ?? '',
+    p.activity === 'mission' ? (isMissionCorrect(p.missionId, school, p) ? '성공' : '다시 도전') : '',
+    p.attempts ?? '',
+    p.activity === 'solve' ? `${p.step ?? 1}/4` : '',
+    p.problemText ?? '',
+    p.cause ?? '',
+    opt(p.optAType, p.optADetail),
+    p.optAGood ?? '',
+    p.optABad ?? '',
+    opt(p.optBType, p.optBDetail),
+    p.optBGood ?? '',
+    p.optBBad ?? '',
+    p.chosen ?? '',
     p.likes,
     p.approved ? 'O' : 'X',
     p.hidden ? 'O' : 'X',
@@ -33,44 +55,12 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
   const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const csv = [header, ...rows].map((r) => r.map(esc).join(',')).join('\r\n');
   // 엑셀에서 한글이 깨지지 않도록 BOM을 붙입니다.
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `${cls.name}_${cls.code}_장소감지도.csv`;
+  a.download = `${cls.name}_${cls.code}_사회탐구.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
-}
-
-function Summary({ pins, activity }: { pins: Pin[]; activity: ActivityId }) {
-  const list = activity === 'feel' ? FEELINGS : FIXES;
-  const counts = list
-    .map((c) => ({ c, n: pins.filter((p) => (activity === 'feel' ? p.feeling : p.fix) === c.id).length }))
-    .filter((x) => x.n > 0)
-    .sort((a, b) => b.n - a.n);
-  const max = Math.max(1, ...counts.map((x) => x.n));
-  const students = new Set(pins.map((p) => p.studentNo)).size;
-  return (
-    <section className="summary" aria-label="한눈에 보기">
-      <p className="summary__total">
-        장소 <strong>{pins.length}</strong>개 · 참여 학생 <strong>{students}</strong>명
-      </p>
-      {counts.length > 0 && (
-        <ul className="bars">
-          {counts.map(({ c, n }) => (
-            <li key={c.id}>
-              <span className="bars__label">
-                {c.emoji} {c.label}
-              </span>
-              <span className="bars__track">
-                <span className="bars__fill" style={{ width: `${(n / max) * 100}%` }} />
-              </span>
-              <span className="bars__n">{n}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
 }
 
 export default function TeacherBoard({ code }: { code: string }) {
@@ -85,7 +75,11 @@ export default function TeacherBoard({ code }: { code: string }) {
 
   const activity = cls?.activeActivity ?? 'feel';
   const actPins = useMemo(() => pins.filter((p) => p.activity === activity), [pins, activity]);
-  const waiting = actPins.filter((p) => !p.approved && !p.hidden);
+  const kind = ACTIVITIES[activity].kind;
+  // 미션은 승인할 필요가 없고, 문제 해결은 완성한 것만 승인 대상입니다.
+  const waiting = actPins.filter(
+    (p) => !p.approved && !p.hidden && p.activity !== 'mission' && (p.activity !== 'solve' || (p.step ?? 1) >= 4),
+  );
 
   // 이 브라우저의 "내가 만든 학급" 목록에 기억해 둡니다.
   useEffect(() => {
@@ -105,12 +99,14 @@ export default function TeacherBoard({ code }: { code: string }) {
     return (
       <div className="page-msg">
         <p>이 학급의 관리 권한이 없어요.</p>
-        <p className="hint">학급을 만든 크롬북(브라우저)에서 열어 주세요.</p>
+        <p className="hint">학급을 만든 크롬북(브라우저)에서 열거나, Google 계정을 연결했다면 첫 화면의 “다른 기기에서 내 학급 관리하기”로 로그인해 주세요.</p>
         <a href="#/">처음으로</a>
       </div>
     );
 
   const selected = actPins.find((p) => p.id === selectedId);
+  const school = { lat: cls.lat, lng: cls.lng };
+  const pinLabel = kind !== 'pin' && (!projector || showNames) ? (p: Pin) => String(p.studentNo) : undefined;
   const url = joinUrl(cls.code);
   const update = (patch: Parameters<typeof store.updateClass>[1]) => store.updateClass(code, patch).catch(console.error);
   const patchPin = (pin: Pin, patch: Parameters<typeof store.updatePin>[2]) =>
@@ -128,7 +124,7 @@ export default function TeacherBoard({ code }: { code: string }) {
 
   async function clearAll() {
     if (!store || !cls) return;
-    if (!confirm(`“${cls.name}” 학급의 모든 장소(${pins.length}개)를 지울까요? 되돌릴 수 없어요.`)) return;
+    if (!confirm(`“${cls.name}” 학급의 모든 기록(${pins.length}개)을 지울까요? 되돌릴 수 없어요.`)) return;
     if (pins.length > 0 && !confirm('정말 지울까요? 필요하면 먼저 “엑셀로 저장”을 눌러 주세요.')) return;
     await store.clearPins(code).catch(console.error);
     setSelectedId(null);
@@ -184,20 +180,29 @@ export default function TeacherBoard({ code }: { code: string }) {
       </header>
 
       <nav className="tabs" aria-label="활동 고르기">
-        {ACTIVITY_ORDER.map((id) => (
-          <button
-            key={id}
-            type="button"
-            className={`tab ${activity === id ? 'tab--on' : ''}`}
-            aria-pressed={activity === id}
-            onClick={() => {
-              setSelectedId(null);
-              update({ activeActivity: id });
-            }}
-          >
-            <span className="std-chip">{ACTIVITIES[id].standard}</span> {ACTIVITIES[id].title}
-            <span className="tab__count">{pins.filter((p) => p.activity === id).length}</span>
-          </button>
+        {UNITS.map((u) => (
+          <div key={u.title} className="tab-group">
+            <span className="tab-group__label">
+              {u.grade} {u.title}
+            </span>
+            <div className="tab-group__tabs">
+              {u.activities.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`tab ${activity === id ? 'tab--on' : ''}`}
+                  aria-pressed={activity === id}
+                  onClick={() => {
+                    setSelectedId(null);
+                    update({ activeActivity: id });
+                  }}
+                >
+                  <span className="std-chip">{ACTIVITIES[id].standard}</span> {ACTIVITIES[id].title}
+                  <span className="tab__count">{pins.filter((p) => p.activity === id).length}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
         {!projector && <span className="tabs__hint">누른 활동이 학생 화면에 바로 나타나요.</span>}
       </nav>
@@ -211,6 +216,7 @@ export default function TeacherBoard({ code }: { code: string }) {
             pins={projector ? actPins.filter((p) => !p.hidden) : actPins}
             selectedId={selectedId}
             showStatus={!projector}
+            pinLabel={pinLabel}
             onPinClick={(p) => setSelectedId(p.id)}
             onMapClick={() => setSelectedId(null)}
           />
@@ -219,7 +225,7 @@ export default function TeacherBoard({ code }: { code: string }) {
         <aside className="panel">
           {selected ? (
             <>
-              <PinCard pin={selected} author={!projector || showNames ? authorLabel(selected) : undefined}>
+              <PinCard pin={selected} school={school} author={!projector || showNames ? authorLabel(selected) : undefined}>
                 {!projector && pinActions(selected)}
               </PinCard>
               <button type="button" className="btn btn--block" onClick={() => setSelectedId(null)}>
@@ -228,11 +234,11 @@ export default function TeacherBoard({ code }: { code: string }) {
             </>
           ) : projector ? (
             <>
-              <Summary pins={actPins.filter((p) => !p.hidden)} activity={activity} />
+              <Summary pins={actPins.filter((p) => !p.hidden)} activity={activity} cls={cls} />
               <section className="card">
                 <h2>💭 함께 생각해요</h2>
                 <ol className="questions questions--big">
-                  {ACTIVITIES[activity].questions.map((q) => (
+                  {questionsFor(cls, activity).map((q) => (
                     <li key={q}>{q}</li>
                   ))}
                 </ol>
@@ -263,9 +269,20 @@ export default function TeacherBoard({ code }: { code: string }) {
                   선생님이 승인한 장소만 친구에게 공개
                 </label>
                 <p className="hint">{ACTIVITIES[activity].standardText}</p>
+                <QuestionEditor
+                  key={activity}
+                  cls={cls}
+                  activity={activity}
+                  onSave={(qs) => {
+                    const next = { ...(cls.questions ?? {}) };
+                    if (qs) next[activity] = qs;
+                    else delete next[activity];
+                    update({ questions: next });
+                  }}
+                />
               </section>
 
-              <Summary pins={actPins} activity={activity} />
+              <Summary pins={actPins} activity={activity} cls={cls} />
 
               {waiting.length > 0 && (
                 <div className="row row--between">
@@ -280,16 +297,20 @@ export default function TeacherBoard({ code }: { code: string }) {
                 </div>
               )}
 
-              <ul className="pin-list">
-                {[...actPins].reverse().map((p) => (
-                  <li key={p.id}>
-                    <button type="button" className="pin-list__item" onClick={() => setSelectedId(p.id)}>
-                      <PinCard pin={p} author={authorLabel(p)} compact />
-                    </button>
-                  </li>
-                ))}
-                {actPins.length === 0 && <li className="hint">아직 남긴 장소가 없어요. 학생들에게 학급 코드를 알려 주세요.</li>}
-              </ul>
+              {kind === 'mission' ? (
+                <MissionProgress pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
+              ) : (
+                <ul className="pin-list">
+                  {[...actPins].reverse().map((p) => (
+                    <li key={p.id}>
+                      <button type="button" className="pin-list__item" onClick={() => setSelectedId(p.id)}>
+                        <PinCard pin={p} author={authorLabel(p)} compact />
+                      </button>
+                    </li>
+                  ))}
+                  {actPins.length === 0 && <li className="hint">아직 기록이 없어요. 학생들에게 학급 코드를 알려 주세요.</li>}
+                </ul>
+              )}
 
               <div className="row">
                 <button type="button" className="btn" onClick={() => downloadCsv(cls, pins)} disabled={pins.length === 0}>
@@ -299,6 +320,8 @@ export default function TeacherBoard({ code }: { code: string }) {
                   🧹 모두 지우기
                 </button>
               </div>
+
+              <TeacherAccount store={store} />
             </>
           )}
         </aside>

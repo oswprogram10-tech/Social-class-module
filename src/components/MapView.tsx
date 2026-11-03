@@ -2,13 +2,11 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { vworldKey } from '../config';
-import { FEELINGS, FIXES, PROBLEMS, findChoice } from '../activities';
+import { FEELINGS, FIXES, PROBLEMS, SOLUTIONS, findChoice, findMission } from '../activities';
 import type { Pin } from '../data/types';
+import type { LatLng } from '../geo';
 
-export interface LatLng {
-  lat: number;
-  lng: number;
-}
+export type { LatLng };
 
 interface Props {
   center: LatLng;
@@ -23,7 +21,30 @@ interface Props {
   onPinClick?: (pin: Pin) => void;
   onReady?: (map: L.Map) => void;
   ariaLabel?: string;
+  /** 핀 아래에 작게 붙일 글자 (예: 교사 화면의 학생 번호) */
+  pinLabel?: (pin: Pin) => string | undefined;
 }
+
+/** 방위표: 지도의 위쪽이 북쪽임을 보여 줍니다 */
+const CompassControl = L.Control.extend({
+  onAdd() {
+    const div = L.DomUtil.create('div', 'compass');
+    div.setAttribute('role', 'img');
+    div.setAttribute('aria-label', '방위표: 지도의 위쪽이 북쪽');
+    div.innerHTML = `<svg viewBox="-6 -8 92 96" width="78" height="82" aria-hidden="true">
+      <circle cx="40" cy="40" r="30" fill="rgba(255,255,255,.9)" stroke="#334155" stroke-width="1.5"/>
+      <polygon points="40,12 46,40 40,36 34,40" fill="#dc2626"/>
+      <polygon points="40,68 46,40 40,44 34,40" fill="#334155"/>
+      <polygon points="12,40 40,34 36,40 40,46" fill="#94a3b8"/>
+      <polygon points="68,40 40,34 44,40 40,46" fill="#94a3b8"/>
+      <text x="40" y="5" text-anchor="middle" font-size="12" font-weight="700" fill="#dc2626">북</text>
+      <text x="40" y="83" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">남</text>
+      <text x="1" y="44" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">서</text>
+      <text x="79" y="44" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">동</text>
+    </svg>`;
+    return div;
+  },
+});
 
 function baseLayers(): Record<string, L.Layer> {
   if (vworldKey) {
@@ -48,20 +69,40 @@ function baseLayers(): Record<string, L.Layer> {
 }
 
 export function pinEmoji(pin: Pin): string {
-  if (pin.activity === 'better') return findChoice(FIXES, pin.fix)?.emoji ?? '✨';
-  return findChoice(FEELINGS, pin.feeling)?.emoji ?? '📍';
+  switch (pin.activity) {
+    case 'better':
+      return findChoice(FIXES, pin.fix)?.emoji ?? '✨';
+    case 'mission':
+      return findMission(pin.missionId)?.emoji ?? '🎯';
+    case 'solve': {
+      const chosenType = pin.chosen === 'A' ? pin.optAType : pin.chosen === 'B' ? pin.optBType : undefined;
+      return findChoice(SOLUTIONS, chosenType)?.emoji ?? findChoice(PROBLEMS, pin.problem)?.emoji ?? '❓';
+    }
+    default:
+      return findChoice(FEELINGS, pin.feeling)?.emoji ?? '📍';
+  }
 }
 
-function pinIcon(pin: Pin, selected: boolean, showStatus: boolean): L.DivIcon {
+function pinBadge(pin: Pin): string {
+  if (pin.activity === 'better') return findChoice(PROBLEMS, pin.problem)?.emoji ?? '';
+  if (pin.activity === 'solve' && (pin.step ?? 1) < 4) return `${pin.step ?? 1}/4`;
+  return '';
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+}
+
+function pinIcon(pin: Pin, selected: boolean, showStatus: boolean, label?: string): L.DivIcon {
   const classes = ['pin'];
   if (selected) classes.push('pin--selected');
   if (showStatus && (pin.hidden || !pin.approved)) classes.push('pin--muted');
-  const badge = pin.activity === 'better' ? findChoice(PROBLEMS, pin.problem)?.emoji : '';
+  const badge = pinBadge(pin);
   return L.divIcon({
     className: 'pin-wrap',
     html: `<div class="${classes.join(' ')}"><span class="pin__emoji">${pinEmoji(pin)}</span>${
-      badge ? `<span class="pin__badge">${badge}</span>` : ''
-    }</div>`,
+      badge ? `<span class="pin__badge">${escapeHtml(badge)}</span>` : ''
+    }</div>${label ? `<span class="pin__label">${escapeHtml(label)}</span>` : ''}`,
     iconSize: [44, 44],
     iconAnchor: [22, 44],
   });
@@ -93,6 +134,7 @@ export default function MapView({
   onPinClick,
   onReady,
   ariaLabel = '우리 동네 지도',
+  pinLabel,
 }: Props) {
   const elRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -101,8 +143,10 @@ export default function MapView({
   const schoolLayerRef = useRef<L.LayerGroup | null>(null);
   const clickRef = useRef(onMapClick);
   const pinClickRef = useRef(onPinClick);
+  const pinLabelRef = useRef(pinLabel);
   clickRef.current = onMapClick;
   pinClickRef.current = onPinClick;
+  pinLabelRef.current = pinLabel;
 
   // 지도 만들기 (한 번만)
   useEffect(() => {
@@ -115,7 +159,8 @@ export default function MapView({
     const names = Object.keys(layers);
     layers[names[0]].addTo(map);
     if (names.length > 1) L.control.layers(layers, undefined, { position: 'topright' }).addTo(map);
-    L.control.scale({ imperial: false }).addTo(map);
+    L.control.scale({ imperial: false, maxWidth: 160 }).addTo(map);
+    new CompassControl({ position: 'topleft' }).addTo(map);
     map.on('click', (e: L.LeafletMouseEvent) => clickRef.current?.({ lat: e.latlng.lat, lng: e.latlng.lng }));
     pinLayerRef.current = L.layerGroup().addTo(map);
     schoolLayerRef.current = L.layerGroup().addTo(map);
@@ -126,6 +171,7 @@ export default function MapView({
     ro.observe(elRef.current);
     return () => {
       ro.disconnect();
+      map.stop();
       map.remove();
       mapRef.current = null;
     };
@@ -156,9 +202,10 @@ export default function MapView({
         interactive: false,
       });
       layer.addLayer(circle);
-      map.fitBounds(circle.getBounds(), { padding: [20, 20] });
+      // 애니메이션 없이 옮겨야 화면을 빨리 넘길 때 Leaflet 오류가 나지 않습니다.
+      map.fitBounds(circle.getBounds(), { padding: [20, 20], animate: false });
     } else {
-      map.setView([center.lat, center.lng], map.getZoom());
+      map.setView([center.lat, center.lng], map.getZoom(), { animate: false });
     }
   }, [center.lat, center.lng, radius, schoolName]);
 
@@ -169,7 +216,7 @@ export default function MapView({
     layer.clearLayers();
     pins.forEach((pin) => {
       const marker = L.marker([pin.lat, pin.lng], {
-        icon: pinIcon(pin, pin.id === selectedId, showStatus),
+        icon: pinIcon(pin, pin.id === selectedId, showStatus, pinLabelRef.current?.(pin)),
         title: pin.placeName || '장소',
         alt: pin.placeName || '장소',
         riseOnHover: true,

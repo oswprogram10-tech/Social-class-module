@@ -5,7 +5,7 @@ rules_version = '2';
 //
 // 원칙
 //  - 모두 익명 로그인만 합니다 (이름·이메일을 받지 않음).
-//  - 학급 정보는 학급 코드를 아는 사람만 열 수 있고(목록 조회 금지), 학급을 만든 교사만 바꿀 수 있습니다.
+//  - 학급 정보는 학급 코드를 아는 사람만 열 수 있고(교사는 자기 학급 목록만), 학급을 만든 교사만 바꿀 수 있습니다.
 //  - 학생은 자기 핀과, 교사가 공개한 친구 핀만 읽을 수 있습니다.
 //  - 학생은 자기 핀만 고치거나 지울 수 있고, 승인·숨김은 교사만 바꿀 수 있습니다.
 
@@ -32,15 +32,31 @@ service cloud.firestore {
       return !(key in d) || shortStr(d[key], max);
     }
 
+    function activities() {
+      return ['feel', 'better', 'mission', 'solve'];
+    }
+
+    // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
+    function optQuestions(d) {
+      return !('questions' in d) || (
+        d.questions is map
+        && d.questions.keys().hasOnly(activities())
+        && (!('feel' in d.questions) || (d.questions.feel is list && d.questions.feel.size() <= 5))
+        && (!('better' in d.questions) || (d.questions.better is list && d.questions.better.size() <= 5))
+        && (!('mission' in d.questions) || (d.questions.mission is list && d.questions.mission.size() <= 5))
+        && (!('solve' in d.questions) || (d.questions.solve is list && d.questions.solve.size() <= 5)));
+    }
+
     match /classes/{code} {
       allow get: if signedIn();
-      allow list: if false;
+      // 교사가 자기 학급 목록만 볼 수 있음 (다른 기기에서 Google 로그인 후)
+      allow list: if signedIn() && resource.data.teacherUid == request.auth.uid;
 
       allow create: if signedIn()
         && code.matches('^[A-Z0-9]{6}$')
         && request.resource.data.keys().hasOnly([
              'code', 'name', 'schoolName', 'lat', 'lng', 'radius',
-             'activeActivity', 'requireApproval', 'showOthers', 'teacherUid', 'createdAt'])
+             'activeActivity', 'requireApproval', 'showOthers', 'teacherUid', 'createdAt', 'questions'])
         && request.resource.data.code == code
         && request.resource.data.teacherUid == request.auth.uid
         && shortStr(request.resource.data.name, 30)
@@ -49,18 +65,20 @@ service cloud.firestore {
         && request.resource.data.lng is number
         && request.resource.data.radius is number
         && request.resource.data.radius <= 5000
-        && request.resource.data.activeActivity in ['feel', 'better']
+        && request.resource.data.activeActivity in activities()
         && request.resource.data.requireApproval is bool
-        && request.resource.data.showOthers is bool;
+        && request.resource.data.showOthers is bool
+        && optQuestions(request.resource.data);
 
       allow update: if signedIn()
         && resource.data.teacherUid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['name', 'radius', 'activeActivity', 'requireApproval', 'showOthers'])
+             .hasOnly(['name', 'radius', 'activeActivity', 'requireApproval', 'showOthers', 'questions'])
         && shortStr(request.resource.data.name, 30)
-        && request.resource.data.activeActivity in ['feel', 'better']
+        && request.resource.data.activeActivity in activities()
         && request.resource.data.requireApproval is bool
-        && request.resource.data.showOthers is bool;
+        && request.resource.data.showOthers is bool
+        && optQuestions(request.resource.data);
 
       allow delete: if signedIn() && resource.data.teacherUid == request.auth.uid;
 
@@ -69,8 +87,12 @@ service cloud.firestore {
         function validPin(d) {
           return d.keys().hasOnly([
                    'activity', 'lat', 'lng', 'placeName', 'text', 'feeling', 'problem', 'fix',
+                   'missionId', 'attempts',
+                   'step', 'problemText', 'cause',
+                   'optAType', 'optADetail', 'optAGood', 'optABad',
+                   'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen',
                    'studentNo', 'nickname', 'authorUid', 'approved', 'hidden', 'likes', 'createdAt'])
-            && d.activity in ['feel', 'better']
+            && d.activity in activities()
             && d.lat is number
             && d.lng is number
             && shortStr(d.placeName, 30)
@@ -82,6 +104,20 @@ service cloud.firestore {
             && optStr(d, 'feeling', 20)
             && optStr(d, 'problem', 20)
             && optStr(d, 'fix', 20)
+            && optStr(d, 'missionId', 20)
+            && (!('attempts' in d) || (d.attempts is int && d.attempts >= 1))
+            && (!('step' in d) || (d.step is int && d.step >= 1 && d.step <= 4))
+            && optStr(d, 'problemText', 150)
+            && optStr(d, 'cause', 150)
+            && optStr(d, 'optAType', 20)
+            && optStr(d, 'optADetail', 60)
+            && optStr(d, 'optAGood', 80)
+            && optStr(d, 'optABad', 80)
+            && optStr(d, 'optBType', 20)
+            && optStr(d, 'optBDetail', 60)
+            && optStr(d, 'optBGood', 80)
+            && optStr(d, 'optBBad', 80)
+            && (!('chosen' in d) || d.chosen in ['A', 'B'])
             && d.approved is bool
             && d.hidden is bool
             && d.likes is int;
@@ -111,7 +147,10 @@ service cloud.firestore {
           || (signedIn()
             && resource.data.authorUid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys()
-                 .hasOnly(['placeName', 'text', 'feeling', 'problem', 'fix', 'approved'])
+                 .hasOnly(['lat', 'lng', 'placeName', 'text', 'feeling', 'problem', 'fix', 'attempts',
+                           'step', 'problemText', 'cause',
+                           'optAType', 'optADetail', 'optAGood', 'optABad',
+                           'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen', 'approved'])
             && (request.resource.data.approved == resource.data.approved
                 || request.resource.data.approved == false)
             && validPin(request.resource.data))

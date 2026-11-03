@@ -1,6 +1,6 @@
 {
-  "name": "우리 동네 장소감 지도",
-  "short_name": "장소감 지도",
+  "name": "우리 동네 지도 탐구",
+  "short_name": "동네 지도 탐구",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f8fafc",

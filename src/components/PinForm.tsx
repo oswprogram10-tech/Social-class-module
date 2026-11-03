@@ -20,25 +20,27 @@ interface Props {
   onCancel: () => void;
 }
 
-function ChoiceGrid({
+export function ChoiceGrid({
   legend,
   choices,
   value,
   onChange,
   name,
+  columns = 4,
 }: {
   legend: string;
   choices: Choice[];
   value?: string;
   onChange: (id: string) => void;
   name: string;
+  columns?: number;
 }) {
   return (
     <fieldset className="choices">
       <legend>
         {legend} <Speak text={legend} />
       </legend>
-      <div className="choices__grid" role="radiogroup">
+      <div className="choices__grid" role="radiogroup" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {choices.map((c) => (
           <label key={c.id} className={`choice ${value === c.id ? 'choice--on' : ''}`}>
             <input

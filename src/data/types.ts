@@ -15,6 +15,8 @@ export interface ClassRoom {
   showOthers: boolean;
   teacherUid: string;
   createdAt: number;
+  /** 교사가 고친 생각 도우미 질문 (없으면 기본 질문) */
+  questions?: Partial<Record<ActivityId, string[]>>;
 }
 
 export interface Pin {
@@ -29,6 +31,22 @@ export interface Pin {
   /** 활동 2: 문제 종류와 개선 방법 */
   problem?: string;
   fix?: string;
+  /** 활동 3: 미션 */
+  missionId?: string;
+  attempts?: number;
+  /** 활동 4: 문제 해결 (step 1~4, 4면 완성) */
+  step?: number;
+  problemText?: string;
+  cause?: string;
+  optAType?: string;
+  optADetail?: string;
+  optAGood?: string;
+  optABad?: string;
+  optBType?: string;
+  optBDetail?: string;
+  optBGood?: string;
+  optBBad?: string;
+  chosen?: 'A' | 'B';
   studentNo: number;
   nickname: string;
   authorUid: string;
@@ -41,10 +59,40 @@ export interface Pin {
 export type NewPin = Omit<Pin, 'id' | 'approved' | 'hidden' | 'likes' | 'createdAt'>;
 
 export type ClassPatch = Partial<
-  Pick<ClassRoom, 'activeActivity' | 'requireApproval' | 'showOthers' | 'name' | 'radius'>
+  Pick<ClassRoom, 'activeActivity' | 'requireApproval' | 'showOthers' | 'name' | 'radius' | 'questions'>
 >;
 
-export type PinPatch = Partial<Pick<Pin, 'placeName' | 'text' | 'feeling' | 'problem' | 'fix' | 'approved' | 'hidden'>>;
+/** 학생이 고칠 수 있는 칸 */
+export const STUDENT_EDITABLE = [
+  'lat',
+  'lng',
+  'placeName',
+  'text',
+  'feeling',
+  'problem',
+  'fix',
+  'attempts',
+  'step',
+  'problemText',
+  'cause',
+  'optAType',
+  'optADetail',
+  'optAGood',
+  'optABad',
+  'optBType',
+  'optBDetail',
+  'optBGood',
+  'optBBad',
+  'chosen',
+] as const;
+
+export type PinPatch = Partial<Pick<Pin, (typeof STUDENT_EDITABLE)[number] | 'approved' | 'hidden'>>;
+
+export interface Account {
+  uid: string;
+  /** Google 계정이 연결되어 있으면 이메일 */
+  email: string | null;
+}
 
 export type Unsubscribe = () => void;
 
@@ -66,10 +114,22 @@ export interface Store {
    * 학생은 자기 핀 + (친구 보기가 켜져 있으면) 승인된 핀만 받습니다.
    */
   watchPins(code: string, opts: WatchPinsOptions, cb: (pins: Pin[]) => void): Unsubscribe;
-  addPin(code: string, pin: NewPin): Promise<void>;
+  /** 새 핀을 만들고 그 ID를 돌려줍니다 */
+  addPin(code: string, pin: NewPin): Promise<string>;
   updatePin(code: string, id: string, patch: PinPatch): Promise<void>;
   likePin(code: string, id: string): Promise<void>;
   deletePin(code: string, id: string): Promise<void>;
   /** 학급의 모든 핀 삭제 (학기 말 정리용) */
   clearPins(code: string): Promise<void>;
+  /** 내가 만든 학급 목록 */
+  listMyClasses(): Promise<{ code: string; name: string }[]>;
+
+  // ---- 교사 Google 계정 (학급 모드에서만) ----
+  getAccount?(): Promise<Account>;
+  /**
+   * 지금 기기의 교사 권한을 Google 계정에 연결합니다.
+   * 그 Google 계정이 이미 다른 기기와 연결되어 있으면 그 계정으로 로그인합니다(switched = true).
+   */
+  connectGoogle?(): Promise<Account & { switched: boolean }>;
+  signOut?(): Promise<void>;
 }
