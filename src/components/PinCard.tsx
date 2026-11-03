@@ -1,5 +1,16 @@
 import type { ReactNode } from 'react';
-import { FEELINGS, FIXES, PROBLEMS, SOLUTIONS, SOLVE_STEPS, findChoice, findMission } from '../activities';
+import {
+  FEELINGS,
+  FIXES,
+  PLACE_TYPES,
+  PROBLEMS,
+  PROMO_CATS,
+  SOLUTIONS,
+  SOLVE_STEPS,
+  SYMBOLS,
+  findChoice,
+  findMission,
+} from '../activities';
 import type { Pin } from '../data/types';
 import { isMissionCorrect, type LatLng } from '../geo';
 import { pinEmoji } from './MapView';
@@ -19,6 +30,15 @@ export function describePin(pin: Pin): string {
     }
     case 'mission':
       return `${findMission(pin.missionId)?.title ?? '미션'}. ${pin.placeName}.`;
+    case 'legend': {
+      const type = findChoice(PLACE_TYPES, pin.placeType)?.label ?? '';
+      const sym = findChoice(SYMBOLS, pin.symbol)?.label ?? '';
+      return `${pin.placeName}. ${type}을(를) ${sym} 기호로 나타냈어요. ${pin.text}`;
+    }
+    case 'promote':
+      return `${pin.placeName}. ${pin.slogan ?? ''}. ${pin.text}`;
+    case 'timeline':
+      return `${pin.year}년. ${pin.placeName}. ${pin.text}`;
     case 'solve': {
       const chosen = pin.chosen === 'A' ? optionText(pin.optAType, pin.optADetail) : optionText(pin.optBType, pin.optBDetail);
       return [
@@ -98,6 +118,9 @@ export default function PinCard({ pin, author, children, compact, school }: Prop
   const problem = findChoice(PROBLEMS, pin.problem);
   const fix = findChoice(FIXES, pin.fix);
   const mission = findMission(pin.missionId);
+  const category = findChoice(PROMO_CATS, pin.category);
+  const placeType = findChoice(PLACE_TYPES, pin.placeType);
+  const symbol = pin.activity === 'legend' ? findChoice(SYMBOLS, pin.symbol) : undefined;
   const missionOk = pin.activity === 'mission' && school ? isMissionCorrect(pin.missionId, school, pin) : undefined;
   const step = pin.step ?? 1;
   const body = pin.activity === 'solve' ? pin.problemText : pin.text;
@@ -122,6 +145,17 @@ export default function PinCard({ pin, author, children, compact, school }: Prop
               </span>
             )}
             {mission && <span className="tag">{mission.title}</span>}
+            {category && (
+              <span className="tag">
+                {category.emoji} {category.label}
+              </span>
+            )}
+            {placeType && symbol && (
+              <span className="tag">
+                기호 {symbol.emoji} = {placeType.label}
+              </span>
+            )}
+            {pin.activity === 'timeline' && pin.year && <span className="tag">{pin.year}년</span>}
             {missionOk !== undefined &&
               (missionOk ? <span className="tag tag--good">✅ 성공</span> : <span className="tag tag--warn">🔁 다시 도전</span>)}
             {pin.activity === 'mission' && pin.attempts ? <span className="tag tag--muted">{pin.attempts}번 시도</span> : null}
@@ -139,6 +173,7 @@ export default function PinCard({ pin, author, children, compact, school }: Prop
         </div>
         {!compact && <Speak text={describePin(pin)} />}
       </div>
+      {pin.activity === 'promote' && pin.slogan && <p className={`slogan ${compact ? 'slogan--small' : ''}`}>“{pin.slogan}”</p>}
       {pin.activity === 'solve' && !compact ? (
         <SolveDetail pin={pin} />
       ) : (
@@ -146,7 +181,7 @@ export default function PinCard({ pin, author, children, compact, school }: Prop
       )}
       <div className="pin-card__foot">
         {author && <span className="pin-card__author">{author}</span>}
-        {pin.activity !== 'mission' && (
+        {pin.activity !== 'mission' && pin.activity !== 'timeline' && (
           <span className="pin-card__likes" aria-label={`공감 ${pin.likes}개`}>
             💛 {pin.likes}
           </span>

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type L from 'leaflet';
-import { ACTIVITIES } from '../activities';
+import { ACTIVITIES, type ActivityId } from '../activities';
 import MapView, { type LatLng } from '../components/MapView';
+import LegendBox from '../components/LegendBox';
 import MissionPanel from '../components/MissionPanel';
 import PinCard from '../components/PinCard';
 import PinForm, { type PinFormValues } from '../components/PinForm';
 import SolvePanel from '../components/SolvePanel';
 import Speak from '../components/Speak';
+import { TimelinePanel, TimelineView } from '../components/Timeline';
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
 import { go, useClassRoom, usePins, useStore } from '../hooks';
@@ -23,6 +25,20 @@ function loadLiked(): Set<string> {
 }
 
 /** 장소감·개선 활동(핀 남기기)의 화면 상태 */
+const STEP3: Partial<Record<ActivityId, string>> = {
+  feel: '느낌을 고르고 이유를 적어요.',
+  better: '문제와 바꾸고 싶은 것을 골라요.',
+  legend: '장소 종류와 기호를 고르고, 그 기호를 고른 까닭을 적어요.',
+  promote: '자랑거리 종류를 고르고 한 줄 홍보 문구를 만들어요.',
+};
+
+const OTHERS_HINT: Partial<Record<ActivityId, string>> = {
+  feel: '친구들이 남긴 장소를 눌러 보고, 같은 곳에서 느낌이 어떻게 다른지 비교해 보세요.',
+  better: '친구들이 찾은 문제와 개선 방법을 눌러 보세요.',
+  legend: '오른쪽 아래 범례를 보세요. 같은 장소를 친구들은 어떤 기호로 나타냈나요?',
+  promote: '친구들이 만든 홍보 문구를 눌러 보고 💛 공감해 보세요.',
+};
+
 type Mode = { kind: 'idle' } | { kind: 'new'; pos: LatLng } | { kind: 'view'; id: string } | { kind: 'edit'; id: string };
 
 export default function StudentMap({ code }: { code: string }) {
@@ -84,7 +100,11 @@ export default function StudentMap({ code }: { code: string }) {
   const pins = allPins.filter((p) => p.activity === activity && visibleToStudent(p, cls, uid));
   const myPins = pins.filter((p) => p.authorUid === uid);
   const selectedId =
-    kind === 'pin' ? (mode.kind === 'view' || mode.kind === 'edit' ? mode.id : null) : (viewOtherId ?? openRequest?.id ?? null);
+    kind === 'pin'
+      ? mode.kind === 'view' || mode.kind === 'edit'
+        ? mode.id
+        : null
+      : (viewOtherId ?? openRequest?.id ?? null);
   const selected = pins.find((p) => p.id === selectedId);
   const viewOther = viewOtherId ? pins.find((p) => p.id === viewOtherId) : undefined;
   const school = { lat: cls.lat, lng: cls.lng };
@@ -199,6 +219,16 @@ export default function StudentMap({ code }: { code: string }) {
       </header>
 
       <div className="split">
+        {kind === 'timeline' ? (
+          <div className="timeline-area">
+            <TimelineView
+              title={`${who}의 연표`}
+              events={myPins}
+              selectedId={viewOtherId}
+              onSelect={(p) => setViewOtherId(p.id)}
+            />
+          </div>
+        ) : (
         <div className="map-area">
           <MapView
             center={school}
@@ -217,9 +247,25 @@ export default function StudentMap({ code }: { code: string }) {
               📍 지도 가운데에 {kind === 'pin' ? '장소 놓기' : '표시하기'}
             </button>
           )}
+          {activity === 'legend' && <LegendBox pins={pins} />}
         </div>
+        )}
 
         <aside className="panel" aria-live="polite">
+          {kind === 'timeline' && (
+            <TimelinePanel
+              cls={cls}
+              store={store}
+              uid={uid}
+              student={student}
+              myPins={myPins}
+              selected={myPins.find((p) => p.id === viewOtherId)}
+              onSelect={setViewOtherId}
+              questions={questions}
+              onToast={setToast}
+            />
+          )}
+
           {kind === 'mission' && (
             <MissionPanel
               cls={cls}
@@ -302,7 +348,7 @@ export default function StudentMap({ code }: { code: string }) {
                   <ol className="guide__steps">
                     <li>지도를 움직여 장소를 찾아요.</li>
                     <li>장소를 누르거나 “가운데에 놓기”를 눌러요.</li>
-                    <li>{activity === 'feel' ? '느낌을 고르고 이유를 적어요.' : '문제와 바꾸고 싶은 것을 골라요.'}</li>
+                    <li>{STEP3[activity] ?? '내용을 골라 적어요.'}</li>
                   </ol>
                   <button
                     type="button"
@@ -322,7 +368,7 @@ export default function StudentMap({ code }: { code: string }) {
                     </ul>
                   )}
                   {cls.showOthers ? (
-                    <p className="hint">친구들이 남긴 장소를 눌러 보고, 같은 곳에서 느낌이 어떻게 다른지 비교해 보세요.</p>
+                    <p className="hint">{OTHERS_HINT[activity] ?? '친구들이 남긴 장소를 눌러 보세요.'}</p>
                   ) : (
                     <p className="hint">지금은 내 장소만 보여요.</p>
                   )}

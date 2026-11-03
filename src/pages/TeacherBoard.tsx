@@ -1,7 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ACTIVITIES, FEELINGS, FIXES, PROBLEMS, SOLUTIONS, UNITS, findChoice, findMission } from '../activities';
+import {
+  ACTIVITIES,
+  FEELINGS,
+  FIXES,
+  PLACE_TYPES,
+  PROBLEMS,
+  PROMO_CATS,
+  SOLUTIONS,
+  SYMBOLS,
+  UNITS,
+  findChoice,
+  findMission,
+} from '../activities';
+import LegendBox from '../components/LegendBox';
 import MapView from '../components/MapView';
 import PinCard from '../components/PinCard';
+import { TimelineView } from '../components/Timeline';
 import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
 import { questionsFor } from '../data/common';
 import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
@@ -21,6 +35,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
   const header = [
     '활동', '번호', '별명', '장소', '느낌', '문제', '바꾸고 싶은 것', '이유·결론', '미션', '미션 결과', '시도 횟수',
     '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
+    '자랑거리', '홍보 문구', '장소 종류', '기호', '연도',
     '공감', '승인', '숨김', '위도', '경도', '작성시각',
   ];
   const rows = pins.map((p) => [
@@ -45,6 +60,11 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     p.optBGood ?? '',
     p.optBBad ?? '',
     p.chosen ?? '',
+    findChoice(PROMO_CATS, p.category)?.label ?? '',
+    p.slogan ?? '',
+    findChoice(PLACE_TYPES, p.placeType)?.label ?? '',
+    p.activity === 'legend' ? (findChoice(SYMBOLS, p.symbol)?.label ?? '') : '',
+    p.year ?? '',
     p.likes,
     p.approved ? 'O' : 'X',
     p.hidden ? 'O' : 'X',
@@ -76,9 +96,27 @@ export default function TeacherBoard({ code }: { code: string }) {
   const activity = cls?.activeActivity ?? 'feel';
   const actPins = useMemo(() => pins.filter((p) => p.activity === activity), [pins, activity]);
   const kind = ACTIVITIES[activity].kind;
+  // 연표: 학생별로 묶기
+  const timelines = useMemo(() => {
+    if (kind !== 'timeline') return [];
+    const map = new Map<string, { uid: string; label: string; no: number; events: Pin[] }>();
+    actPins.forEach((p) => {
+      // 체험 모드에서는 한 브라우저의 탭들이 같은 ID를 쓰므로 번호까지 함께 묶습니다.
+      const key = `${p.authorUid}:${p.studentNo}`;
+      const t = map.get(key) ?? { uid: key, label: `${authorLabel(p)}의 연표`, no: p.studentNo, events: [] };
+      t.events.push(p);
+      map.set(key, t);
+    });
+    return [...map.values()].sort((a, b) => a.no - b.no);
+  }, [actPins, kind]);
   // 미션은 승인할 필요가 없고, 문제 해결은 완성한 것만 승인 대상입니다.
   const waiting = actPins.filter(
-    (p) => !p.approved && !p.hidden && p.activity !== 'mission' && (p.activity !== 'solve' || (p.step ?? 1) >= 4),
+    (p) =>
+      !p.approved &&
+      !p.hidden &&
+      p.activity !== 'mission' &&
+      p.activity !== 'timeline' &&
+      (p.activity !== 'solve' || (p.step ?? 1) >= 4),
   );
 
   // 이 브라우저의 "내가 만든 학급" 목록에 기억해 둡니다.
@@ -208,6 +246,20 @@ export default function TeacherBoard({ code }: { code: string }) {
       </nav>
 
       <div className="split">
+        {kind === 'timeline' ? (
+          <div className="timeline-area">
+            {timelines.length === 0 && <p className="hint">아직 연표를 만든 학생이 없어요.</p>}
+            {timelines.map((t) => (
+              <TimelineView
+                key={t.uid}
+                title={!projector || showNames ? t.label : undefined}
+                events={t.events}
+                selectedId={selectedId}
+                onSelect={(p) => setSelectedId(p.id)}
+              />
+            ))}
+          </div>
+        ) : (
         <div className="map-area">
           <MapView
             center={{ lat: cls.lat, lng: cls.lng }}
@@ -220,7 +272,9 @@ export default function TeacherBoard({ code }: { code: string }) {
             onPinClick={(p) => setSelectedId(p.id)}
             onMapClick={() => setSelectedId(null)}
           />
+          {activity === 'legend' && <LegendBox pins={projector ? actPins.filter((p) => !p.hidden) : actPins} />}
         </div>
+        )}
 
         <aside className="panel">
           {selected ? (

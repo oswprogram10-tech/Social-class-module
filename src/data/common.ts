@@ -22,8 +22,8 @@ export function makeId(): string {
 export function visibleToStudent(pin: Pin, cls: ClassRoom, uid: string): boolean {
   if (pin.authorUid === uid) return true;
   if (!cls.showOthers) return false;
-  // 미션 답은 친구에게 보이지 않게, 문제 해결은 완성한 것만 보이게 합니다.
-  if (pin.activity === 'mission') return false;
+  // 미션 답과 개인 연표는 친구에게 보이지 않게, 문제 해결은 완성한 것만 보이게 합니다.
+  if (pin.activity === 'mission' || pin.activity === 'timeline') return false;
   if (pin.activity === 'solve' && (pin.step ?? 0) < 4) return false;
   return pin.approved && !pin.hidden;
 }
@@ -44,5 +44,6 @@ export const LIMITS = {
   /** 문제 해결: 좋은 점·아쉬운 점 */
   proCon: 80,
   question: 80,
+  slogan: 40,
   questionCount: 5,
 };

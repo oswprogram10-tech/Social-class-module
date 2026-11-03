@@ -33,7 +33,7 @@ service cloud.firestore {
     }
 
     function activities() {
-      return ['feel', 'better', 'mission', 'solve'];
+      return ['feel', 'better', 'timeline', 'mission', 'legend', 'solve', 'promote'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -44,7 +44,10 @@ service cloud.firestore {
         && (!('feel' in d.questions) || (d.questions.feel is list && d.questions.feel.size() <= 5))
         && (!('better' in d.questions) || (d.questions.better is list && d.questions.better.size() <= 5))
         && (!('mission' in d.questions) || (d.questions.mission is list && d.questions.mission.size() <= 5))
-        && (!('solve' in d.questions) || (d.questions.solve is list && d.questions.solve.size() <= 5)));
+        && (!('solve' in d.questions) || (d.questions.solve is list && d.questions.solve.size() <= 5))
+        && (!('timeline' in d.questions) || (d.questions.timeline is list && d.questions.timeline.size() <= 5))
+        && (!('legend' in d.questions) || (d.questions.legend is list && d.questions.legend.size() <= 5))
+        && (!('promote' in d.questions) || (d.questions.promote is list && d.questions.promote.size() <= 5)));
     }
 
     match /classes/{code} {
@@ -91,6 +94,7 @@ service cloud.firestore {
                    'step', 'problemText', 'cause',
                    'optAType', 'optADetail', 'optAGood', 'optABad',
                    'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen',
+                   'category', 'slogan', 'placeType', 'symbol', 'year',
                    'studentNo', 'nickname', 'authorUid', 'approved', 'hidden', 'likes', 'createdAt'])
             && d.activity in activities()
             && d.lat is number
@@ -118,6 +122,11 @@ service cloud.firestore {
             && optStr(d, 'optBGood', 80)
             && optStr(d, 'optBBad', 80)
             && (!('chosen' in d) || d.chosen in ['A', 'B'])
+            && optStr(d, 'category', 20)
+            && optStr(d, 'slogan', 40)
+            && optStr(d, 'placeType', 20)
+            && optStr(d, 'symbol', 20)
+            && (!('year' in d) || (d.year is int && d.year >= 1900 && d.year <= 2100))
             && d.approved is bool
             && d.hidden is bool
             && d.likes is int;
@@ -150,7 +159,8 @@ service cloud.firestore {
                  .hasOnly(['lat', 'lng', 'placeName', 'text', 'feeling', 'problem', 'fix', 'attempts',
                            'step', 'problemText', 'cause',
                            'optAType', 'optADetail', 'optAGood', 'optABad',
-                           'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen', 'approved'])
+                           'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen',
+                           'category', 'slogan', 'placeType', 'symbol', 'year', 'approved'])
             && (request.resource.data.approved == resource.data.approved
                 || request.resource.data.approved == false)
             && validPin(request.resource.data))

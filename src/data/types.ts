@@ -47,6 +47,14 @@ export interface Pin {
   optBGood?: string;
   optBBad?: string;
   chosen?: 'A' | 'B';
+  /** 우리 지역 알리기: 자랑거리 종류와 홍보 문구 */
+  category?: string;
+  slogan?: string;
+  /** 지도 기호 만들기: 장소 종류와 고른 기호 (연표에서는 사건 그림) */
+  placeType?: string;
+  symbol?: string;
+  /** 연표: 연도 */
+  year?: number;
   studentNo: number;
   nickname: string;
   authorUid: string;
@@ -84,6 +92,11 @@ export const STUDENT_EDITABLE = [
   'optBGood',
   'optBBad',
   'chosen',
+  'category',
+  'slogan',
+  'placeType',
+  'symbol',
+  'year',
 ] as const;
 
 export type PinPatch = Partial<Pick<Pin, (typeof STUDENT_EDITABLE)[number] | 'approved' | 'hidden'>>;

@@ -4,6 +4,8 @@ import {
   FEELINGS,
   FIXES,
   MISSIONS,
+  PLACE_TYPES,
+  PROMO_CATS,
   SOLUTIONS,
   SOLVE_STEPS,
   type ActivityId,
@@ -78,8 +80,25 @@ export function Summary({ pins, activity, cls }: { pins: Pin[]; activity: Activi
     );
   }
 
-  const list = activity === 'feel' ? FEELINGS : FIXES;
-  const items = list.map((c) => ({ c, n: pins.filter((p) => (activity === 'feel' ? p.feeling : p.fix) === c.id).length }));
+  if (kind === 'timeline') {
+    return (
+      <section className="summary" aria-label="한눈에 보기">
+        <p className="summary__total">
+          연표를 만든 학생 <strong>{students}</strong>명 · 적은 일 <strong>{pins.length}</strong>개
+        </p>
+        <p className="hint">연표는 학생 본인과 선생님만 볼 수 있어요.</p>
+      </section>
+    );
+  }
+
+  const groupBy: Partial<Record<ActivityId, { list: Choice[]; key: keyof Pin }>> = {
+    feel: { list: FEELINGS, key: 'feeling' },
+    better: { list: FIXES, key: 'fix' },
+    legend: { list: PLACE_TYPES, key: 'placeType' },
+    promote: { list: PROMO_CATS, key: 'category' },
+  };
+  const g = groupBy[activity];
+  const items = g ? g.list.map((c) => ({ c, n: pins.filter((p) => p[g.key] === c.id).length })) : [];
   return (
     <section className="summary" aria-label="한눈에 보기">
       <p className="summary__total">
@@ -95,13 +114,14 @@ export function MissionProgress({ pins, cls, onSelect }: { pins: Pin[]; cls: Cla
   const school = { lat: cls.lat, lng: cls.lng };
   const students = new Map<string, { label: string; no: number; pins: Map<string, Pin> }>();
   for (const p of pins) {
-    const s = students.get(p.authorUid) ?? {
+    const key = `${p.authorUid}:${p.studentNo}`;
+    const s = students.get(key) ?? {
       label: `${p.studentNo}${p.nickname ? ` ${p.nickname}` : ''}`,
       no: p.studentNo,
       pins: new Map<string, Pin>(),
     };
     if (p.missionId) s.pins.set(p.missionId, p);
-    students.set(p.authorUid, s);
+    students.set(key, s);
   }
   const rows = [...students.values()].sort((a, b) => a.no - b.no);
   if (rows.length === 0) return <p className="hint">아직 미션에 도전한 학생이 없어요.</p>;
