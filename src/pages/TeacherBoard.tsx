@@ -240,6 +240,11 @@ export default function TeacherBoard({ code }: { code: string }) {
             </button>
           )}
         </div>
+        {!projector && (
+          <a className="btn" href={`#/teacher/${cls.code}/report`}>
+            📊 성장 리포트
+          </a>
+        )}
         <button type="button" className="btn" onClick={() => setProjector((v) => !v)}>
           {projector ? '↩ 관리 화면' : '🖥️ 발표 화면'}
         </button>

@@ -2637,3 +2637,162 @@ form.panel {
   flex: none;
   height: max(440px, 58vh);
 }
+
+/* ---------- 3범주 성장 리포트 ---------- */
+a.btn {
+  text-decoration: none;
+  color: inherit;
+}
+
+.report-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.report-intro p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.report-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .report-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.report-table .row--on {
+  background: var(--primary-soft);
+}
+
+.report-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-card__head h2 {
+  margin: 0;
+}
+
+.report-sec {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-sec h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.report-sec h3 small {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-left: 6px;
+}
+
+.report-sec--k h3 {
+  color: #1d4ed8;
+}
+
+.report-sec--p h3 {
+  color: #047857;
+}
+
+.report-sec--a h3 {
+  color: #b45309;
+}
+
+.report-big {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.report-list,
+.quotes {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.92rem;
+}
+
+.quotes li {
+  margin-bottom: 4px;
+}
+
+.report-sec textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+}
+
+.bars li.bars__row--wide {
+  grid-template-columns: minmax(8em, 1.4fr) 1fr 10.5em;
+}
+
+.bars__sub {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  .no-print,
+  .banner,
+  .toast {
+    display: none !important;
+  }
+  .report-body {
+    display: none;
+  }
+  .print-only {
+    display: block;
+  }
+  .print-only .report-card {
+    border: 1px solid #999;
+    break-inside: avoid;
+    page-break-after: always;
+    margin-bottom: 12px;
+  }
+  .memo-print {
+    min-height: 4em;
+    border: 1px dashed #999;
+    padding: 6px;
+    white-space: pre-wrap;
+  }
+  body {
+    background: #fff;
+  }
+}
+
+.report-table thead th {
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
