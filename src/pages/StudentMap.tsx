@@ -18,6 +18,7 @@ import { ClimateActivity, PopulationActivity } from '../components/KoreaActiviti
 // 세계 지도 자료가 커서 이 활동을 열 때만 내려받습니다.
 const GlobeActivity = lazy(() => import('../components/GlobeActivity'));
 import TradeActivity from '../components/TradeActivity';
+import GlobalActivity from '../components/GlobalActivity';
 const WorldPopActivity = lazy(() => import('../components/WorldPopActivity'));
 const WorldClimateActivity = lazy(() => import('../components/WorldClimateActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
@@ -57,6 +58,8 @@ function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }
   switch (kind) {
     case 'factcheck':
       return <FactcheckActivity {...props} />;
+    case 'global':
+      return <GlobalActivity {...props} />;
     case 'trade':
       return <TradeActivity {...props} />;
     case 'market':
@@ -150,7 +153,9 @@ export default function StudentMap({ code }: { code: string }) {
   const kind = def.kind;
   const questions = questionsFor(cls, activity);
   const pins = allPins.filter((p) => p.activity === activity && visibleToStudent(p, cls, uid));
-  const myPins = pins.filter((p) => p.authorUid === uid);
+  // 같은 기기(같은 익명 계정)를 여러 학생이 번갈아 쓸 수 있어서 번호까지 맞춰 봅니다.
+  const isMine = (p: Pin) => p.authorUid === uid && p.studentNo === student.studentNo;
+  const myPins = pins.filter(isMine);
   const selectedId =
     kind === 'pin'
       ? mode.kind === 'view' || mode.kind === 'edit'
@@ -237,7 +242,7 @@ export default function StudentMap({ code }: { code: string }) {
       // 위치를 고르는 중에는 이미 있는 핀을 눌러도 그 자리를 고른 것으로 봅니다.
       setViewOtherId(null);
       setDraft({ lat: pin.lat, lng: pin.lng });
-    } else if (pin.authorUid === uid) {
+    } else if (isMine(pin)) {
       setViewOtherId(null);
       setOpenRequest({ id: kind === 'mission' ? pin.missionId! : pin.id, seq: Date.now() });
     } else {
@@ -378,8 +383,8 @@ export default function StudentMap({ code }: { code: string }) {
               )}
               {mode.kind === 'view' && selected && (
                 <>
-                  <PinCard pin={selected} author={selected.authorUid === uid ? '내가 남긴 장소' : undefined}>
-                    {selected.authorUid === uid ? (
+                  <PinCard pin={selected} author={isMine(selected) ? '내가 남긴 장소' : undefined}>
+                    {isMine(selected) ? (
                       <>
                         <button type="button" className="btn" onClick={() => setMode({ kind: 'edit', id: selected.id })}>
                           ✏️ 고치기

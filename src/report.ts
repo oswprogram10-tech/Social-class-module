@@ -64,16 +64,16 @@ const MIN_REASON = 10;
 
 /** 까닭·생각을 적는 칸이 있는 활동 */
 const REASON_ACTIVITIES: ActivityId[] = [
-  'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade',
+  'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade', 'global',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
 const VALUE_ACTIVITIES: ActivityId[] = [
-  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade',
+  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global',
 ];
 
 /** 우리 동네·공동체를 위한 참여 기록 */
-const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote'];
+const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote', 'global'];
 
 export function studentKey(p: Pin): string {
   return `${p.authorUid}:${p.studentNo}`;
@@ -157,6 +157,11 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
       if (timelineEvents) processEvidence.push({ activity: 'timeline', text: `나의 연표에 일 ${timelineEvents}개를 연도와 함께 정리` });
       const legends = by('legend').length;
       if (legends) processEvidence.push({ activity: 'legend', text: `지도 기호 ${legends}개를 직접 정하고 까닭을 설명` });
+      by('global').forEach((p) => {
+        const s = p.step ?? 1;
+        processEvidence.push({ activity: 'global', text: `지구촌 문제 해결 “${p.placeName}”: ${s >= 4 ? '4단계 모두 완성' : `${s}단계까지`}` });
+        if (s >= 4 && p.slogan) quotes.push({ activity: 'global', text: `실천 약속: ${p.slogan}` });
+      });
       by('trade').forEach((p) => {
         const s = p.step ?? 1;
         processEvidence.push({ activity: 'trade', text: `무역 시뮬레이션: ${s >= 2 ? '무역 전과 후를 비교' : '혼자 만들기까지'}${s >= 3 ? ', 가뭄 사건에 대처할 방법 선택' : ''}${s >= 4 ? ', 정리 완료' : ''}` });

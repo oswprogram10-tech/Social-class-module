@@ -24,6 +24,7 @@ import {
   HistoryResults,
   MarketResults,
   TradeResults,
+  GlobalResults,
   tradeCsv,
   QuizResults,
   RecordDetail,
@@ -34,6 +35,7 @@ import { findPrinciple, SCENARIOS } from '../content/election';
 import { TRUST_LEVELS } from '../content/factcheck';
 import { QUIZZES, quizScore } from '../content/quizzes';
 import { historyScore } from '../content/history';
+import { findActor, findProblem } from '../content/global';
 import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
 import { LocalAiSettings } from '../components/LocalAi';
 import { SHARED_ACTIVITIES, questionsFor } from '../data/common';
@@ -50,11 +52,11 @@ function authorLabel(pin: Pin) {
 
 function downloadCsv(cls: ClassRoom, pins: Pin[]) {
   const school = { lat: cls.lat, lng: cls.lng };
-  const opt = (type?: string, detail?: string) => [findChoice(SOLUTIONS, type)?.label, detail].filter(Boolean).join(': ');
+  const opt = (type?: string, detail?: string) => [(findChoice(SOLUTIONS, type) ?? findActor(type))?.label, detail].filter(Boolean).join(': ');
   const header = [
     '활동', '번호', '별명', '장소', '느낌', '문제', '바꾸고 싶은 것', '이유·결론', '미션', '미션 결과', '시도 횟수',
     '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
-    '자랑거리', '홍보 문구', '장소 종류', '기호', '연도',
+    '자랑거리·지구촌 문제', '홍보 문구·실천 약속', '장소 종류', '기호', '연도',
     '팩트체크 자료', '사실·의견 표시', '믿을 만한 정도', '산 것', '기회비용', '선거 이야기 맞힘', '가장 중요한 원칙',
     '탐구 질문 맞힘', '연표 제자리', '무역 전', '무역 후', '가뭄 때 선택', '무역 확인 문제',
     '공감', '승인', '숨김', '위도', '경도', '작성시각',
@@ -71,7 +73,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     findMission(p.missionId)?.title ?? '',
     p.activity === 'mission' ? (isMissionCorrect(p.missionId, school, p) ? '성공' : '다시 도전') : '',
     p.attempts ?? '',
-    p.activity === 'solve' ? `${p.step ?? 1}/4` : '',
+    p.activity === 'solve' || p.activity === 'global' ? `${p.step ?? 1}/4` : '',
     p.problemText ?? '',
     p.cause ?? '',
     opt(p.optAType, p.optADetail),
@@ -81,7 +83,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     p.optBGood ?? '',
     p.optBBad ?? '',
     p.chosen ?? '',
-    findChoice(PROMO_CATS, p.category)?.label ?? '',
+    (findChoice(PROMO_CATS, p.category) ?? findProblem(p.category))?.label ?? '',
     p.slogan ?? '',
     findChoice(PLACE_TYPES, p.placeType)?.label ?? '',
     p.activity === 'legend' ? (findChoice(SYMBOLS, p.symbol)?.label ?? '') : '',
@@ -296,6 +298,8 @@ export default function TeacherBoard({ code }: { code: string }) {
               <FactcheckResults pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'market' ? (
               <MarketResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
+            ) : kind === 'global' ? (
+              <GlobalResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'trade' ? (
               <TradeResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldclimate' || kind === 'worldpop' ? (
