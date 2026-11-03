@@ -3,6 +3,7 @@
  * 정답은 korea-data.ts 의 공식 통계와 맞춰 두었습니다.
  */
 import type { ActivityId } from '../activities';
+import { WORLDCLIMATE_ANSWERS } from './world-climate';
 import { WORLDPOP_ANSWERS } from './world-pop';
 
 export interface QuizQuestion {
@@ -150,6 +151,62 @@ export const QUIZZES: Partial<Record<ActivityId, QuizSet>> = {
       },
     ],
     open: '지구본과 세계지도는 각각 어떤 좋은 점과 불편한 점이 있을까요?',
+  },
+  worldclimate: {
+    questions: [
+      {
+        id: 'k1',
+        text: '1년 내내 덥고 비가 많이 오는 도시를 찾아 누르세요.',
+        answers: WORLDCLIMATE_ANSWERS.hotWet,
+        hint: '도시를 눌러 기후 그래프를 보세요. 기온 선이 1년 내내 높고, 강수량 막대가 큰 곳은?',
+        explain: '싱가포르는 가장 추운 달도 26.8℃이고, 1년에 비가 2,113㎜나 와요. 적도 가까이에 있는 열대 기후예요.',
+      },
+      {
+        id: 'k2',
+        text: '1년 강수량이 가장 적은 도시를 찾아 누르세요.',
+        answers: [WORLDCLIMATE_ANSWERS.driest],
+        hint: '아래 표의 “1년 강수량”을 비교해 보세요.',
+        explain: '카이로는 1년 강수량이 24.8㎜로, 서울의 7월 한 달 강수량(414.4㎜)의 17분의 1도 안 돼요. 건조 기후예요.',
+      },
+      {
+        id: 'k3',
+        text: '가장 따뜻한 달에도 평균 기온이 10℃가 안 되는 도시를 찾아 누르세요.',
+        answers: WORLDCLIMATE_ANSWERS.coldSummer,
+        hint: '표에서 “가장 더운 달” 기온을 살펴보세요. 북극에 가까운 곳은 어떨까요?',
+        explain: '우트키아비크는 7월에도 평균 4.6℃예요. 이렇게 추우면 나무가 자라지 못해요. 한대 기후예요.',
+      },
+      {
+        id: 'k4',
+        text: '적도 바로 가까이에 있는데도 1년 내내 서늘한 도시를 찾아 누르세요.',
+        answers: WORLDCLIMATE_ANSWERS.coolEquator,
+        hint: '지도에서 적도(빨간 선) 가까이에 있는 도시를 눌러 보세요. 그 도시의 높이(해발 고도)는 얼마인가요?',
+        explain: '키토는 적도 근처지만 해발 약 2,800m에 있어서 1년 내내 14℃ 안팎이에요. 고산 기후예요.',
+      },
+      {
+        id: 'k5',
+        text: '서울과 런던 중 가장 더운 달과 가장 추운 달의 기온 차(연교차)가 더 큰 곳은?',
+        answers: [WORLDCLIMATE_ANSWERS.seoulVsLondon],
+        choices: [
+          { id: 'seoul', label: '서울' },
+          { id: 'london', label: '런던' },
+        ],
+        hint: '두 도시를 차례로 눌러, 가장 더운 달 기온에서 가장 추운 달 기온을 빼 보세요.',
+        explain: '서울은 28.0℃, 런던은 13.4℃ 차이가 나요. 둘 다 온대 기후지만 서울은 여름과 겨울의 차이가 훨씬 커요.',
+      },
+      {
+        id: 'k6',
+        text: '카이로 같은 건조 기후 지역의 전통 집이 벽은 두껍고 창은 작은 까닭은 무엇일까요?',
+        answers: ['sun'],
+        choices: [
+          { id: 'sun', label: '강한 햇볕과 낮의 열기를 막으려고' },
+          { id: 'rain', label: '많이 내리는 비를 막으려고' },
+          { id: 'snow', label: '쌓인 눈의 무게를 버티려고' },
+        ],
+        hint: '카이로의 기후 그래프에서 강수량과 여름 기온을 다시 살펴보세요.',
+        explain: '비는 거의 안 오고 햇볕이 강해요. 두꺼운 흙벽은 낮의 열이 안으로 들어오는 것을 늦춰 줘요.',
+      },
+    ],
+    open: '내가 고른 기후 지역에 산다면 옷, 음식, 집을 어떻게 바꾸어야 할까요? 까닭도 적어 보세요.',
   },
   worldpop: {
     questions: [

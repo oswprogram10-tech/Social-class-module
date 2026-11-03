@@ -3008,3 +3008,132 @@ a.btn {
 .worldpop-map .graticule {
   stroke-opacity: 0.35;
 }
+
+/* ---------- 세계의 다양한 기후 ---------- */
+.worldclimate-map {
+  flex: none;
+}
+
+.worldclimate-map .merc-svg {
+  cursor: default;
+}
+
+.land-plain {
+  fill: #e7e5e4;
+  stroke: #a8a29e;
+  stroke-width: 0.4;
+}
+
+.lat-line {
+  stroke: #64748b;
+  stroke-width: 0.8;
+  stroke-dasharray: 4 3;
+}
+
+.lat-line--eq {
+  stroke: #dc2626;
+  stroke-width: 1.4;
+  stroke-dasharray: none;
+}
+
+.lat-label {
+  font-size: 10px;
+  fill: #475569;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+
+.wc-city {
+  cursor: pointer;
+  outline: none;
+}
+
+.wc-city__hit {
+  fill: transparent;
+}
+
+.wc-city__dot {
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.wc-city--on .wc-city__dot {
+  stroke: #111827;
+  stroke-width: 2.5;
+}
+
+.wc-city:focus-visible .wc-city__dot {
+  stroke: #f59e0b;
+  stroke-width: 3;
+}
+
+.wc-city__label {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #1f2937;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3.5px;
+  pointer-events: none;
+}
+
+.zone-chip {
+  display: inline-block;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.zone-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.wc-card .climate-chart {
+  margin: 8px 0;
+}
+
+.life-list {
+  list-style: none;
+  margin: 6px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.92rem;
+}
+
+.life-list li {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.wc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.wc-table th,
+.wc-table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.wc-table th:nth-child(-n + 2),
+.wc-table td:nth-child(-n + 2) {
+  text-align: left;
+}
+
+.wc-table .row--on {
+  background: #fef3c7;
+}

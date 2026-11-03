@@ -54,15 +54,24 @@ function tempColor(t: number): string {
 }
 
 /** 기후 그래프: 막대 = 강수량, 꺾은선 = 기온 */
-export function ClimateChart({ city }: { city: City }) {
+export function ClimateChart({
+  city,
+  tMin = -5,
+  tMax = 30,
+  maxRain = 450,
+}: {
+  city: Pick<City, 'name' | 'temp' | 'rain'>;
+  /** 기온 축 범위(℃): 10℃ 단위로 맞춰 주세요 */
+  tMin?: number;
+  tMax?: number;
+  /** 강수량 축 최댓값(㎜) */
+  maxRain?: number;
+}) {
   const W = 360;
   const H = 200;
   const pad = { l: 34, r: 34, t: 12, b: 24 };
   const iw = W - pad.l - pad.r;
   const ih = H - pad.t - pad.b;
-  const maxRain = 450;
-  const tMin = -5;
-  const tMax = 30;
   const x = (i: number) => pad.l + (iw / 12) * (i + 0.5);
   const yRain = (v: number) => pad.t + ih - (v / maxRain) * ih;
   const yTemp = (v: number) => pad.t + ih - ((v - tMin) / (tMax - tMin)) * ih;
@@ -76,7 +85,7 @@ export function ClimateChart({ city }: { city: City }) {
         연평균 기온 <strong>{avgTemp.toFixed(1)}℃</strong>
       </figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${city.name} 월별 기온과 강수량 그래프`}>
-        {[0, 100, 200, 300, 400].map((v) => (
+        {Array.from({ length: Math.floor(maxRain / 100) + 1 }, (_, i) => i * 100).map((v) => (
           <g key={v}>
             <line x1={pad.l} x2={W - pad.r} y1={yRain(v)} y2={yRain(v)} className="grid" />
             <text x={pad.l - 4} y={yRain(v) + 3} textAnchor="end" className="axis axis--rain">
@@ -84,7 +93,7 @@ export function ClimateChart({ city }: { city: City }) {
             </text>
           </g>
         ))}
-        {[0, 10, 20, 30].map((v) => (
+        {Array.from({ length: Math.floor(tMax / 10) - Math.ceil(tMin / 10) + 1 }, (_, i) => (Math.ceil(tMin / 10) + i) * 10).map((v) => (
           <text key={v} x={W - pad.r + 4} y={yTemp(v) + 3} className="axis axis--temp">
             {v}℃
           </text>

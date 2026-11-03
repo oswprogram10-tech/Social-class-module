@@ -12,6 +12,7 @@ import { HISTORY_ANSWER, HISTORY_EVENTS, findEvent, historyScore } from '../cont
 import { CITIES, PROVINCES } from '../content/korea-data';
 import { COUNTRY_KO } from '../content/countries-ko';
 import { CONTINENTS } from '../content/world-pop';
+import { worldCityName } from '../content/world-climate';
 
 const CONTINENT_NAME: Record<string, string> = Object.fromEntries(CONTINENTS.map((c) => [c.id, c.name]));
 
@@ -341,7 +342,7 @@ export function FactItemEditor({ cls, onSave }: { cls: ClassRoom; onSave: (items
 
 /** 선택한 기록의 자세한 내용 (교사 화면 오른쪽) */
 export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
-  if (['climate', 'population', 'globe', 'worldpop', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
+  if (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
   if (pin.activity === 'factcheck') {
     const item = factItemsFor(cls).find((i) => i.id === pin.itemId);
     if (!item) return <p className="hint">지워진 자료의 기록이에요.</p>;
@@ -424,7 +425,7 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
     );
   }
   const quiz = QUIZZES[activity];
-  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe' || activity === 'worldpop')) {
+  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe' || activity === 'worldclimate' || activity === 'worldpop')) {
     const per = quiz.questions.map((q, i) => pins.filter((p) => isCorrect(q, parseAnswers(p.picks)[i])).length);
     return (
       <section className="summary">
@@ -495,7 +496,7 @@ export function QuizResults({
   onSelect,
 }: {
   pins: Pin[];
-  activity: 'climate' | 'population' | 'globe' | 'worldpop';
+  activity: 'climate' | 'population' | 'globe' | 'worldclimate' | 'worldpop';
   onSelect: (p: Pin) => void;
 }) {
   const set = QUIZZES[activity]!;
@@ -587,6 +588,7 @@ const QUIZ_NAMES: Record<string, (id: string) => string> = {
   climate: (id) => CITIES.find((c) => c.id === id)?.name ?? id,
   population: (id) => PROVINCES.find((p) => p.id === id)?.name ?? id,
   globe: (id) => COUNTRY_KO[id] ?? id,
+  worldclimate: worldCityName,
   worldpop: (id) => COUNTRY_KO[id] ?? CONTINENT_NAME[id] ?? id,
 };
 
