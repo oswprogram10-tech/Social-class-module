@@ -20,6 +20,7 @@ export type ActivityId =
   | 'history'
   | 'globe'
   | 'worldclimate'
+  | 'trade'
   | 'worldpop';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
@@ -36,6 +37,7 @@ export type ActivityKind =
   | 'history'
   | 'globe'
   | 'worldclimate'
+  | 'trade'
   | 'worldpop';
 
 /** 지도를 쓰는 활동인지 */
@@ -83,6 +85,7 @@ export const UNITS: UnitDef[] = [
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['worldclimate'] },
+  { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['trade'] },
   { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop'] },
 ];
 
@@ -276,6 +279,19 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '적도에서 멀어질수록 기온은 어떻게 달라지나요?',
       '비가 거의 오지 않는 곳에 사는 사람들은 물을 어떻게 구할까요?',
       '같은 기후라도 사는 모습이 다른 까닭은 무엇일까요?',
+    ],
+  },
+  trade: {
+    id: 'trade',
+    kind: 'trade',
+    title: '무역 시뮬레이션',
+    standard: '[6사11-03]',
+    standardText: '사례를 통해 무역의 의미를 이해하고, 국가 간 무역이 발생하는 이유를 탐구한다.',
+    guide: '기술나라가 되어 혼자 만들어 살 때와 이웃 나라와 무역할 때를 비교하고, 나라끼리 무역하는 까닭을 알아봐요.',
+    questions: [
+      '우리 집에 있는 물건 중 다른 나라에서 온 것은 무엇인가요?',
+      '한 나라가 필요한 것을 모두 직접 만들면 어떤 점이 어려울까요?',
+      '무역하는 나라에 어려운 일이 생기면 우리에게는 어떤 영향이 있을까요?',
     ],
   },
   worldpop: {

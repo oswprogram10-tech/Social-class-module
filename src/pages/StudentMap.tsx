@@ -17,6 +17,7 @@ import { ClimateActivity, PopulationActivity } from '../components/KoreaActiviti
 
 // 세계 지도 자료가 커서 이 활동을 열 때만 내려받습니다.
 const GlobeActivity = lazy(() => import('../components/GlobeActivity'));
+import TradeActivity from '../components/TradeActivity';
 const WorldPopActivity = lazy(() => import('../components/WorldPopActivity'));
 const WorldClimateActivity = lazy(() => import('../components/WorldClimateActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
@@ -56,6 +57,8 @@ function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }
   switch (kind) {
     case 'factcheck':
       return <FactcheckActivity {...props} />;
+    case 'trade':
+      return <TradeActivity {...props} />;
     case 'market':
       return <MarketActivity {...props} />;
     case 'climate':

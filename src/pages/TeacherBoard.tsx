@@ -23,6 +23,8 @@ import {
   FactcheckResults,
   HistoryResults,
   MarketResults,
+  TradeResults,
+  tradeCsv,
   QuizResults,
   RecordDetail,
   SelfSummary,
@@ -54,7 +56,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
     '자랑거리', '홍보 문구', '장소 종류', '기호', '연도',
     '팩트체크 자료', '사실·의견 표시', '믿을 만한 정도', '산 것', '기회비용', '선거 이야기 맞힘', '가장 중요한 원칙',
-    '탐구 질문 맞힘', '연표 제자리',
+    '탐구 질문 맞힘', '연표 제자리', '무역 전', '무역 후', '가뭄 때 선택', '무역 확인 문제',
     '공감', '승인', '숨김', '위도', '경도', '작성시각',
   ];
   const rows = pins.map((p) => [
@@ -93,6 +95,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     p.activity === 'election' ? (findPrinciple(p.picks)?.label ?? '') : '',
     QUIZZES[p.activity] ? `${quizScore(QUIZZES[p.activity]!, p.picks)}/${QUIZZES[p.activity]!.questions.length}` : '',
     p.activity === 'history' ? `${historyScore(p.labels)}/8` : '',
+    ...tradeCsv(p),
     p.likes,
     p.approved ? 'O' : 'X',
     p.hidden ? 'O' : 'X',
@@ -293,6 +296,8 @@ export default function TeacherBoard({ code }: { code: string }) {
               <FactcheckResults pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'market' ? (
               <MarketResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
+            ) : kind === 'trade' ? (
+              <TradeResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldclimate' || kind === 'worldpop' ? (
               <QuizResults pins={actPins} activity={kind} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'history' ? (
