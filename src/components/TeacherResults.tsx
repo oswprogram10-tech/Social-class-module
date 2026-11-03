@@ -13,6 +13,15 @@ import { CITIES, PROVINCES } from '../content/korea-data';
 import { COUNTRY_KO } from '../content/countries-ko';
 import { CONTINENTS } from '../content/world-pop';
 import { worldCityName } from '../content/world-climate';
+import {
+  TRADE_CHECKS,
+  alone,
+  findEventChoice,
+  outcomeText,
+  parseTradePicks,
+  tradeScore,
+  withTrade,
+} from '../content/trade';
 
 const CONTINENT_NAME: Record<string, string> = Object.fromEntries(CONTINENTS.map((c) => [c.id, c.name]));
 
@@ -110,6 +119,72 @@ export function MarketResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: P
                 </td>
                 <td>{won(spent)}</td>
                 <td>{g ? `${g.emoji} ${g.label}` : '–'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** 무역 시뮬레이션: 무역 전·후 결과, 가뭄 때 선택, 확인 문제 */
+function tradeOutcomes(p: Pin) {
+  const t = parseTradePicks(p.picks);
+  if (!t) return null;
+  return { before: alone(t.aloneH), after: withTrade(t.tradeH, t.toWind, t.toSun) };
+}
+
+/** CSV 열: 무역 전, 무역 후, 가뭄 때 선택, 확인 문제 */
+export function tradeCsv(p: Pin): string[] {
+  if (p.activity !== 'trade') return ['', '', '', ''];
+  const o = tradeOutcomes(p);
+  const s = p.step ?? 1;
+  return [
+    o ? `밀${o.before.wheat} 과일${o.before.fruit} 휴대폰${o.before.phone}` : '',
+    o && s >= 2 ? `밀${o.after.wheat} 과일${o.after.fruit} 휴대폰${o.after.phone}` : '',
+    findEventChoice(p.giveUp)?.label ?? '',
+    `${tradeScore(p.labels)}/${TRADE_CHECKS.length}`,
+  ];
+}
+
+export function TradeResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 무역 시뮬레이션 결과</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">단계</th>
+            <th scope="col">무역 전</th>
+            <th scope="col">무역 후</th>
+            <th scope="col">가뭄 때</th>
+            <th scope="col">확인 문제</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            const o = tradeOutcomes(p);
+            const s = p.step ?? 1;
+            const ev = findEventChoice(p.giveUp);
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                <td>{s}/4</td>
+                <td>{o ? outcomeText(o.before) : '–'}</td>
+                <td>{o && s >= 2 ? outcomeText(o.after) : '–'}</td>
+                <td>{ev ? `${ev.emoji} ${ev.label}` : '–'}</td>
+                <td>
+                  {tradeScore(p.labels)}/{TRADE_CHECKS.length}
+                </td>
               </tr>
             );
           })}
@@ -340,6 +415,14 @@ export function FactItemEditor({ cls, onSave }: { cls: ClassRoom; onSave: (items
   );
 }
 
+function eventSummary(pins: Pin[]): string {
+  const counts = new Map<string, number>();
+  pins.forEach((p) => p.giveUp && counts.set(p.giveUp, (counts.get(p.giveUp) ?? 0) + 1));
+  return [...counts.entries()]
+    .map(([id, n]) => `${findEventChoice(id)?.emoji ?? ''}${findEventChoice(id)?.label ?? id} ${n}`)
+    .join(' · ');
+}
+
 /** 선택한 기록의 자세한 내용 (교사 화면 오른쪽) */
 export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
   if (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
@@ -370,6 +453,35 @@ export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
           </p>
         )}
         {pin.text && <p className="hint">까닭: {pin.text}</p>}
+      </div>
+    );
+  }
+  if (pin.activity === 'trade') {
+    const o = tradeOutcomes(pin);
+    const s = pin.step ?? 1;
+    const ev = findEventChoice(pin.giveUp);
+    return (
+      <div className="record">
+        <p>진행: {s}/4단계</p>
+        {o && <p>무역 전: {outcomeText(o.before)}</p>}
+        {o && s >= 2 && <p>무역 후: {outcomeText(o.after)}</p>}
+        {ev && (
+          <p>
+            가뭄 때 선택: {ev.emoji} {ev.label}
+          </p>
+        )}
+        <ol className="record__sentences">
+          {TRADE_CHECKS.map((q, i) => {
+            const a = pin.labels?.[i];
+            return (
+              <li key={q.id} className={a === q.answer ? 'ok' : 'no'}>
+                {a === q.answer ? '✅' : a && a !== '-' ? '❌' : '·'} {q.text}
+              </li>
+            );
+          })}
+        </ol>
+        <p>시도 {pin.attempts ?? 0}번</p>
+        {pin.text && <p className="hint">생각: {pin.text}</p>}
       </div>
     );
   }
@@ -433,6 +545,26 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
           참여 학생 <strong>{students}</strong>명
         </p>
         <p className="hint">질문별 맞힌 학생: {per.map((n, i) => `${i + 1}번 ${n}`).join(' · ')}</p>
+      </section>
+    );
+  }
+  if (activity === 'trade') {
+    const after = pins.map(tradeOutcomes).filter(Boolean);
+    const traded = pins.filter((p) => (p.step ?? 1) >= 2);
+    const avg = (xs: number[]) => (xs.length ? Math.round((xs.reduce((s, v) => s + v, 0) / xs.length) * 10) / 10 : 0);
+    const ev = eventSummary(pins);
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명 · 무역까지 한 학생 <strong>{traded.length}</strong>명
+        </p>
+        {traded.length > 0 && (
+          <p className="hint">
+            남은 휴대폰 평균: 무역 전 {avg(after.map((o) => o!.before.phone))}대 → 무역 후{' '}
+            {avg(traded.map((p) => tradeOutcomes(p)!.after.phone))}대
+          </p>
+        )}
+        {ev && <p className="hint">가뭄 때 선택: {ev}</p>}
       </section>
     );
   }

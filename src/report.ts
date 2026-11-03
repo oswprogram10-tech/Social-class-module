@@ -13,6 +13,7 @@ import { SCENARIOS } from './content/election';
 import { gradeLabels } from './content/factcheck';
 import { HISTORY_EVENTS, historyScore } from './content/history';
 import { QUIZZES, quizScore } from './content/quizzes';
+import { TRADE_CHECKS, tradeScore } from './content/trade';
 import type { ClassRoom, Pin } from './data/types';
 import { isMissionCorrect } from './geo';
 
@@ -63,12 +64,12 @@ const MIN_REASON = 10;
 
 /** 까닭·생각을 적는 칸이 있는 활동 */
 const REASON_ACTIVITIES: ActivityId[] = [
-  'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history',
+  'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
 const VALUE_ACTIVITIES: ActivityId[] = [
-  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck',
+  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade',
 ];
 
 /** 우리 동네·공동체를 위한 참여 기록 */
@@ -129,6 +130,11 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
           retries += Math.max(0, (p.attempts ?? 0) - set.questions.length);
         });
       });
+      by('trade').forEach((p) => {
+        const tried = [...(p.labels ?? '')].filter((c) => c !== '-').length;
+        if (tried) knowledge.push({ activity: 'trade', label: '무역 확인 문제', correct: tradeScore(p.labels), total: tried, all: TRADE_CHECKS.length });
+        retries += Math.max(0, (p.attempts ?? 0) - TRADE_CHECKS.length);
+      });
       by('history').forEach((p) => {
         knowledge.push({ activity: 'history', label: '한국사 연표 순서', correct: historyScore(p.labels), total: HISTORY_EVENTS.length, all: HISTORY_EVENTS.length });
         retries += Math.max(0, (p.attempts ?? 1) - 1);
@@ -151,6 +157,10 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
       if (timelineEvents) processEvidence.push({ activity: 'timeline', text: `나의 연표에 일 ${timelineEvents}개를 연도와 함께 정리` });
       const legends = by('legend').length;
       if (legends) processEvidence.push({ activity: 'legend', text: `지도 기호 ${legends}개를 직접 정하고 까닭을 설명` });
+      by('trade').forEach((p) => {
+        const s = p.step ?? 1;
+        processEvidence.push({ activity: 'trade', text: `무역 시뮬레이션: ${s >= 2 ? '무역 전과 후를 비교' : '혼자 만들기까지'}${s >= 3 ? ', 가뭄 사건에 대처할 방법 선택' : ''}${s >= 4 ? ', 정리 완료' : ''}` });
+      });
       if (retries > 0) processEvidence.push({ activity: 'mission', text: `틀린 뒤 힌트를 보고 다시 도전한 횟수 ${retries}번` });
 
       const reasonable = list.filter((p) => REASON_ACTIVITIES.includes(p.activity));
