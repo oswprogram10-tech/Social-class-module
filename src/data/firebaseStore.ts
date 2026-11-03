@@ -36,7 +36,7 @@ import {
   type QueryConstraint,
 } from 'firebase/firestore';
 import { firebaseConfig, useEmulator } from '../config';
-import { makeClassCode } from './common';
+import { SHARED_ACTIVITIES, makeClassCode } from './common';
 import type { ClassRoom, Pin, Store } from './types';
 
 const app = initializeApp(useEmulator ? { apiKey: 'demo-key', projectId: 'demo-scm' } : firebaseConfig);
@@ -163,7 +163,11 @@ export const firebaseStore: Store = {
         );
       listen('mine', [where('authorUid', '==', user.uid)]);
       if (opts.showOthers) {
-        listen('others', [where('approved', '==', true), where('hidden', '==', false)]);
+        listen('others', [
+          where('approved', '==', true),
+          where('hidden', '==', false),
+          where('activity', 'in', SHARED_ACTIVITIES),
+        ]);
       }
     });
 

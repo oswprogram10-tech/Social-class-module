@@ -1,4 +1,5 @@
 import type { ActivityId } from '../activities';
+import type { FactItem } from '../content/factcheck';
 
 export interface ClassRoom {
   code: string;
@@ -17,6 +18,8 @@ export interface ClassRoom {
   createdAt: number;
   /** 교사가 고친 생각 도우미 질문 (없으면 기본 질문) */
   questions?: Partial<Record<ActivityId, string[]>>;
+  /** 교사가 만든 팩트체크 자료 */
+  factItems?: FactItem[];
 }
 
 export interface Pin {
@@ -55,6 +58,14 @@ export interface Pin {
   symbol?: string;
   /** 연표: 연도 */
   year?: number;
+  /** 팩트체크: 자료 ID, 문장별 표시(F/O/-), 체크리스트(Y/N/-), 믿을 만한 정도 */
+  itemId?: string;
+  labels?: string;
+  checks?: string;
+  trust?: string;
+  /** 기회비용 장터: 산 물건 ID(쉼표로 구분)와 기회비용으로 고른 물건 */
+  picks?: string;
+  giveUp?: string;
   studentNo: number;
   nickname: string;
   authorUid: string;
@@ -67,7 +78,7 @@ export interface Pin {
 export type NewPin = Omit<Pin, 'id' | 'approved' | 'hidden' | 'likes' | 'createdAt'>;
 
 export type ClassPatch = Partial<
-  Pick<ClassRoom, 'activeActivity' | 'requireApproval' | 'showOthers' | 'name' | 'radius' | 'questions'>
+  Pick<ClassRoom, 'activeActivity' | 'requireApproval' | 'showOthers' | 'name' | 'radius' | 'questions' | 'factItems'>
 >;
 
 /** 학생이 고칠 수 있는 칸 */
@@ -97,6 +108,11 @@ export const STUDENT_EDITABLE = [
   'placeType',
   'symbol',
   'year',
+  'labels',
+  'checks',
+  'trust',
+  'picks',
+  'giveUp',
 ] as const;
 
 export type PinPatch = Partial<Pick<Pin, (typeof STUDENT_EDITABLE)[number] | 'approved' | 'hidden'>>;

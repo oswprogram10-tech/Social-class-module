@@ -16,6 +16,17 @@ import LegendBox from '../components/LegendBox';
 import MapView from '../components/MapView';
 import PinCard from '../components/PinCard';
 import { TimelineView } from '../components/Timeline';
+import {
+  ElectionResults,
+  FactItemEditor,
+  FactcheckResults,
+  MarketResults,
+  RecordDetail,
+  SelfSummary,
+} from '../components/TeacherResults';
+import { findMarketItem } from '../content/market';
+import { findPrinciple, SCENARIOS } from '../content/election';
+import { TRUST_LEVELS } from '../content/factcheck';
 import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
 import { questionsFor } from '../data/common';
 import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
@@ -36,6 +47,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     '활동', '번호', '별명', '장소', '느낌', '문제', '바꾸고 싶은 것', '이유·결론', '미션', '미션 결과', '시도 횟수',
     '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
     '자랑거리', '홍보 문구', '장소 종류', '기호', '연도',
+    '팩트체크 자료', '사실·의견 표시', '믿을 만한 정도', '산 것', '기회비용', '선거 이야기 맞힘', '가장 중요한 원칙',
     '공감', '승인', '숨김', '위도', '경도', '작성시각',
   ];
   const rows = pins.map((p) => [
@@ -65,6 +77,13 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     findChoice(PLACE_TYPES, p.placeType)?.label ?? '',
     p.activity === 'legend' ? (findChoice(SYMBOLS, p.symbol)?.label ?? '') : '',
     p.year ?? '',
+    p.itemId ?? '',
+    p.activity === 'factcheck' ? (p.labels ?? '').replace(/F/g, '사').replace(/O/g, '의') : '',
+    TRUST_LEVELS.find((t) => t.id === p.trust)?.label ?? '',
+    p.activity === 'market' ? (p.picks ?? '').split(',').map((id) => findMarketItem(id)?.label).filter(Boolean).join(' ') : '',
+    p.activity === 'market' ? (findMarketItem(p.giveUp)?.label ?? '') : '',
+    p.activity === 'election' ? `${SCENARIOS.filter((sc, i) => p.labels?.[i] === sc.answer).length}/${SCENARIOS.length}` : '',
+    p.activity === 'election' ? (findPrinciple(p.picks)?.label ?? '') : '',
     p.likes,
     p.approved ? 'O' : 'X',
     p.hidden ? 'O' : 'X',
@@ -96,6 +115,8 @@ export default function TeacherBoard({ code }: { code: string }) {
   const activity = cls?.activeActivity ?? 'feel';
   const actPins = useMemo(() => pins.filter((p) => p.activity === activity), [pins, activity]);
   const kind = ACTIVITIES[activity].kind;
+  /** 지도 없이 결과표를 보여 주는 활동 */
+  const isSelf = kind === 'factcheck' || kind === 'market' || kind === 'election';
   // 연표: 학생별로 묶기
   const timelines = useMemo(() => {
     if (kind !== 'timeline') return [];
@@ -114,8 +135,7 @@ export default function TeacherBoard({ code }: { code: string }) {
     (p) =>
       !p.approved &&
       !p.hidden &&
-      p.activity !== 'mission' &&
-      p.activity !== 'timeline' &&
+      !['mission', 'timeline', 'market', 'election', 'factcheck'].includes(p.activity) &&
       (p.activity !== 'solve' || (p.step ?? 1) >= 4),
   );
 
@@ -246,7 +266,19 @@ export default function TeacherBoard({ code }: { code: string }) {
       </nav>
 
       <div className="split">
-        {kind === 'timeline' ? (
+        {isSelf ? (
+          <div className="work-area">
+            {projector ? (
+              <SelfSummary pins={actPins} cls={cls} />
+            ) : kind === 'factcheck' ? (
+              <FactcheckResults pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
+            ) : kind === 'market' ? (
+              <MarketResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
+            ) : (
+              <ElectionResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
+            )}
+          </div>
+        ) : kind === 'timeline' ? (
           <div className="timeline-area">
             {timelines.length === 0 && <p className="hint">아직 연표를 만든 학생이 없어요.</p>}
             {timelines.map((t) => (
@@ -277,7 +309,26 @@ export default function TeacherBoard({ code }: { code: string }) {
         )}
 
         <aside className="panel">
-          {selected ? (
+          {selected && isSelf ? (
+            <>
+              <section className="card">
+                <h2>{authorLabel(selected)}</h2>
+                <RecordDetail pin={selected} cls={cls} />
+                {!projector && (
+                  <button
+                    type="button"
+                    className="btn btn--small btn--danger"
+                    onClick={() => confirm('이 기록을 지울까요?') && store.deletePin(code, selected.id).catch(console.error)}
+                  >
+                    🗑️ 기록 지우기
+                  </button>
+                )}
+              </section>
+              <button type="button" className="btn btn--block" onClick={() => setSelectedId(null)}>
+                목록으로
+              </button>
+            </>
+          ) : selected ? (
             <>
               <PinCard pin={selected} school={school} author={!projector || showNames ? authorLabel(selected) : undefined}>
                 {!projector && pinActions(selected)}
@@ -288,7 +339,7 @@ export default function TeacherBoard({ code }: { code: string }) {
             </>
           ) : projector ? (
             <>
-              <Summary pins={actPins.filter((p) => !p.hidden)} activity={activity} cls={cls} />
+              {!isSelf && <Summary pins={actPins.filter((p) => !p.hidden)} activity={activity} cls={cls} />}
               <section className="card">
                 <h2>💭 함께 생각해요</h2>
                 <ol className="questions questions--big">
@@ -336,7 +387,8 @@ export default function TeacherBoard({ code }: { code: string }) {
                 />
               </section>
 
-              <Summary pins={actPins} activity={activity} cls={cls} />
+              {isSelf ? <SelfSummary pins={actPins} cls={cls} /> : <Summary pins={actPins} activity={activity} cls={cls} />}
+              {kind === 'factcheck' && <FactItemEditor cls={cls} onSave={(items) => update({ factItems: items })} />}
 
               {waiting.length > 0 && (
                 <div className="row row--between">
@@ -351,7 +403,7 @@ export default function TeacherBoard({ code }: { code: string }) {
                 </div>
               )}
 
-              {kind === 'mission' ? (
+              {isSelf ? null : kind === 'mission' ? (
                 <MissionProgress pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
               ) : (
                 <ul className="pin-list">

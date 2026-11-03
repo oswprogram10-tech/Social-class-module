@@ -6,7 +6,7 @@ rules_version = '2';
 // 원칙
 //  - 모두 익명 로그인만 합니다 (이름·이메일을 받지 않음).
 //  - 학급 정보는 학급 코드를 아는 사람만 열 수 있고(교사는 자기 학급 목록만), 학급을 만든 교사만 바꿀 수 있습니다.
-//  - 학생은 자기 핀과, 교사가 공개한 친구 핀만 읽을 수 있습니다.
+//  - 학생은 자기 기록과, 교사가 공개한 친구 기록(공유 활동만)만 읽을 수 있습니다.
 //  - 학생은 자기 핀만 고치거나 지울 수 있고, 승인·숨김은 교사만 바꿀 수 있습니다.
 
 service cloud.firestore {
@@ -32,8 +32,13 @@ service cloud.firestore {
       return !(key in d) || shortStr(d[key], max);
     }
 
+    // 친구끼리 볼 수 있는 활동 (연표·미션·퀴즈형 기록은 본인과 교사만)
+    function sharedActivities() {
+      return ['feel', 'better', 'legend', 'solve', 'promote'];
+    }
+
     function activities() {
-      return ['feel', 'better', 'timeline', 'mission', 'legend', 'solve', 'promote'];
+      return ['feel', 'better', 'timeline', 'mission', 'legend', 'market', 'solve', 'promote', 'election', 'factcheck'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -47,7 +52,15 @@ service cloud.firestore {
         && (!('solve' in d.questions) || (d.questions.solve is list && d.questions.solve.size() <= 5))
         && (!('timeline' in d.questions) || (d.questions.timeline is list && d.questions.timeline.size() <= 5))
         && (!('legend' in d.questions) || (d.questions.legend is list && d.questions.legend.size() <= 5))
-        && (!('promote' in d.questions) || (d.questions.promote is list && d.questions.promote.size() <= 5)));
+        && (!('promote' in d.questions) || (d.questions.promote is list && d.questions.promote.size() <= 5))
+        && (!('market' in d.questions) || (d.questions.market is list && d.questions.market.size() <= 5))
+        && (!('election' in d.questions) || (d.questions.election is list && d.questions.election.size() <= 5))
+        && (!('factcheck' in d.questions) || (d.questions.factcheck is list && d.questions.factcheck.size() <= 5)));
+    }
+
+    // 교사가 만든 팩트체크 자료: 최대 10개
+    function optFactItems(d) {
+      return !('factItems' in d) || (d.factItems is list && d.factItems.size() <= 10);
     }
 
     match /classes/{code} {
@@ -59,7 +72,7 @@ service cloud.firestore {
         && code.matches('^[A-Z0-9]{6}$')
         && request.resource.data.keys().hasOnly([
              'code', 'name', 'schoolName', 'lat', 'lng', 'radius',
-             'activeActivity', 'requireApproval', 'showOthers', 'teacherUid', 'createdAt', 'questions'])
+             'activeActivity', 'requireApproval', 'showOthers', 'teacherUid', 'createdAt', 'questions', 'factItems'])
         && request.resource.data.code == code
         && request.resource.data.teacherUid == request.auth.uid
         && shortStr(request.resource.data.name, 30)
@@ -71,17 +84,19 @@ service cloud.firestore {
         && request.resource.data.activeActivity in activities()
         && request.resource.data.requireApproval is bool
         && request.resource.data.showOthers is bool
-        && optQuestions(request.resource.data);
+        && optQuestions(request.resource.data)
+        && optFactItems(request.resource.data);
 
       allow update: if signedIn()
         && resource.data.teacherUid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['name', 'radius', 'activeActivity', 'requireApproval', 'showOthers', 'questions'])
+             .hasOnly(['name', 'radius', 'activeActivity', 'requireApproval', 'showOthers', 'questions', 'factItems'])
         && shortStr(request.resource.data.name, 30)
         && request.resource.data.activeActivity in activities()
         && request.resource.data.requireApproval is bool
         && request.resource.data.showOthers is bool
-        && optQuestions(request.resource.data);
+        && optQuestions(request.resource.data)
+        && optFactItems(request.resource.data);
 
       allow delete: if signedIn() && resource.data.teacherUid == request.auth.uid;
 
@@ -95,6 +110,7 @@ service cloud.firestore {
                    'optAType', 'optADetail', 'optAGood', 'optABad',
                    'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen',
                    'category', 'slogan', 'placeType', 'symbol', 'year',
+                   'itemId', 'labels', 'checks', 'trust', 'picks', 'giveUp',
                    'studentNo', 'nickname', 'authorUid', 'approved', 'hidden', 'likes', 'createdAt'])
             && d.activity in activities()
             && d.lat is number
@@ -127,6 +143,12 @@ service cloud.firestore {
             && optStr(d, 'placeType', 20)
             && optStr(d, 'symbol', 20)
             && (!('year' in d) || (d.year is int && d.year >= 1900 && d.year <= 2100))
+            && optStr(d, 'itemId', 30)
+            && optStr(d, 'labels', 40)
+            && optStr(d, 'checks', 10)
+            && (!('trust' in d) || d.trust in ['high', 'mid', 'low'])
+            && optStr(d, 'picks', 120)
+            && optStr(d, 'giveUp', 20)
             && d.approved is bool
             && d.hidden is bool
             && d.likes is int;
@@ -137,6 +159,7 @@ service cloud.firestore {
           || (signedIn()
               && resource.data.approved == true
               && resource.data.hidden == false
+              && resource.data.activity in sharedActivities()
               && classData(code).showOthers == true);
 
         allow create: if signedIn()
@@ -160,7 +183,8 @@ service cloud.firestore {
                            'step', 'problemText', 'cause',
                            'optAType', 'optADetail', 'optAGood', 'optABad',
                            'optBType', 'optBDetail', 'optBGood', 'optBBad', 'chosen',
-                           'category', 'slogan', 'placeType', 'symbol', 'year', 'approved'])
+                           'category', 'slogan', 'placeType', 'symbol', 'year',
+                           'labels', 'checks', 'trust', 'picks', 'giveUp', 'approved'])
             && (request.resource.data.approved == resource.data.approved
                 || request.resource.data.approved == false)
             && validPin(request.resource.data))

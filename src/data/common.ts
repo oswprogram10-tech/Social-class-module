@@ -18,12 +18,16 @@ export function makeId(): string {
   return crypto.randomUUID();
 }
 
+/** 친구끼리 볼 수 있는 활동. firestore.rules 의 sharedActivities()와 같아야 합니다. */
+export const SHARED_ACTIVITIES: ActivityId[] = ['feel', 'better', 'legend', 'solve', 'promote'];
+
 /** 학생 화면에 보여 줄 핀인지 판단 */
 export function visibleToStudent(pin: Pin, cls: ClassRoom, uid: string): boolean {
   if (pin.authorUid === uid) return true;
   if (!cls.showOthers) return false;
   // 미션 답과 개인 연표는 친구에게 보이지 않게, 문제 해결은 완성한 것만 보이게 합니다.
-  if (pin.activity === 'mission' || pin.activity === 'timeline') return false;
+  // 답을 맞히는 활동과 개인 연표는 친구에게 보이지 않게 합니다(보안 규칙도 같은 기준).
+  if (!SHARED_ACTIVITIES.includes(pin.activity)) return false;
   if (pin.activity === 'solve' && (pin.step ?? 0) < 4) return false;
   return pin.approved && !pin.hidden;
 }

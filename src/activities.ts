@@ -4,10 +4,25 @@
  * 성취기준 문구는 교육부 고시 원문과 대조해 확인하세요.
  */
 
-export type ActivityId = 'feel' | 'better' | 'timeline' | 'mission' | 'legend' | 'solve' | 'promote';
+export type ActivityId =
+  | 'feel'
+  | 'better'
+  | 'timeline'
+  | 'mission'
+  | 'legend'
+  | 'market'
+  | 'solve'
+  | 'promote'
+  | 'election'
+  | 'factcheck';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
-export type ActivityKind = 'pin' | 'mission' | 'solve' | 'timeline';
+export type ActivityKind = 'pin' | 'mission' | 'solve' | 'timeline' | 'market' | 'election' | 'factcheck';
+
+/** 지도를 쓰는 활동인지 */
+export function isMapKind(kind: ActivityKind): boolean {
+  return kind === 'pin' || kind === 'mission' || kind === 'solve';
+}
 
 export interface Choice {
   id: string;
@@ -37,7 +52,9 @@ export const UNITS: UnitDef[] = [
   { grade: '3-1', title: '(1) 우리가 사는 곳', activities: ['feel', 'better'] },
   { grade: '3-1', title: '(2) 일상에서 만나는 과거', activities: ['timeline'] },
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
+  { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
+  { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
 ];
 
 export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
@@ -121,6 +138,48 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '이 문제 때문에 누가 불편을 겪나요?',
       '문제가 생긴 까닭은 무엇일까요? 한 가지만 있을까요?',
       '두 방법 중 더 많은 사람에게 도움이 되고, 실천하기 쉬운 것은 무엇일까요?',
+    ],
+  },
+  market: {
+    id: 'market',
+    kind: 'market',
+    title: '기회비용 장터',
+    standard: '[4사07-01]',
+    standardText:
+      '자원의 희소성으로 인해 경제활동에서 선택의 문제가 발생함을 이해하고, 경제활동에서 합리적 선택의 방법을 탐색한다.',
+    guide: '용돈 5,000원으로 사고 싶은 것을 골라요. 그리고 고르지 못한 것 중 가장 아쉬운 것, 기회비용을 찾아요.',
+    questions: [
+      '사고 싶은 것을 모두 살 수 없는 까닭은 무엇일까요?',
+      '고르지 못한 것 중에서 가장 아쉬운 것은 무엇인가요? 그것이 기회비용이에요.',
+      '다음에 다시 고른다면 무엇을 바꾸고 싶나요? 왜 그런가요?',
+    ],
+  },
+  election: {
+    id: 'election',
+    kind: 'election',
+    title: '선거 4원칙 지키기',
+    standard: '[6사08-01]',
+    standardText:
+      '민주주의에서 선거의 의미와 역할을 파악하고, 시민의 주권 행사를 위해 선거에 참여하는 태도를 기른다.',
+    guide: '행복섬의 선거 이야기를 읽고, 어떤 선거 원칙이 지켜지지 않았는지 찾아요.',
+    questions: [
+      '원칙이 지켜지지 않아서 누가 손해를 봤나요?',
+      '우리 반 회장 선거에서는 네 가지 원칙이 잘 지켜지고 있나요?',
+      '네 가지 원칙 중 하나라도 없으면 선거가 공정하다고 할 수 있을까요?',
+    ],
+  },
+  factcheck: {
+    id: 'factcheck',
+    kind: 'factcheck',
+    title: '팩트체크 스튜디오',
+    standard: '[6사08-03]',
+    standardText:
+      '민주주의에서 미디어의 의미와 역할을 이해하고, 여러 가지 미디어의 내용을 비판적으로 분석하여 올바르게 이용하는 태도를 기른다.',
+    guide: '같은 일을 다룬 여러 미디어 자료를 읽고, 사실과 의견을 구분한 뒤 믿을 만한지 따져 봐요.',
+    questions: [
+      '사실은 확인할 수 있는 내용이고, 의견은 생각이나 느낌이에요. 이 문장은 어느 쪽인가요?',
+      '같은 일인데 자료마다 말하는 것이 왜 다를까요?',
+      '이 자료를 만든 사람은 무엇을 바랄까요?',
     ],
   },
   promote: {

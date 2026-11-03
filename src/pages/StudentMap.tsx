@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type L from 'leaflet';
-import { ACTIVITIES, type ActivityId } from '../activities';
+import { ACTIVITIES, type ActivityId, type ActivityKind } from '../activities';
 import MapView, { type LatLng } from '../components/MapView';
 import LegendBox from '../components/LegendBox';
 import MissionPanel from '../components/MissionPanel';
@@ -9,6 +9,9 @@ import PinForm, { type PinFormValues } from '../components/PinForm';
 import SolvePanel from '../components/SolvePanel';
 import Speak from '../components/Speak';
 import { TimelinePanel, TimelineView } from '../components/Timeline';
+import FactcheckActivity from '../components/FactcheckActivity';
+import MarketActivity from '../components/MarketActivity';
+import ElectionActivity from '../components/ElectionActivity';
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
 import { go, useClassRoom, usePins, useStore } from '../hooks';
@@ -38,6 +41,15 @@ const OTHERS_HINT: Partial<Record<ActivityId, string>> = {
   legend: '오른쪽 아래 범례를 보세요. 같은 장소를 친구들은 어떤 기호로 나타냈나요?',
   promote: '친구들이 만든 홍보 문구를 눌러 보고 💛 공감해 보세요.',
 };
+
+type ActivityProps = Parameters<typeof MarketActivity>[0];
+
+/** 지도 없이 화면 전체를 쓰는 활동 */
+function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }) {
+  if (kind === 'factcheck') return <FactcheckActivity {...props} />;
+  if (kind === 'market') return <MarketActivity {...props} />;
+  return <ElectionActivity {...props} />;
+}
 
 type Mode = { kind: 'idle' } | { kind: 'new'; pos: LatLng } | { kind: 'view'; id: string } | { kind: 'edit'; id: string };
 
@@ -73,6 +85,7 @@ export default function StudentMap({ code }: { code: string }) {
     setDraft(null);
     setViewOtherId(null);
     setOpenRequest(null);
+    setToast('');
   }, [activity]);
 
   useEffect(() => {
@@ -199,6 +212,7 @@ export default function StudentMap({ code }: { code: string }) {
     </button>
   );
 
+  const activityProps: ActivityProps = { cls, store, uid, student, myRecords: myPins, questions, onToast: setToast };
   const showFab = kind === 'pin' ? mode.kind === 'idle' : picking;
   const who = `${student.studentNo}번${student.nickname ? ` ${student.nickname}` : ''}`;
 
@@ -213,12 +227,16 @@ export default function StudentMap({ code }: { code: string }) {
         <div className="topbar__side">
           <span className="who">
             {who}
-            {kind !== 'mission' && ` · 내 기록 ${myPins.length}개`}
+            {(kind === 'pin' || kind === 'solve') && ` · 내 기록 ${myPins.length}개`}
           </span>
         </div>
       </header>
 
       <div className="split">
+        {kind === 'factcheck' || kind === 'market' || kind === 'election' ? (
+          <SelfActivity kind={kind} {...activityProps} />
+        ) : (
+          <>
         {kind === 'timeline' ? (
           <div className="timeline-area">
             <TimelineView
@@ -390,6 +408,8 @@ export default function StudentMap({ code }: { code: string }) {
             </details>
           )}
         </aside>
+          </>
+        )}
       </div>
       {toast && (
         <div className="toast" role="status">
