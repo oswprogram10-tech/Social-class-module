@@ -4,6 +4,10 @@ import { SOURCE_TYPES, TRUST_LEVELS, gradeLabels, splitSentences, type FactItem,
 import { MARKET_ITEMS, findMarketItem, won } from '../content/market';
 import type { ClassRoom, Pin } from '../data/types';
 import { factItemsFor } from './FactcheckActivity';
+import { QUIZZES, isCorrect, parseAnswers, quizScore } from '../content/quizzes';
+import { HISTORY_ANSWER, HISTORY_EVENTS, findEvent, historyScore } from '../content/history';
+import { CITIES, PROVINCES } from '../content/korea-data';
+import { COUNTRY_KO } from '../content/countries-ko';
 
 /** 학생별로 기록을 묶습니다 (체험 모드에서도 섞이지 않게 번호까지 함께) */
 function byStudent(pins: Pin[]) {
@@ -306,6 +310,7 @@ export function FactItemEditor({ cls, onSave }: { cls: ClassRoom; onSave: (items
 
 /** 선택한 기록의 자세한 내용 (교사 화면 오른쪽) */
 export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
+  if (['climate', 'population', 'globe', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
   if (pin.activity === 'factcheck') {
     const item = factItemsFor(cls).find((i) => i.id === pin.itemId);
     if (!item) return <p className="hint">지워진 자료의 기록이에요.</p>;
@@ -377,6 +382,28 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
   const students = byStudent(pins).length;
   const activity = pins[0]?.activity;
   if (!activity) return <p className="summary__total">참여 학생 0명</p>;
+  if (activity === 'history') {
+    const done = pins.filter((p) => p.labels === HISTORY_ANSWER).length;
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명 · 완성 <strong>{done}</strong>명
+        </p>
+      </section>
+    );
+  }
+  const quiz = QUIZZES[activity];
+  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe')) {
+    const per = quiz.questions.map((q, i) => pins.filter((p) => isCorrect(q, parseAnswers(p.picks)[i])).length);
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명
+        </p>
+        <p className="hint">질문별 맞힌 학생: {per.map((n, i) => `${i + 1}번 ${n}`).join(' · ')}</p>
+      </section>
+    );
+  }
   if (activity === 'market') {
     const giveUps = MARKET_ITEMS.map((m) => ({ m, n: pins.filter((p) => p.giveUp === m.id).length })).filter((x) => x.n);
     return (
@@ -425,5 +452,139 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
         })}
       </ul>
     </section>
+  );
+}
+
+// ---------- 4단계: 기후·인구·지구본(탐구 질문)과 한국사 연표 ----------
+
+/** 탐구 질문 활동(기후·인구·지구본)의 학생별 결과표 */
+export function QuizResults({ pins, activity, onSelect }: { pins: Pin[]; activity: 'climate' | 'population' | 'globe'; onSelect: (p: Pin) => void }) {
+  const set = QUIZZES[activity]!;
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 탐구 질문 결과</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            {set.questions.map((q, i) => (
+              <th key={q.id} scope="col" title={q.text}>
+                {i + 1}
+              </th>
+            ))}
+            <th scope="col">해결</th>
+            <th scope="col">생각</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            const a = parseAnswers(p.picks);
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                {set.questions.map((q, i) => (
+                  <td key={q.id}>{!a[i] ? '·' : isCorrect(q, a[i]) ? '✅' : '❌'}</td>
+                ))}
+                <td className="progress-table__sum">{quizScore(set, p.picks)}</td>
+                <td className="progress-table__text">{p.text ? '✏️' : ''}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="hint">❌는 마지막으로 고른 답이 틀린 질문이에요. 학생을 누르면 자세히 볼 수 있어요.</p>
+    </div>
+  );
+}
+
+export function HistoryResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 한국사 연표 결과</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">제자리 사건</th>
+            <th scope="col">확인 횟수</th>
+            <th scope="col">완성</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            const sc = historyScore(p.labels);
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                <td>
+                  {sc}/{HISTORY_EVENTS.length}
+                </td>
+                <td>{p.attempts ?? 0}</td>
+                <td>{p.labels === HISTORY_ANSWER ? '🎉' : ''}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const QUIZ_NAMES: Record<string, (id: string) => string> = {
+  climate: (id) => CITIES.find((c) => c.id === id)?.name ?? id,
+  population: (id) => PROVINCES.find((p) => p.id === id)?.name ?? id,
+  globe: (id) => COUNTRY_KO[id] ?? id,
+};
+
+export function QuizDetail({ pin }: { pin: Pin }) {
+  if (pin.activity === 'history') {
+    return (
+      <div className="record">
+        <ol className="record__sentences">
+          {(pin.labels ?? '').split('').map((id, i) => (
+            <li key={i} className={HISTORY_ANSWER[i] === id ? 'ok' : 'no'}>
+              {HISTORY_ANSWER[i] === id ? '✅' : '❌'} {findEvent(id)?.label}
+            </li>
+          ))}
+        </ol>
+        <p>확인 {pin.attempts ?? 0}번</p>
+        {pin.text && <p className="hint">생각: {pin.text}</p>}
+      </div>
+    );
+  }
+  const set = QUIZZES[pin.activity];
+  if (!set) return null;
+  const a = parseAnswers(pin.picks);
+  const name = QUIZ_NAMES[pin.activity] ?? ((x: string) => x);
+  return (
+    <div className="record">
+      <ol className="record__sentences">
+        {set.questions.map((q, i) => {
+          const ans = a[i];
+          const label = q.choices ? q.choices.find((c) => c.id === ans)?.label : ans ? name(ans) : '';
+          return (
+            <li key={q.id} className={isCorrect(q, ans) ? 'ok' : 'no'}>
+              {!ans ? '·' : isCorrect(q, ans) ? '✅' : '❌'} {q.text} {ans && <small>(고른 답: {label})</small>}
+            </li>
+          );
+        })}
+      </ol>
+      <p>시도 {pin.attempts ?? 0}번</p>
+      {pin.text && <p className="hint">생각: {pin.text}</p>}
+    </div>
   );
 }

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type L from 'leaflet';
-import { ACTIVITIES, type ActivityId, type ActivityKind } from '../activities';
+import { ACTIVITIES, isSelfKind, type ActivityId, type ActivityKind } from '../activities';
 import MapView, { type LatLng } from '../components/MapView';
 import LegendBox from '../components/LegendBox';
 import MissionPanel from '../components/MissionPanel';
@@ -12,6 +12,11 @@ import { TimelinePanel, TimelineView } from '../components/Timeline';
 import FactcheckActivity from '../components/FactcheckActivity';
 import MarketActivity from '../components/MarketActivity';
 import ElectionActivity from '../components/ElectionActivity';
+import HistoryActivity from '../components/HistoryActivity';
+import { ClimateActivity, PopulationActivity } from '../components/KoreaActivities';
+
+// 세계 지도 자료가 커서 이 활동을 열 때만 내려받습니다.
+const GlobeActivity = lazy(() => import('../components/GlobeActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
 import { go, useClassRoom, usePins, useStore } from '../hooks';
@@ -46,9 +51,26 @@ type ActivityProps = Parameters<typeof MarketActivity>[0];
 
 /** 지도 없이 화면 전체를 쓰는 활동 */
 function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }) {
-  if (kind === 'factcheck') return <FactcheckActivity {...props} />;
-  if (kind === 'market') return <MarketActivity {...props} />;
-  return <ElectionActivity {...props} />;
+  switch (kind) {
+    case 'factcheck':
+      return <FactcheckActivity {...props} />;
+    case 'market':
+      return <MarketActivity {...props} />;
+    case 'climate':
+      return <ClimateActivity {...props} />;
+    case 'population':
+      return <PopulationActivity {...props} />;
+    case 'history':
+      return <HistoryActivity {...props} />;
+    case 'globe':
+      return (
+        <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
+          <GlobeActivity {...props} />
+        </Suspense>
+      );
+    default:
+      return <ElectionActivity {...props} />;
+  }
 }
 
 type Mode = { kind: 'idle' } | { kind: 'new'; pos: LatLng } | { kind: 'view'; id: string } | { kind: 'edit'; id: string };
@@ -233,7 +255,7 @@ export default function StudentMap({ code }: { code: string }) {
       </header>
 
       <div className="split">
-        {kind === 'factcheck' || kind === 'market' || kind === 'election' ? (
+        {isSelfKind(kind) ? (
           <SelfActivity kind={kind} {...activityProps} />
         ) : (
           <>

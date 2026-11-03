@@ -14,14 +14,34 @@ export type ActivityId =
   | 'solve'
   | 'promote'
   | 'election'
-  | 'factcheck';
+  | 'factcheck'
+  | 'climate'
+  | 'population'
+  | 'history'
+  | 'globe';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
-export type ActivityKind = 'pin' | 'mission' | 'solve' | 'timeline' | 'market' | 'election' | 'factcheck';
+export type ActivityKind =
+  | 'pin'
+  | 'mission'
+  | 'solve'
+  | 'timeline'
+  | 'market'
+  | 'election'
+  | 'factcheck'
+  | 'climate'
+  | 'population'
+  | 'history'
+  | 'globe';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
   return kind === 'pin' || kind === 'mission' || kind === 'solve';
+}
+
+/** 화면 전체를 스스로 그리는 활동 (학교 지도·연표를 쓰지 않음) */
+export function isSelfKind(kind: ActivityKind): boolean {
+  return !isMapKind(kind) && kind !== 'timeline';
 }
 
 export interface Choice {
@@ -54,7 +74,10 @@ export const UNITS: UnitDef[] = [
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
   { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
+  { grade: '5-1', title: '(2) 우리나라 지리 탐구', activities: ['climate', 'population'] },
+  { grade: '5-2', title: '(4)~(6) 한국사', activities: ['history'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
+  { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
 ];
 
 export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
@@ -180,6 +203,60 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '사실은 확인할 수 있는 내용이고, 의견은 생각이나 느낌이에요. 이 문장은 어느 쪽인가요?',
       '같은 일인데 자료마다 말하는 것이 왜 다를까요?',
       '이 자료를 만든 사람은 무엇을 바랄까요?',
+    ],
+  },
+  climate: {
+    id: 'climate',
+    kind: 'climate',
+    title: '우리나라 기후 탐구',
+    standard: '[6사02-01]',
+    standardText:
+      '우리나라의 계절별 기후 특징을 자료에서 탐구하고, 기후변화로 인한 자연재해의 심각성을 이해한다.',
+    guide: '달을 바꾸며 도시별 기온과 강수량을 비교하고, 도시를 눌러 기후 그래프를 살펴봐요.',
+    questions: [
+      '겨울에 남쪽과 북쪽의 기온은 어떻게 다른가요?',
+      '1년 중 비가 가장 많이 오는 계절은 언제인가요?',
+      '같은 위도인데 동해안과 서해안의 기온이 다른 까닭은 무엇일까요?',
+    ],
+  },
+  population: {
+    id: 'population',
+    kind: 'population',
+    title: '우리나라 인구 분포',
+    standard: '[6사02-02]',
+    standardText: '우리나라의 지역별 인구 분포의 특징을 알아보고, 이에 따른 문제점과 해결 방안을 탐색한다.',
+    guide: '연도를 바꾸며 시도별 인구가 어떻게 변했는지 살펴보고, 수도권에 사는 사람의 비율을 확인해요.',
+    questions: [
+      '인구가 많은 곳은 주로 어디에 있나요? 왜 그럴까요?',
+      '인구가 줄어든 지역에는 어떤 어려움이 생길까요?',
+      '수도권 인구 비율은 1980년과 지금 얼마나 달라졌나요?',
+    ],
+  },
+  history: {
+    id: 'history',
+    kind: 'history',
+    title: '한국사 연표 순서',
+    standard: '[6사04~06]',
+    standardText: '선사 시대부터 광복까지, 유적·유물과 기록을 통해 각 시대 사람들의 생활을 추론한다.',
+    guide: '우리 역사의 큰 사건 8가지를 옛날부터 차례대로 놓아 연표를 완성해요.',
+    questions: [
+      '가장 오래된 사건과 가장 최근의 사건은 무엇인가요?',
+      '나라가 바뀐 사건(건국)을 순서대로 말해 볼까요?',
+      '각 사건이 일어난 시대 사람들은 어떻게 살았을까요?',
+    ],
+  },
+  globe: {
+    id: 'globe',
+    kind: 'globe',
+    title: '지구본과 세계지도',
+    standard: '[6사09-01·02]',
+    standardText:
+      '세계를 표현하는 다양한 공간 자료의 특징을 이해하고, 지구본과 세계지도에서 위치를 표현하는 방법을 익힌다. / 세계 주요 대륙과 대양을 파악하고, 우리나라 및 세계 여러 국가의 위치와 영토의 특징을 이해한다.',
+    guide: '지구본을 돌려 보고 세계지도와 비교해요. 위도와 경도로 나라를 찾아요.',
+    questions: [
+      '지구본과 세계지도에서 그린란드의 크기는 어떻게 다르게 보이나요?',
+      '적도와 본초 자오선은 각각 어디에 있나요?',
+      '우리나라의 위치를 위도와 경도로 말해 볼까요?',
     ],
   },
   promote: {

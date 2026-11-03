@@ -11,6 +11,7 @@ import {
   UNITS,
   findChoice,
   findMission,
+  isSelfKind,
 } from '../activities';
 import LegendBox from '../components/LegendBox';
 import MapView from '../components/MapView';
@@ -20,15 +21,19 @@ import {
   ElectionResults,
   FactItemEditor,
   FactcheckResults,
+  HistoryResults,
   MarketResults,
+  QuizResults,
   RecordDetail,
   SelfSummary,
 } from '../components/TeacherResults';
 import { findMarketItem } from '../content/market';
 import { findPrinciple, SCENARIOS } from '../content/election';
 import { TRUST_LEVELS } from '../content/factcheck';
+import { QUIZZES, quizScore } from '../content/quizzes';
+import { historyScore } from '../content/history';
 import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
-import { questionsFor } from '../data/common';
+import { SHARED_ACTIVITIES, questionsFor } from '../data/common';
 import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
 import { isMissionCorrect } from '../geo';
 import { joinUrl, rememberClass, useClassRoom, usePins, useStore } from '../hooks';
@@ -48,6 +53,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
     '자랑거리', '홍보 문구', '장소 종류', '기호', '연도',
     '팩트체크 자료', '사실·의견 표시', '믿을 만한 정도', '산 것', '기회비용', '선거 이야기 맞힘', '가장 중요한 원칙',
+    '탐구 질문 맞힘', '연표 제자리',
     '공감', '승인', '숨김', '위도', '경도', '작성시각',
   ];
   const rows = pins.map((p) => [
@@ -84,6 +90,8 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     p.activity === 'market' ? (findMarketItem(p.giveUp)?.label ?? '') : '',
     p.activity === 'election' ? `${SCENARIOS.filter((sc, i) => p.labels?.[i] === sc.answer).length}/${SCENARIOS.length}` : '',
     p.activity === 'election' ? (findPrinciple(p.picks)?.label ?? '') : '',
+    QUIZZES[p.activity] ? `${quizScore(QUIZZES[p.activity]!, p.picks)}/${QUIZZES[p.activity]!.questions.length}` : '',
+    p.activity === 'history' ? `${historyScore(p.labels)}/8` : '',
     p.likes,
     p.approved ? 'O' : 'X',
     p.hidden ? 'O' : 'X',
@@ -116,7 +124,7 @@ export default function TeacherBoard({ code }: { code: string }) {
   const actPins = useMemo(() => pins.filter((p) => p.activity === activity), [pins, activity]);
   const kind = ACTIVITIES[activity].kind;
   /** 지도 없이 결과표를 보여 주는 활동 */
-  const isSelf = kind === 'factcheck' || kind === 'market' || kind === 'election';
+  const isSelf = isSelfKind(kind);
   // 연표: 학생별로 묶기
   const timelines = useMemo(() => {
     if (kind !== 'timeline') return [];
@@ -135,7 +143,7 @@ export default function TeacherBoard({ code }: { code: string }) {
     (p) =>
       !p.approved &&
       !p.hidden &&
-      !['mission', 'timeline', 'market', 'election', 'factcheck'].includes(p.activity) &&
+      SHARED_ACTIVITIES.includes(p.activity) &&
       (p.activity !== 'solve' || (p.step ?? 1) >= 4),
   );
 
@@ -274,6 +282,10 @@ export default function TeacherBoard({ code }: { code: string }) {
               <FactcheckResults pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'market' ? (
               <MarketResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
+            ) : kind === 'climate' || kind === 'population' || kind === 'globe' ? (
+              <QuizResults pins={actPins} activity={kind} onSelect={(p) => setSelectedId(p.id)} />
+            ) : kind === 'history' ? (
+              <HistoryResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : (
               <ElectionResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             )}

@@ -46,7 +46,7 @@ const CompassControl = L.Control.extend({
   },
 });
 
-function baseLayers(): Record<string, L.Layer> {
+export function baseLayers(): Record<string, L.Layer> {
   if (vworldKey) {
     const url = (type: string, ext: string) =>
       `https://api.vworld.kr/req/wmts/1.0.0/${vworldKey}/${type}/{z}/{y}/{x}.${ext}`;
