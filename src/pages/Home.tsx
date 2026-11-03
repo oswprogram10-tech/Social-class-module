@@ -1,5 +1,8 @@
 import { isClassMode } from '../config';
 import { go, myClasses } from '../hooks';
+import { ACTIVITY_ORDER } from '../activities';
+
+const ACTIVITY_COUNT = ACTIVITY_ORDER.length;
 
 export function ModeBanner() {
   if (isClassMode) return null;
@@ -20,7 +23,7 @@ export default function Home() {
         <h1 className="home__title">
           <span aria-hidden>🗺️</span> 우리 동네 지도 탐구
         </h1>
-        <p className="home__sub">초등 사회 3~4학년 · 장소감 지도, 방위와 거리 미션, 지역문제 해결</p>
+        <p className="home__sub">초등 사회 3~6학년 · 지도·연표·경제·선거·미디어·세계지리 활동 {ACTIVITY_COUNT}가지</p>
 
         <div className="home__actions">
           <button type="button" className="big-btn big-btn--student" onClick={() => go('/join')}>
@@ -36,6 +39,10 @@ export default function Home() {
             선생님: 학급 만들기
           </button>
         </div>
+
+        <p className="home__login">
+          <a href="#/guide">📖 사용 안내 (처음 쓰는 선생님·다른 학교 선생님)</a>
+        </p>
 
         {isClassMode && (
           <p className="home__login">

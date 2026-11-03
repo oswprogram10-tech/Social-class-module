@@ -17,6 +17,7 @@ import { ClimateActivity, PopulationActivity } from '../components/KoreaActiviti
 
 // 세계 지도 자료가 커서 이 활동을 열 때만 내려받습니다.
 const GlobeActivity = lazy(() => import('../components/GlobeActivity'));
+const WorldPopActivity = lazy(() => import('../components/WorldPopActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
 import { go, useClassRoom, usePins, useStore } from '../hooks';
@@ -66,6 +67,12 @@ function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }
       return (
         <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
           <GlobeActivity {...props} />
+        </Suspense>
+      );
+    case 'worldpop':
+      return (
+        <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
+          <WorldPopActivity {...props} />
         </Suspense>
       );
     default:

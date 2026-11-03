@@ -18,7 +18,8 @@ export type ActivityId =
   | 'climate'
   | 'population'
   | 'history'
-  | 'globe';
+  | 'globe'
+  | 'worldpop';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -32,7 +33,8 @@ export type ActivityKind =
   | 'climate'
   | 'population'
   | 'history'
-  | 'globe';
+  | 'globe'
+  | 'worldpop';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
@@ -78,6 +80,7 @@ export const UNITS: UnitDef[] = [
   { grade: '5-2', title: '(4)~(6) 한국사', activities: ['history'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
+  { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop'] },
 ];
 
 export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
@@ -257,6 +260,19 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '지구본과 세계지도에서 그린란드의 크기는 어떻게 다르게 보이나요?',
       '적도와 본초 자오선은 각각 어디에 있나요?',
       '우리나라의 위치를 위도와 경도로 말해 볼까요?',
+    ],
+  },
+  worldpop: {
+    id: 'worldpop',
+    kind: 'worldpop',
+    title: '세계 인구 분포',
+    standard: '[6사12-01]',
+    standardText: '세계의 인구 분포를 파악하고 여러 국가의 인구 특징을 탐구한다.',
+    guide: '세계지도에서 나라별 인구와 인구 밀도를 비교하고, 사람이 많이 사는 곳과 드문 곳을 찾아봐요.',
+    questions: [
+      '사람이 많이 모여 사는 곳은 어느 대륙에 있나요?',
+      '인구가 많은 나라와 인구 밀도가 높은 나라는 같을까요, 다를까요?',
+      '사람이 드문 곳에는 어떤 자연환경이 있을까요?',
     ],
   },
   promote: {

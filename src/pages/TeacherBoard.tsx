@@ -242,6 +242,11 @@ export default function TeacherBoard({ code }: { code: string }) {
           )}
         </div>
         {!projector && (
+          <a className="btn btn--small" href="#/guide" title="사용 안내">
+            📖
+          </a>
+        )}
+        {!projector && (
           <a className="btn" href={`#/teacher/${cls.code}/report`}>
             📊 성장 리포트
           </a>
@@ -288,7 +293,7 @@ export default function TeacherBoard({ code }: { code: string }) {
               <FactcheckResults pins={actPins} cls={cls} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'market' ? (
               <MarketResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
-            ) : kind === 'climate' || kind === 'population' || kind === 'globe' ? (
+            ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldpop' ? (
               <QuizResults pins={actPins} activity={kind} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'history' ? (
               <HistoryResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />

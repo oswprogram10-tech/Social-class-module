@@ -3,6 +3,7 @@
  * 정답은 korea-data.ts 의 공식 통계와 맞춰 두었습니다.
  */
 import type { ActivityId } from '../activities';
+import { WORLDPOP_ANSWERS } from './world-pop';
 
 export interface QuizQuestion {
   id: string;
@@ -149,6 +150,52 @@ export const QUIZZES: Partial<Record<ActivityId, QuizSet>> = {
       },
     ],
     open: '지구본과 세계지도는 각각 어떤 좋은 점과 불편한 점이 있을까요?',
+  },
+  worldpop: {
+    questions: [
+      {
+        id: 'w1',
+        text: '세계에서 인구가 가장 많은 나라를 찾아 누르세요.',
+        answers: [WORLDPOP_ANSWERS.most],
+        hint: '“인구” 보기에서 가장 진한 색의 나라를 찾아보세요. 아시아 대륙을 살펴볼까요?',
+        explain: '2023년 국제연합 추계로 인도가 약 14억 4천만 명으로 가장 많아요. 중국도 약 14억 2천만 명이에요.',
+      },
+      {
+        id: 'w2',
+        text: '세계 인구의 절반 넘게 사는 대륙은 어디인가요?',
+        answers: ['AS'],
+        choices: [
+          { id: 'AS', label: '아시아' },
+          { id: 'AF', label: '아프리카' },
+          { id: 'EU', label: '유럽' },
+          { id: 'NA', label: '북아메리카' },
+        ],
+        hint: '오른쪽 대륙별 막대그래프를 비교해 보세요.',
+        explain: '아시아에 세계 인구의 약 59%가 살아요.',
+      },
+      {
+        id: 'w3',
+        text: '아프리카에서 인구가 가장 많은 나라를 찾아 누르세요.',
+        answers: [WORLDPOP_ANSWERS.africaMost],
+        hint: '아프리카 대륙에서 색이 가장 진한 나라를 찾아보세요. 서쪽 해안을 살펴볼까요?',
+        explain: '나이지리아는 약 2억 3천만 명으로 아프리카에서 인구가 가장 많아요.',
+      },
+      {
+        id: 'w4',
+        text: '사람이 아주 드물게 사는(인구 밀도가 낮은) 나라를 하나 찾아 누르세요.',
+        answers: WORLDPOP_ANSWERS.lowDensity,
+        hint: '“인구 밀도” 보기로 바꿔 가장 연한 색의 넓은 나라를 찾아보세요. 사막이나 아주 추운 곳은 어떨까요?',
+        explain: '사막, 추운 지역, 높은 산이 넓은 나라는 사람이 드물게 살아요.',
+      },
+      {
+        id: 'w5',
+        text: '우리나라(약 5,175만 명)보다 인구가 많은 아프리카 나라를 하나 찾아 누르세요.',
+        answers: WORLDPOP_ANSWERS.africaMoreThanKorea,
+        hint: '아프리카 나라를 눌러 인구를 우리나라와 비교해 보세요.',
+        explain: '아프리카에는 우리나라보다 인구가 많은 나라가 7개나 있어요. 아프리카는 인구가 빠르게 늘고 있어요.',
+      },
+    ],
+    open: '사람이 많이 모여 사는 곳과 드물게 사는 곳은 자연환경이 어떻게 다를까요?',
   },
 };
 
