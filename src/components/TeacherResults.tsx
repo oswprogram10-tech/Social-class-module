@@ -13,6 +13,7 @@ import { CITIES, PROVINCES } from '../content/korea-data';
 import { COUNTRY_KO } from '../content/countries-ko';
 import { CONTINENTS } from '../content/world-pop';
 import { worldCityName } from '../content/world-climate';
+import { ACTORS, findActor, findProblem } from '../content/global';
 import {
   TRADE_CHECKS,
   alone,
@@ -146,6 +147,54 @@ export function tradeCsv(p: Pin): string[] {
     findEventChoice(p.giveUp)?.label ?? '',
     `${tradeScore(p.labels)}/${TRADE_CHECKS.length}`,
   ];
+}
+
+export function GlobalResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  const actor = (id?: string) => {
+    const a = findActor(id);
+    return a ? `${a.emoji} ${a.label}` : '–';
+  };
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 지구촌 문제 해결</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">문제</th>
+            <th scope="col">단계</th>
+            <th scope="col">방법 A</th>
+            <th scope="col">방법 B</th>
+            <th scope="col">선택</th>
+            <th scope="col">실천 약속</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            const pr = findProblem(p.category);
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                <td>{pr ? `${pr.emoji} ${pr.label}` : '–'}</td>
+                <td>{p.step ?? 1}/4</td>
+                <td>{actor(p.optAType)}</td>
+                <td>{actor(p.optBType)}</td>
+                <td>{p.chosen ?? '–'}</td>
+                <td>{p.slogan ?? '–'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 export function TradeResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
@@ -456,6 +505,41 @@ export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
       </div>
     );
   }
+  if (pin.activity === 'global') {
+    const pr = findProblem(pin.category);
+    const opt = (k: 'A' | 'B') => {
+      const a = findActor(k === 'A' ? pin.optAType : pin.optBType);
+      const d = k === 'A' ? pin.optADetail : pin.optBDetail;
+      if (!a && !d) return null;
+      return (
+        <li key={k} className={pin.chosen === k ? 'ok' : ''}>
+          {pin.chosen === k ? '✅ ' : ''}방법 {k}. {a?.emoji} {a?.label}: {d}
+          <br />
+          <small>
+            👍 {k === 'A' ? pin.optAGood : pin.optBGood} {(k === 'A' ? pin.optABad : pin.optBBad) && `· 🤔 ${k === 'A' ? pin.optABad : pin.optBBad}`}
+          </small>
+        </li>
+      );
+    };
+    return (
+      <div className="record">
+        <p>
+          <strong>
+            {pr?.emoji} {pr?.label}
+          </strong>{' '}
+          · {pin.step ?? 1}/4단계
+        </p>
+        {pin.problemText && <p>문제: {pin.problemText}</p>}
+        {pin.cause && <p>원인: {pin.cause}</p>}
+        <ul className="record__sentences">
+          {opt('A')}
+          {opt('B')}
+        </ul>
+        {pin.text && <p className="hint">까닭: {pin.text}</p>}
+        {pin.slogan && <p>🌱 실천 약속: {pin.slogan}</p>}
+      </div>
+    );
+  }
   if (pin.activity === 'trade') {
     const o = tradeOutcomes(pin);
     const s = pin.step ?? 1;
@@ -545,6 +629,41 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
           참여 학생 <strong>{students}</strong>명
         </p>
         <p className="hint">질문별 맞힌 학생: {per.map((n, i) => `${i + 1}번 ${n}`).join(' · ')}</p>
+      </section>
+    );
+  }
+  if (activity === 'global') {
+    const byProblem = pins.reduce<Record<string, number>>((m, p) => (p.category ? { ...m, [p.category]: (m[p.category] ?? 0) + 1 } : m), {});
+    const chosenActors = ACTORS.map((a) => ({
+      a,
+      n: pins.filter((p) => (p.chosen === 'A' ? p.optAType : p.chosen === 'B' ? p.optBType : undefined) === a.id).length,
+    })).filter((x) => x.n);
+    const promises = pins.filter((p) => (p.step ?? 1) >= 4 && p.slogan).map((p) => p.slogan!);
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명 · 완성 <strong>{promises.length}</strong>명
+        </p>
+        <p className="hint">
+          고른 문제:{' '}
+          {Object.entries(byProblem)
+            .sort((a, b) => b[1] - a[1])
+            .map(([id, n]) => `${findProblem(id)?.emoji ?? ''}${findProblem(id)?.label ?? id} ${n}`)
+            .join(' · ')}
+        </p>
+        {chosenActors.length > 0 && (
+          <p className="hint">더 좋다고 고른 방법의 주체: {chosenActors.map((x) => `${x.a.emoji}${x.a.label} ${x.n}`).join(' · ')}</p>
+        )}
+        {promises.length > 0 && (
+          <>
+            <h3>🌱 우리 반 실천 약속 (이름 없이)</h3>
+            <ul className="promise-wall">
+              {promises.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
     );
   }

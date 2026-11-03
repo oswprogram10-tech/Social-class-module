@@ -21,7 +21,8 @@ export type ActivityId =
   | 'globe'
   | 'worldclimate'
   | 'trade'
-  | 'worldpop';
+  | 'worldpop'
+  | 'global';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -38,7 +39,8 @@ export type ActivityKind =
   | 'globe'
   | 'worldclimate'
   | 'trade'
-  | 'worldpop';
+  | 'worldpop'
+  | 'global';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
@@ -86,7 +88,7 @@ export const UNITS: UnitDef[] = [
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['worldclimate'] },
   { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['trade'] },
-  { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop'] },
+  { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop', 'global'] },
 ];
 
 export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
@@ -292,6 +294,19 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '우리 집에 있는 물건 중 다른 나라에서 온 것은 무엇인가요?',
       '한 나라가 필요한 것을 모두 직접 만들면 어떤 점이 어려울까요?',
       '무역하는 나라에 어려운 일이 생기면 우리에게는 어떤 영향이 있을까요?',
+    ],
+  },
+  global: {
+    id: 'global',
+    kind: 'global',
+    title: '지구촌 문제 해결',
+    standard: '[6사12-02]',
+    standardText: '지구촌을 위협하는 다양한 문제들을 파악하고, 지속가능한 미래를 위한 해결 방안을 탐색한다.',
+    guide: '지구촌 문제 하나를 골라 원인을 생각하고, 누가 어떻게 해결할 수 있을지 비교한 뒤 나의 실천 약속을 만들어요.',
+    questions: [
+      '이 문제는 우리 생활과 어떻게 이어져 있을까요?',
+      '한 나라의 힘만으로 해결하기 어려운 까닭은 무엇일까요?',
+      '오늘부터 내가 할 수 있는 작은 실천은 무엇일까요?',
     ],
   },
   worldpop: {
