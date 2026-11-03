@@ -14,6 +14,9 @@ import {
 import { LIMITS, questionsFor } from '../data/common';
 import type { Account, ClassRoom, Pin, Store } from '../data/types';
 import { isMissionCorrect } from '../geo';
+import { aiQuestions } from '../ai/prompts';
+import { loadAiConfig } from '../ai/localAi';
+import { AiButton, AiDraftNote } from './LocalAi';
 
 function Bars({ items }: { items: { c: Choice; n: number }[] }) {
   const shown = items.filter((x) => x.n > 0).sort((a, b) => b.n - a.n);
@@ -188,6 +191,7 @@ export function QuestionEditor({
 }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
+  const [fromAi, setFromAi] = useState(false);
   const custom = !!cls.questions?.[activity]?.length;
 
   function start() {
@@ -216,8 +220,23 @@ export function QuestionEditor({
     <div className="question-editor">
       <label className="field">
         <span>질문 (한 줄에 하나, 최대 {LIMITS.questionCount}개)</span>
-        <textarea rows={5} value={text} onChange={(e) => setText(e.target.value)} />
+        <textarea
+          rows={5}
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+          }}
+        />
       </label>
+      {fromAi && <AiDraftNote />}
+      <AiButton
+        label="AI로 질문 만들기"
+        run={async (ctl) => {
+          const qs = await aiQuestions(loadAiConfig(), activity, questionsFor(cls, activity), ctl);
+          setText(qs.join('\n'));
+          setFromAi(true);
+        }}
+      />
       <div className="row">
         <button
           type="button"

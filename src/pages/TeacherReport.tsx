@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import type { WatchPinsOptions } from '../data/types';
 import { useClassRoom, usePins, useStore } from '../hooks';
 import { activityTitle, buildReports, pct, type StudentReport } from '../report';
+import { aiReportComment } from '../ai/prompts';
+import { loadAiConfig } from '../ai/localAi';
+import { AiButton } from '../components/LocalAi';
 
 const TEACHER_OPTS: WatchPinsOptions = { role: 'teacher' };
 
@@ -148,7 +151,16 @@ export function ReportCard({ r, code, editable }: { r: StudentReport; code: stri
               placeholder="관찰한 내용, 칭찬할 점, 도울 점을 적어 두세요."
               aria-label={`${label(r)} 선생님 메모`}
             />
-            <p className="hint no-print">메모는 이 브라우저에만 저장돼요(학생·서버에 보내지 않음).</p>
+            <div className="no-print">
+              <AiButton
+                label="AI 소견 초안 (이름은 보내지 않아요)"
+                run={async (ctl) => {
+                  const c = await aiReportComment(loadAiConfig(), r, ctl);
+                  saveMemo(memo.trim() ? `${memo.trim()}\n[AI 초안] ${c}` : `[AI 초안] ${c}`);
+                }}
+              />
+            </div>
+            <p className="hint no-print">메모는 이 브라우저에만 저장돼요(학생·서버에 보내지 않음). “[AI 초안]”은 확인하고 고쳐 주세요.</p>
           </>
         ) : (
           <p className="memo-print">{memo || ' '}</p>

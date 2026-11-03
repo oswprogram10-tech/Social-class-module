@@ -33,6 +33,7 @@ import { TRUST_LEVELS } from '../content/factcheck';
 import { QUIZZES, quizScore } from '../content/quizzes';
 import { historyScore } from '../content/history';
 import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
+import { LocalAiSettings } from '../components/LocalAi';
 import { SHARED_ACTIVITIES, questionsFor } from '../data/common';
 import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
 import { isMissionCorrect } from '../geo';
@@ -445,6 +446,7 @@ export default function TeacherBoard({ code }: { code: string }) {
               </div>
 
               <TeacherAccount store={store} />
+              <LocalAiSettings />
             </>
           )}
         </aside>

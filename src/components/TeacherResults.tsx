@@ -4,6 +4,9 @@ import { SOURCE_TYPES, TRUST_LEVELS, gradeLabels, splitSentences, type FactItem,
 import { MARKET_ITEMS, findMarketItem, won } from '../content/market';
 import type { ClassRoom, Pin } from '../data/types';
 import { factItemsFor } from './FactcheckActivity';
+import { aiFactDraft } from '../ai/prompts';
+import { loadAiConfig } from '../ai/localAi';
+import { AiButton, AiDraftNote, useAiConfig } from './LocalAi';
 import { QUIZZES, isCorrect, parseAnswers, quizScore } from '../content/quizzes';
 import { HISTORY_ANSWER, HISTORY_EVENTS, findEvent, historyScore } from '../content/history';
 import { CITIES, PROVINCES } from '../content/korea-data';
@@ -170,8 +173,13 @@ export function FactItemEditor({ cls, onSave }: { cls: ClassRoom; onSave: (items
   const [text, setText] = useState('');
   const [sentences, setSentences] = useState<{ text: string; answer: FactLabel }[] | null>(null);
   const [msg, setMsg] = useState('');
+  const [topic, setTopic] = useState('');
+  const [fromAi, setFromAi] = useState(false);
+  const aiCfg = useAiConfig();
 
   function reset() {
+    setFromAi(false);
+    setTopic('');
     setTitle('');
     setAuthor('');
     setText('');
@@ -248,6 +256,26 @@ export function FactItemEditor({ cls, onSave }: { cls: ClassRoom; onSave: (items
               <input value={author} onChange={(e) => setAuthor(e.target.value)} maxLength={40} placeholder="지어낸 이름 권장" />
             </label>
           </div>
+          {!sentences && aiCfg.enabled && aiCfg.model && (
+            <div className="ai-box">
+              <label className="field">
+                <span>🤖 AI 초안 주제 (예: 학교 앞 문구점 자리에 편의점이 생긴다)</span>
+                <input value={topic} onChange={(e) => setTopic(e.target.value)} maxLength={60} />
+              </label>
+              <AiButton
+                label="AI로 자료 초안 만들기"
+                disabled={!topic.trim()}
+                run={async (ctl) => {
+                  const d = await aiFactDraft(loadAiConfig(), topic.trim(), source, ctl);
+                  setTitle(d.title);
+                  setAuthor(d.author);
+                  setSentences(d.sentences);
+                  setFromAi(true);
+                }}
+              />
+            </div>
+          )}
+          {fromAi && sentences && <AiDraftNote />}
           {!sentences ? (
             <>
               <label className="field">
