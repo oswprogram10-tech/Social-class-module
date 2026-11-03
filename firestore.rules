@@ -39,7 +39,7 @@ service cloud.firestore {
 
     function activities() {
       return ['feel', 'better', 'timeline', 'mission', 'legend', 'market', 'solve', 'promote', 'election', 'factcheck',
-              'climate', 'population', 'history', 'globe'];
+              'climate', 'population', 'history', 'globe', 'worldclimate', 'worldpop'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -60,7 +60,9 @@ service cloud.firestore {
         && (!('climate' in d.questions) || (d.questions.climate is list && d.questions.climate.size() <= 5))
         && (!('population' in d.questions) || (d.questions.population is list && d.questions.population.size() <= 5))
         && (!('history' in d.questions) || (d.questions.history is list && d.questions.history.size() <= 5))
-        && (!('globe' in d.questions) || (d.questions.globe is list && d.questions.globe.size() <= 5)));
+        && (!('globe' in d.questions) || (d.questions.globe is list && d.questions.globe.size() <= 5))
+        && (!('worldclimate' in d.questions) || (d.questions.worldclimate is list && d.questions.worldclimate.size() <= 5))
+        && (!('worldpop' in d.questions) || (d.questions.worldpop is list && d.questions.worldpop.size() <= 5)));
     }
 
     // 교사가 만든 팩트체크 자료: 최대 10개

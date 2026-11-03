@@ -1,5 +1,6 @@
 import { useHashRoute } from './hooks';
 import Home from './pages/Home';
+import Guide from './pages/Guide';
 import TeacherCreate from './pages/TeacherCreate';
 import TeacherBoard from './pages/TeacherBoard';
 import TeacherLogin from './pages/TeacherLogin';
@@ -11,6 +12,7 @@ import { normalizeCode } from './data/common';
 /**
  * 화면 주소
  *   #/                  첫 화면
+ *   #/guide             사용 안내
  *   #/teacher/new       학급 만들기
  *   #/teacher/login     다른 기기에서 Google 로그인
  *   #/teacher/코드      교사 화면
@@ -22,6 +24,7 @@ export default function App() {
   const [page, param, sub] = useHashRoute();
   const code = param ? normalizeCode(param) : '';
 
+  if (page === 'guide') return <Guide />;
   if (page === 'teacher' && param === 'new') return <TeacherCreate />;
   if (page === 'teacher' && param === 'login') return <TeacherLogin />;
   if (page === 'teacher' && code && sub === 'report') return <TeacherReport code={code} />;

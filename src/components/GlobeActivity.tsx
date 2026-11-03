@@ -1,30 +1,10 @@
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { geoArea, geoContains, geoGraticule10, geoMercator, geoOrthographic, geoPath, type GeoProjection } from 'd3-geo';
-import { feature } from 'topojson-client';
-import type { Feature, FeatureCollection, Geometry } from 'geojson';
-import type { Topology, GeometryCollection } from 'topojson-specification';
-import world from 'world-atlas/countries-110m.json';
-import { COUNTRY_KO } from '../content/countries-ko';
+import { geoArea, geoContains, geoMercator, geoOrthographic, geoPath, type GeoProjection } from 'd3-geo';
+import { COUNTRIES, EARTH_R, EQUATOR, GRATICULE, PRIME, countryName, type Country } from '../content/worldGeo';
 import { QUIZZES } from '../content/quizzes';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
 import QuizPanel from './QuizPanel';
-
-type Country = Feature<Geometry, { name: string }>;
-
-const topo = world as unknown as Topology<{ countries: GeometryCollection<{ name: string }> }>;
-// 몇몇 지역(코소보 등)은 ISO 코드가 없어 이름으로 ID를 만듭니다.
-const COUNTRIES = (
-  (feature(topo, topo.objects.countries) as FeatureCollection<Geometry, { name: string }>).features as Country[]
-).map((c) => ({ ...c, id: c.id === undefined ? `name:${c.properties.name}` : String(c.id) }));
-const GRATICULE = geoGraticule10();
-const EQUATOR = { type: 'LineString' as const, coordinates: [[-180, 0], [-90, 0], [0, 0], [90, 0], [180, 0]] };
-const PRIME = { type: 'LineString' as const, coordinates: [[0, -89], [0, 0], [0, 89]] };
-const EARTH_R = 6371;
-
-export function countryName(id: string): string {
-  return COUNTRY_KO[id] ?? COUNTRIES.find((c) => c.id === id)?.properties.name ?? id.replace(/^name:/, '');
-}
 
 function latLngText([lng, lat]: [number, number]): string {
   const la = Math.round(lat);

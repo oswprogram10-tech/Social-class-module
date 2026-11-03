@@ -63,11 +63,13 @@ const MIN_REASON = 10;
 
 /** 까닭·생각을 적는 칸이 있는 활동 */
 const REASON_ACTIVITIES: ActivityId[] = [
-  'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'history',
+  'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
-const VALUE_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'history', 'factcheck'];
+const VALUE_ACTIVITIES: ActivityId[] = [
+  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck',
+];
 
 /** 우리 동네·공동체를 위한 참여 기록 */
 const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote'];
@@ -118,7 +120,7 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
         knowledge.push({ activity: 'factcheck', label: `사실·의견 구분: ${item.title}`, correct: g.correct, total: g.total, all: g.total });
         retries += Math.max(0, (p.attempts ?? 1) - 1);
       });
-      (['climate', 'population', 'globe'] as const).forEach((a) => {
+      (['climate', 'population', 'globe', 'worldclimate', 'worldpop'] as const).forEach((a) => {
         const set = QUIZZES[a]!;
         by(a).forEach((p) => {
           const tried = (p.picks ?? '').split(',').filter(Boolean).length;

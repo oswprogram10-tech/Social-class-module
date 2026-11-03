@@ -11,6 +11,10 @@ import { QUIZZES, isCorrect, parseAnswers, quizScore } from '../content/quizzes'
 import { HISTORY_ANSWER, HISTORY_EVENTS, findEvent, historyScore } from '../content/history';
 import { CITIES, PROVINCES } from '../content/korea-data';
 import { COUNTRY_KO } from '../content/countries-ko';
+import { CONTINENTS } from '../content/world-pop';
+import { worldCityName } from '../content/world-climate';
+
+const CONTINENT_NAME: Record<string, string> = Object.fromEntries(CONTINENTS.map((c) => [c.id, c.name]));
 
 /** 학생별로 기록을 묶습니다 (체험 모드에서도 섞이지 않게 번호까지 함께) */
 function byStudent(pins: Pin[]) {
@@ -338,7 +342,7 @@ export function FactItemEditor({ cls, onSave }: { cls: ClassRoom; onSave: (items
 
 /** 선택한 기록의 자세한 내용 (교사 화면 오른쪽) */
 export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
-  if (['climate', 'population', 'globe', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
+  if (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
   if (pin.activity === 'factcheck') {
     const item = factItemsFor(cls).find((i) => i.id === pin.itemId);
     if (!item) return <p className="hint">지워진 자료의 기록이에요.</p>;
@@ -421,7 +425,7 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
     );
   }
   const quiz = QUIZZES[activity];
-  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe')) {
+  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe' || activity === 'worldclimate' || activity === 'worldpop')) {
     const per = quiz.questions.map((q, i) => pins.filter((p) => isCorrect(q, parseAnswers(p.picks)[i])).length);
     return (
       <section className="summary">
@@ -486,7 +490,15 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
 // ---------- 4단계: 기후·인구·지구본(탐구 질문)과 한국사 연표 ----------
 
 /** 탐구 질문 활동(기후·인구·지구본)의 학생별 결과표 */
-export function QuizResults({ pins, activity, onSelect }: { pins: Pin[]; activity: 'climate' | 'population' | 'globe'; onSelect: (p: Pin) => void }) {
+export function QuizResults({
+  pins,
+  activity,
+  onSelect,
+}: {
+  pins: Pin[];
+  activity: 'climate' | 'population' | 'globe' | 'worldclimate' | 'worldpop';
+  onSelect: (p: Pin) => void;
+}) {
   const set = QUIZZES[activity]!;
   const rows = byStudent(pins);
   if (rows.length === 0) return <Empty />;
@@ -576,6 +588,8 @@ const QUIZ_NAMES: Record<string, (id: string) => string> = {
   climate: (id) => CITIES.find((c) => c.id === id)?.name ?? id,
   population: (id) => PROVINCES.find((p) => p.id === id)?.name ?? id,
   globe: (id) => COUNTRY_KO[id] ?? id,
+  worldclimate: worldCityName,
+  worldpop: (id) => COUNTRY_KO[id] ?? CONTINENT_NAME[id] ?? id,
 };
 
 export function QuizDetail({ pin }: { pin: Pin }) {
