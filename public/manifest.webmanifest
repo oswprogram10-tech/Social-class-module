@@ -1,0 +1,9 @@
+{
+  "name": "우리 동네 장소감 지도",
+  "short_name": "장소감 지도",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

@@ -1,0 +1,128 @@
+rules_version = '2';
+
+// 우리 동네 장소감 지도 - Firestore 보안 규칙
+// Firebase 콘솔 > Firestore Database > 규칙 탭에 이 파일 내용을 그대로 붙여넣고 "게시"를 누르세요.
+//
+// 원칙
+//  - 모두 익명 로그인만 합니다 (이름·이메일을 받지 않음).
+//  - 학급 정보는 학급 코드를 아는 사람만 열 수 있고(목록 조회 금지), 학급을 만든 교사만 바꿀 수 있습니다.
+//  - 학생은 자기 핀과, 교사가 공개한 친구 핀만 읽을 수 있습니다.
+//  - 학생은 자기 핀만 고치거나 지울 수 있고, 승인·숨김은 교사만 바꿀 수 있습니다.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function classData(code) {
+      return get(/databases/$(database)/documents/classes/$(code)).data;
+    }
+
+    function isTeacher(code) {
+      return signedIn() && classData(code).teacherUid == request.auth.uid;
+    }
+
+    function shortStr(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function optStr(d, key, max) {
+      return !(key in d) || shortStr(d[key], max);
+    }
+
+    match /classes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && code.matches('^[A-Z0-9]{6}$')
+        && request.resource.data.keys().hasOnly([
+             'code', 'name', 'schoolName', 'lat', 'lng', 'radius',
+             'activeActivity', 'requireApproval', 'showOthers', 'teacherUid', 'createdAt'])
+        && request.resource.data.code == code
+        && request.resource.data.teacherUid == request.auth.uid
+        && shortStr(request.resource.data.name, 30)
+        && shortStr(request.resource.data.schoolName, 30)
+        && request.resource.data.lat is number
+        && request.resource.data.lng is number
+        && request.resource.data.radius is number
+        && request.resource.data.radius <= 5000
+        && request.resource.data.activeActivity in ['feel', 'better']
+        && request.resource.data.requireApproval is bool
+        && request.resource.data.showOthers is bool;
+
+      allow update: if signedIn()
+        && resource.data.teacherUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'radius', 'activeActivity', 'requireApproval', 'showOthers'])
+        && shortStr(request.resource.data.name, 30)
+        && request.resource.data.activeActivity in ['feel', 'better']
+        && request.resource.data.requireApproval is bool
+        && request.resource.data.showOthers is bool;
+
+      allow delete: if signedIn() && resource.data.teacherUid == request.auth.uid;
+
+      match /pins/{pinId} {
+
+        function validPin(d) {
+          return d.keys().hasOnly([
+                   'activity', 'lat', 'lng', 'placeName', 'text', 'feeling', 'problem', 'fix',
+                   'studentNo', 'nickname', 'authorUid', 'approved', 'hidden', 'likes', 'createdAt'])
+            && d.activity in ['feel', 'better']
+            && d.lat is number
+            && d.lng is number
+            && shortStr(d.placeName, 30)
+            && shortStr(d.text, 150)
+            && shortStr(d.nickname, 10)
+            && d.studentNo is int
+            && d.studentNo >= 1
+            && d.studentNo <= 99
+            && optStr(d, 'feeling', 20)
+            && optStr(d, 'problem', 20)
+            && optStr(d, 'fix', 20)
+            && d.approved is bool
+            && d.hidden is bool
+            && d.likes is int;
+        }
+
+        allow read: if isTeacher(code)
+          || (signedIn() && resource.data.authorUid == request.auth.uid)
+          || (signedIn()
+              && resource.data.approved == true
+              && resource.data.hidden == false
+              && classData(code).showOthers == true);
+
+        allow create: if signedIn()
+          && validPin(request.resource.data)
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.likes == 0
+          && request.resource.data.hidden == false
+          && request.resource.data.approved == !classData(code).requireApproval;
+
+        allow update: if
+          // 교사: 승인·숨김만 바꿀 수 있음
+          (isTeacher(code)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approved', 'hidden'])
+            && request.resource.data.approved is bool
+            && request.resource.data.hidden is bool)
+          // 작성한 학생: 내용만 고칠 수 있고, 승인은 "취소"만 가능
+          || (signedIn()
+            && resource.data.authorUid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['placeName', 'text', 'feeling', 'problem', 'fix', 'approved'])
+            && (request.resource.data.approved == resource.data.approved
+                || request.resource.data.approved == false)
+            && validPin(request.resource.data))
+          // 누구나: 공감 수를 1만 올릴 수 있음
+          || (signedIn()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+            && request.resource.data.likes == resource.data.likes + 1);
+
+        allow delete: if isTeacher(code)
+          || (signedIn() && resource.data.authorUid == request.auth.uid);
+      }
+    }
+  }
+}
