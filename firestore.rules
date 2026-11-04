@@ -40,7 +40,8 @@ service cloud.firestore {
     function activities() {
       return ['feel', 'better', 'timeline', 'mission', 'legend', 'market', 'solve', 'promote', 'election', 'factcheck',
               'climate', 'population', 'history', 'globe', 'worldclimate', 'trade', 'worldpop', 'global', 'landform',
-              'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern'];
+              'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
+              'oldthings', 'exchange', 'powers', 'economy', 'growth'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -74,7 +75,12 @@ service cloud.firestore {
         && (!('villages' in d.questions) || (d.questions.villages is list && d.questions.villages.size() <= 5))
         && (!('territory' in d.questions) || (d.questions.territory is list && d.questions.territory.size() <= 5))
         && (!('rights' in d.questions) || (d.questions.rights is list && d.questions.rights.size() <= 5))
-        && (!('modern' in d.questions) || (d.questions.modern is list && d.questions.modern.size() <= 5)));
+        && (!('modern' in d.questions) || (d.questions.modern is list && d.questions.modern.size() <= 5))
+        && (!('oldthings' in d.questions) || (d.questions.oldthings is list && d.questions.oldthings.size() <= 5))
+        && (!('exchange' in d.questions) || (d.questions.exchange is list && d.questions.exchange.size() <= 5))
+        && (!('powers' in d.questions) || (d.questions.powers is list && d.questions.powers.size() <= 5))
+        && (!('economy' in d.questions) || (d.questions.economy is list && d.questions.economy.size() <= 5))
+        && (!('growth' in d.questions) || (d.questions.growth is list && d.questions.growth.size() <= 5)));
     }
 
     // 교사가 만든 팩트체크 자료: 최대 10개
