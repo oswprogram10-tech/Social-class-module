@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { vworldKey } from '../config';
-import { FEELINGS, FIXES, PROBLEMS, PROMO_CATS, SOLUTIONS, SYMBOLS, TIMELINE_ICONS, findChoice, findMission } from '../activities';
+import { FEELINGS, FIXES, HERITAGE_TYPES, PROBLEMS, PROMO_CATS, SOLUTIONS, SYMBOLS, TIMELINE_ICONS, findChoice, findMission } from '../activities';
 import type { Pin } from '../data/types';
 import type { LatLng } from '../geo';
 
@@ -78,6 +78,8 @@ export function pinEmoji(pin: Pin): string {
       return findChoice(SYMBOLS, pin.symbol)?.emoji ?? '❔';
     case 'promote':
       return findChoice(PROMO_CATS, pin.category)?.emoji ?? '📣';
+    case 'heritage':
+      return findChoice(HERITAGE_TYPES, pin.category)?.emoji ?? '🏯';
     case 'timeline':
       return findChoice(TIMELINE_ICONS, pin.symbol)?.emoji ?? '⭐';
     case 'solve': {

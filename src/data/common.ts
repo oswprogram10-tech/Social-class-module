@@ -19,7 +19,7 @@ export function makeId(): string {
 }
 
 /** 친구끼리 볼 수 있는 활동. firestore.rules 의 sharedActivities()와 같아야 합니다. */
-export const SHARED_ACTIVITIES: ActivityId[] = ['feel', 'better', 'legend', 'solve', 'promote'];
+export const SHARED_ACTIVITIES: ActivityId[] = ['feel', 'better', 'legend', 'solve', 'promote', 'heritage'];
 
 /** 학생 화면에 보여 줄 핀인지 판단 */
 export function visibleToStudent(pin: Pin, cls: ClassRoom, uid: string): boolean {

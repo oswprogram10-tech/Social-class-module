@@ -23,7 +23,15 @@ export type ActivityId =
   | 'trade'
   | 'worldpop'
   | 'global'
-  | 'landform';
+  | 'landform'
+  | 'change'
+  | 'oldnew'
+  | 'heritage'
+  | 'democracy'
+  | 'villages'
+  | 'territory'
+  | 'rights'
+  | 'modern';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -42,7 +50,9 @@ export type ActivityKind =
   | 'trade'
   | 'worldpop'
   | 'global'
-  | 'landform';
+  | 'landform'
+  | 'sort'
+  | 'territory';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
@@ -81,11 +91,19 @@ export interface UnitDef {
 export const UNITS: UnitDef[] = [
   { grade: '3-1', title: '(1) 우리가 사는 곳', activities: ['feel', 'better'] },
   { grade: '3-1', title: '(2) 일상에서 만나는 과거', activities: ['timeline'] },
+  { grade: '3-2', title: '(3) 사회 변화와 다양한 문화', activities: ['change'] },
+  { grade: '3-2', title: '(4) 옛날과 오늘날의 생활 모습', activities: ['oldnew'] },
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
+  { grade: '4-1', title: '(6) 우리 지역의 문화유산', activities: ['heritage'] },
   { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market'] },
+  { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
+  { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages'] },
+  { grade: '5-1', title: '(1) 우리나라 국토 여행', activities: ['territory'] },
   { grade: '5-1', title: '(2) 우리나라 지리 탐구', activities: ['climate', 'population'] },
+  { grade: '5-1', title: '(3) 법과 인권의 보장', activities: ['rights'] },
   { grade: '5-2', title: '(4)~(6) 한국사', activities: ['history'] },
+  { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['landform', 'worldclimate'] },
@@ -272,6 +290,86 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '우리나라의 위치를 위도와 경도로 말해 볼까요?',
     ],
   },
+  change: {
+    id: 'change',
+    kind: 'sort',
+    title: '사회 변화와 다양한 문화',
+    standard: '[4사03-01·02]',
+    standardText:
+      '최근 사회 변화의 양상과 특징을 파악하고, 그로 인해 나타난 생활모습의 변화를 탐색한다. / 우리 사회에 나타나는 다양한 문화의 특징을 이해하고, 편견과 차별의 문제를 해결하는 방안을 탐구한다.',
+    guide: '생활 모습 카드를 저출산·고령화, 정보화, 세계화로 나누고, 다른 문화를 존중하는 모습을 찾아봐요.',
+    questions: ['10년 전과 비교해 우리 생활에서 달라진 것은 무엇일까요?', '다른 나라에서 온 친구가 우리 반에 오면 어떤 마음일까요?', '편견은 왜 생길까요?'],
+  },
+  oldnew: {
+    id: 'oldnew',
+    kind: 'sort',
+    title: '옛날과 오늘날의 생활 모습',
+    standard: '[4사04-01·02]',
+    standardText:
+      '옛날 풍습에 대해 알아보고, 오늘날과 비교하여 변화상을 파악한다. / 옛날부터 오늘날까지 이어져 오는 생활 모습을 살펴보고, 그 의미를 탐색한다.',
+    guide: '세시 풍속을 알맞은 명절과 짝짓고, 옛날 도구가 오늘날 어떤 도구로 바뀌었는지 찾아봐요.',
+    questions: ['우리 집에서 명절에 하는 일은 무엇인가요?', '옛날 도구와 오늘날 도구는 무엇이 같고 무엇이 다를까요?', '할머니, 할아버지께 어린 시절 이야기를 여쭈어 볼까요?'],
+  },
+  heritage: {
+    id: 'heritage',
+    kind: 'pin',
+    title: '우리 지역 문화유산 지도',
+    standard: '[4사06-01·02]',
+    standardText:
+      '지역의 문화유산을 통해 문화유산의 의미와 유형을 알아보고, 문화유산의 가치를 탐색한다. / 지역의 박물관, 기념관 등을 활용하여 지역의 역사적 인물이나 사건을 조사하고, 그 의미를 탐구한다.',
+    guide: '우리 지역의 문화유산을 지도에 표시하고, 왜 소중한지와 지키는 방법을 적어요.',
+    questions: ['우리 지역에는 어떤 옛 건물, 비석, 축제, 전해 오는 이야기가 있나요?', '이 문화유산이 사라지면 무엇을 잃게 될까요?', '문화유산을 지키려면 우리가 무엇을 할 수 있을까요?'],
+  },
+  democracy: {
+    id: 'democracy',
+    kind: 'sort',
+    title: '민주주의와 자치',
+    standard: '[4사08-01·02]',
+    standardText:
+      '학교 자치 사례를 통하여 민주주의의 의미를 이해하고, 학교생활에서 민주주의를 실천하는 능력을 기른다. / 지역에서 주민 자치를 실천하는 사례를 조사하고, 지역 문제 해결에 참여하는 태도를 기른다.',
+    guide: '학교에서 일을 정하는 모습이 민주적인지 판단하고, 주민이 지역 일에 참여하는 방법을 알아봐요.',
+    questions: ['우리 반 회의에서 모두가 의견을 말하고 있나요?', '다수결로 정할 때 조심해야 할 점은 무엇일까요?', '우리 지역에 바라는 점을 어디에 알릴 수 있을까요?'],
+  },
+  villages: {
+    id: 'villages',
+    kind: 'sort',
+    title: '다양한 환경과 삶의 모습',
+    standard: '[4사10-01·02]',
+    standardText:
+      '여러 지역의 자연환경과 인문환경의 특징을 살펴보고, 환경의 이용과 개발에 따른 변화를 탐구한다. / 여러 지역의 사례를 통해 환경에 따라 다양한 삶의 모습을 비교한다.',
+    guide: '농촌, 어촌, 산지촌, 도시 사람들의 생활을 나누어 보고, 환경을 개발하면 무엇이 달라지는지 생각해요.',
+    questions: ['우리 지역은 농촌, 어촌, 산지촌, 도시 중 어디와 가장 비슷한가요?', '자연환경이 다르면 하는 일은 어떻게 달라질까요?', '개발할 때 지켜야 할 것은 무엇일까요?'],
+  },
+  territory: {
+    id: 'territory',
+    kind: 'territory',
+    title: '우리나라 국토 여행',
+    standard: '[6사01-01·02]',
+    standardText:
+      '우리나라 산지, 하천, 해안 지형의 위치를 확인하고 지형의 분포 특징을 탐구한다. / 독도의 지리적 특성에 대한 이해를 바탕으로 영토로서 독도가 지니는 중요성을 탐구한다.',
+    guide: '우리나라 지도에서 산지, 하천, 해안 지형과 독도를 찾아보고, 지형이 어떻게 분포하는지 알아봐요.',
+    questions: ['높은 산은 우리나라의 동쪽과 서쪽 중 어디에 많나요?', '서해안과 동해안은 어떻게 다를까요?', '독도가 우리 땅이라는 근거에는 무엇이 있을까요?'],
+  },
+  rights: {
+    id: 'rights',
+    kind: 'sort',
+    title: '법과 인권의 보장',
+    standard: '[6사03-01·02]',
+    standardText:
+      '일상 사례에서 법의 의미와 역할을 이해하고, 헌법에 규정된 인권이 일상생활에서 구현되는 사례를 조사하여 인권 친화적 태도를 기른다. / 생활 속에서 인권 보장이 필요한 사례를 탐구하여 인권 의식을 기르고, 인권 보호를 실천하는 태도를 기른다.',
+    guide: '생활 속 모습이 헌법의 어떤 기본권과 관련 있는지 찾고, 인권을 존중하는 행동을 가려내요.',
+    questions: ['헌법은 왜 국민의 기본권을 적어 두었을까요?', '우리 학교에서 인권이 잘 지켜지는 모습은 무엇인가요?', '인권을 침해당했을 때 어디에 도움을 청할 수 있을까요?'],
+  },
+  modern: {
+    id: 'modern',
+    kind: 'history',
+    title: '민주화와 산업화 연표',
+    standard: '[6사07-01·02]',
+    standardText:
+      '분단으로 나타난 문제점과 분단과 관련된 장소를 평화의 장소로 바꾸는 노력을 탐구한다. / 민주화와 산업화 과정에서 일어난 변화를 탐구하고 그 의미를 이해한다.',
+    guide: '6·25 전쟁 정전부터 첫 남북 정상 회담까지 큰 사건을 차례로 놓아 민주화와 산업화의 흐름을 살펴봐요.',
+    questions: ['4·19 혁명, 5·18 민주화 운동, 6월 민주 항쟁은 무엇을 지키려 했을까요?', '경제가 빠르게 발전하면서 생활은 어떻게 달라졌을까요?', '분단으로 생긴 어려움은 무엇이고, 평화 통일을 위해 어떤 노력을 할 수 있을까요?'],
+  },
   landform: {
     id: 'landform',
     kind: 'landform',
@@ -404,6 +502,16 @@ export const PROMO_CATS: Choice[] = [
   { id: 'product', emoji: '🍎', label: '특산물·먹거리' },
   { id: 'spot', emoji: '📸', label: '가 볼 만한 곳' },
   { id: 'people', emoji: '🙌', label: '사람·이야기' },
+];
+
+/** 우리 지역 문화유산 지도: 문화유산 종류 */
+export const HERITAGE_TYPES: Choice[] = [
+  { id: 'building', emoji: '🏯', label: '옛 건물·유적' },
+  { id: 'stone', emoji: '🗿', label: '비석·탑·기념물' },
+  { id: 'record', emoji: '📜', label: '기록·유물' },
+  { id: 'intangible', emoji: '🎶', label: '노래·놀이·기술 (무형 유산)' },
+  { id: 'nature', emoji: '🌳', label: '오래된 나무·자연유산' },
+  { id: 'story', emoji: '📖', label: '인물·전해 오는 이야기' },
 ];
 
 /** 지도 기호 만들기: 장소 종류 */

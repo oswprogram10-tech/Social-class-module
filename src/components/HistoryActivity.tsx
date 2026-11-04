@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { HISTORY_ANSWER, HISTORY_EVENTS, findEvent, historyScore } from '../content/history';
+import type { ActivityId } from '../activities';
+import { orderScore, type OrderSet } from '../content/history';
 import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
 import Speak from './Speak';
 
 interface Props {
+  activity: ActivityId;
+  set: OrderSet;
   cls: ClassRoom;
   store: Store;
   uid: string;
@@ -15,11 +18,13 @@ interface Props {
   onToast: (msg: string) => void;
 }
 
-/** 섞인 순서로 보여 줍니다(정답 순서와 다르게 고정) */
-const SHUFFLED = ['F', 'C', 'H', 'A', 'E', 'G', 'B', 'D'].map((id) => findEvent(id)!);
-
 /** [6사04~06] 한국사 연표 순서: 사건 카드를 옛날부터 차례로 눌러 연표를 완성합니다. */
-export default function HistoryActivity({ cls, store, uid, student, myRecords, questions, onToast }: Props) {
+export default function HistoryActivity({ activity, set, cls, store, uid, student, myRecords, questions, onToast }: Props) {
+  const findEvent = (id: string) => set.events.find((e) => e.id === id);
+  const SHUFFLED = set.shuffled.map((id) => findEvent(id)!);
+  const HISTORY_EVENTS = set.events;
+  const HISTORY_ANSWER = set.answer;
+  const historyScore = (o?: string) => orderScore(set, o);
   const record = myRecords[0];
   const [order, setOrder] = useState<string[]>([]);
   const [result, setResult] = useState<{ score: number; wrong: number[]; hint: string } | null>(null);
@@ -53,10 +58,10 @@ export default function HistoryActivity({ cls, store, uid, student, myRecords, q
     if (record) await store.updatePin(cls.code, record.id, patch);
     else
       await store.addPin(cls.code, {
-        activity: 'history',
+        activity,
         lat: cls.lat,
         lng: cls.lng,
-        placeName: '한국사 연표',
+        placeName: set.placeName,
         text: '',
         studentNo: student.studentNo,
         nickname: student.nickname,
@@ -66,7 +71,7 @@ export default function HistoryActivity({ cls, store, uid, student, myRecords, q
   }
 
   async function check() {
-    if (!full) return setMsg('사건 8개를 모두 연표에 놓아 주세요.');
+    if (!full) return setMsg(`사건 ${HISTORY_EVENTS.length}개를 모두 연표에 놓아 주세요.`);
     setMsg('');
     const str = order.join('');
     const score = historyScore(str);
@@ -77,7 +82,7 @@ export default function HistoryActivity({ cls, store, uid, student, myRecords, q
       const pos = (id: string) => HISTORY_EVENTS.find((e) => e.id === id)!.year;
       for (let i = 0; i < order.length - 1; i++) {
         if (pos(order[i]) > pos(order[i + 1])) {
-          hint = `“${findEvent(order[i])!.label}”과(와) “${findEvent(order[i + 1])!.label}” 중 무엇이 먼저 일어났을까요? 각 사건이 어느 나라 때 일인지 떠올려 보세요.`;
+          hint = `“${findEvent(order[i])!.label}”과(와) “${findEvent(order[i + 1])!.label}” 중 무엇이 먼저 일어났을까요? ${set.hintTail}`;
           break;
         }
       }
@@ -165,7 +170,7 @@ export default function HistoryActivity({ cls, store, uid, student, myRecords, q
           <div className="feedback feedback--hint" role="status">
             <span>💡</span>
             <p>
-              8개 중 {result.score}개가 제자리에 있어요. 빨간 칸을 다시 살펴보세요. {result.hint}
+              {HISTORY_EVENTS.length}개 중 {result.score}개가 제자리에 있어요. 빨간 칸을 다시 살펴보세요. {result.hint}
             </p>
           </div>
         )}
@@ -176,7 +181,7 @@ export default function HistoryActivity({ cls, store, uid, student, myRecords, q
               <p>연표를 완성했어요! 사건마다 연도가 나타났어요.</p>
             </div>
             <label className="field">
-              <span>가장 기억에 남는 사건과 그 까닭은?</span>
+              <span>{set.open}</span>
               <textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={LIMITS.text} />
             </label>
             <button type="button" className="btn btn--primary btn--block" onClick={saveReason} disabled={saving}>

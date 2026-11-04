@@ -4,6 +4,7 @@ import {
   FIXES,
   PLACE_TYPES,
   PROBLEMS,
+  HERITAGE_TYPES,
   PROMO_CATS,
   SOLUTIONS,
   SOLVE_STEPS,
@@ -37,6 +38,8 @@ export function describePin(pin: Pin): string {
     }
     case 'promote':
       return `${pin.placeName}. ${pin.slogan ?? ''}. ${pin.text}`;
+    case 'heritage':
+      return `${pin.placeName}. ${pin.text} 지키는 방법: ${pin.slogan ?? ''}`;
     case 'timeline':
       return `${pin.year}년. ${pin.placeName}. ${pin.text}`;
     case 'solve': {
@@ -118,7 +121,7 @@ export default function PinCard({ pin, author, children, compact, school }: Prop
   const problem = findChoice(PROBLEMS, pin.problem);
   const fix = findChoice(FIXES, pin.fix);
   const mission = findMission(pin.missionId);
-  const category = findChoice(PROMO_CATS, pin.category);
+  const category = findChoice(pin.activity === 'heritage' ? HERITAGE_TYPES : PROMO_CATS, pin.category);
   const placeType = findChoice(PLACE_TYPES, pin.placeType);
   const symbol = pin.activity === 'legend' ? findChoice(SYMBOLS, pin.symbol) : undefined;
   const missionOk = pin.activity === 'mission' && school ? isMissionCorrect(pin.missionId, school, pin) : undefined;
@@ -179,6 +182,7 @@ export default function PinCard({ pin, author, children, compact, school }: Prop
       ) : (
         body && <p className="pin-card__text">{body}</p>
       )}
+      {pin.activity === 'heritage' && pin.slogan && !compact && <p className="pin-card__text">🛡️ 지키는 방법: {pin.slogan}</p>}
       <div className="pin-card__foot">
         {author && <span className="pin-card__author">{author}</span>}
         {pin.activity !== 'mission' && pin.activity !== 'timeline' && (

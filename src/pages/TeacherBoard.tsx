@@ -5,6 +5,7 @@ import {
   FIXES,
   PLACE_TYPES,
   PROBLEMS,
+  HERITAGE_TYPES,
   PROMO_CATS,
   SOLUTIONS,
   SYMBOLS,
@@ -22,6 +23,7 @@ import {
   FactItemEditor,
   FactcheckResults,
   HistoryResults,
+  SortResults,
   MarketResults,
   TradeResults,
   GlobalResults,
@@ -34,7 +36,8 @@ import { findMarketItem } from '../content/market';
 import { findPrinciple, SCENARIOS } from '../content/election';
 import { TRUST_LEVELS } from '../content/factcheck';
 import { QUIZZES, quizScore } from '../content/quizzes';
-import { historyScore } from '../content/history';
+import { orderScore, orderSetFor } from '../content/history';
+import { SORT_SETS, sortCards, sortScore } from '../content/sorts';
 import { findActor, findProblem } from '../content/global';
 import { MissionProgress, QuestionEditor, Summary, TeacherAccount } from '../components/TeacherWidgets';
 import { LocalAiSettings } from '../components/LocalAi';
@@ -58,7 +61,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     '문제 해결 단계', '문제 설명', '원인', '방법 A', 'A 좋은 점', 'A 아쉬운 점', '방법 B', 'B 좋은 점', 'B 아쉬운 점', '선택',
     '자랑거리·지구촌 문제', '홍보 문구·실천 약속', '장소 종류', '기호', '연도',
     '팩트체크 자료', '사실·의견 표시', '믿을 만한 정도', '산 것', '기회비용', '선거 이야기 맞힘', '가장 중요한 원칙',
-    '탐구 질문 맞힘', '연표 제자리', '무역 전', '무역 후', '가뭄 때 선택', '무역 확인 문제',
+    '탐구 질문 맞힘', '연표 제자리', '분류하기 맞힘', '무역 전', '무역 후', '가뭄 때 선택', '무역 확인 문제',
     '공감', '승인', '숨김', '위도', '경도', '작성시각',
   ];
   const rows = pins.map((p) => [
@@ -83,7 +86,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     p.optBGood ?? '',
     p.optBBad ?? '',
     p.chosen ?? '',
-    (findChoice(PROMO_CATS, p.category) ?? findProblem(p.category))?.label ?? '',
+    (findChoice(p.activity === 'heritage' ? HERITAGE_TYPES : PROMO_CATS, p.category) ?? findProblem(p.category))?.label ?? '',
     p.slogan ?? '',
     findChoice(PLACE_TYPES, p.placeType)?.label ?? '',
     p.activity === 'legend' ? (findChoice(SYMBOLS, p.symbol)?.label ?? '') : '',
@@ -96,7 +99,8 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
     p.activity === 'election' ? `${SCENARIOS.filter((sc, i) => p.labels?.[i] === sc.answer).length}/${SCENARIOS.length}` : '',
     p.activity === 'election' ? (findPrinciple(p.picks)?.label ?? '') : '',
     QUIZZES[p.activity] ? `${quizScore(QUIZZES[p.activity]!, p.picks)}/${QUIZZES[p.activity]!.questions.length}` : '',
-    p.activity === 'history' ? `${historyScore(p.labels)}/8` : '',
+    orderSetFor(p.activity) ? `${orderScore(orderSetFor(p.activity)!, p.labels)}/${orderSetFor(p.activity)!.events.length}` : '',
+    SORT_SETS[p.activity] ? `${sortScore(SORT_SETS[p.activity]!, p.labels)}/${sortCards(SORT_SETS[p.activity]!).length}` : '',
     ...tradeCsv(p),
     p.likes,
     p.approved ? 'O' : 'X',
@@ -302,10 +306,12 @@ export default function TeacherBoard({ code }: { code: string }) {
               <GlobalResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'trade' ? (
               <TradeResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
-            ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldclimate' || kind === 'worldpop' || kind === 'landform' ? (
+            ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldclimate' || kind === 'worldpop' || kind === 'landform' || kind === 'territory' ? (
               <QuizResults pins={actPins} activity={kind} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'history' ? (
               <HistoryResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
+            ) : kind === 'sort' ? (
+              <SortResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : (
               <ElectionResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             )}
