@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react';
 type Preventable = { preventDefault(): void };
 import MapView, { type LatLng } from '../components/MapView';
 import { LIMITS } from '../data/common';
-import { go, rememberClass, useStore } from '../hooks';
+import { go, rememberClass, useStore, usePageTitle } from '../hooks';
 import { ModeBanner } from './Home';
 
 // 처음 지도 위치: 서울시청 (학교를 검색하거나 지도를 눌러 바꿉니다)
@@ -16,6 +16,7 @@ interface SearchResult {
 }
 
 export default function TeacherCreate() {
+  usePageTitle('학급 만들기');
   const { store, error } = useStore();
   const [name, setName] = useState('');
   const [schoolName, setSchoolName] = useState('');

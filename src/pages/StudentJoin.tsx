@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import Speak from '../components/Speak';
 import { LIMITS, normalizeCode } from '../data/common';
-import { go, useStore } from '../hooks';
+import { go, useStore, usePageTitle } from '../hooks';
 import { ModeBanner } from './Home';
 
 export interface StudentSession {
@@ -28,6 +28,7 @@ function saveStudent(s: StudentSession) {
 const PROMISE_TEXT = '우리 집이나 친구 집 위치는 지도에 표시하지 않아요. 친구의 느낌을 존중해요.';
 
 export default function StudentJoin({ initialCode }: { initialCode: string }) {
+  usePageTitle('학생으로 참여하기');
   const { store, error } = useStore();
   const [code, setCode] = useState(initialCode);
   const [no, setNo] = useState('');

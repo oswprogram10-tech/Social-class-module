@@ -107,6 +107,9 @@ export default function KoreaMap({
   useEffect(() => {
     const layer = layerRef.current;
     if (!layer) return;
+    // 다시 그려도 키보드 위치를 잃지 않도록, 포커스가 있던 이름표를 기억합니다.
+    const focusedId = (document.activeElement as HTMLElement | null)?.dataset?.pointId;
+    let refocus: HTMLButtonElement | null = null;
     layer.clearLayers();
     // 큰 원을 먼저 그려야 작은 원이 가려지지 않습니다.
     const sorted = [...points].sort((a, b) => b.radius - a.radius);
@@ -129,6 +132,9 @@ export default function KoreaMap({
       btn.type = 'button';
       btn.className = `value-tip ${p.id === selectedId ? 'value-tip--on' : ''}`;
       btn.textContent = p.label;
+      btn.setAttribute('aria-pressed', String(p.id === selectedId));
+      btn.dataset.pointId = p.id;
+      if (p.id === focusedId) refocus = btn;
       if (p.labelOffset) {
         const [dx, dy] = p.labelOffset;
         btn.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
@@ -144,6 +150,7 @@ export default function KoreaMap({
         }),
       );
     });
+    (refocus as HTMLButtonElement | null)?.focus({ preventScroll: true });
   }, [points, selectedId]);
 
   return <div ref={elRef} className="map" role="application" aria-label={ariaLabel} />;

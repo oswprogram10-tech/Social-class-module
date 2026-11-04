@@ -27,6 +27,8 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
   const [labels, setLabels] = useState('-'.repeat(n));
   const [section, setSection] = useState(0);
   const [hint, setHint] = useState<{ i: number; text: string } | null>(null);
+  /** 화면 읽기 프로그램에 바로 알려 줄 확인 결과 */
+  const [announce, setAnnounce] = useState('');
   const [reason, setReason] = useState('');
   const [msg, setMsg] = useState('');
   const [saving, setSaving] = useState(false);
@@ -68,6 +70,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
     const next = labels.slice(0, i) + cat + labels.slice(i + 1);
     setLabels(next);
     setHint(cat === cards[i].answer ? null : { i, text: cards[i].hint });
+    setAnnounce(cat === cards[i].answer ? `${cards[i].text}: 맞아요!` : `${cards[i].text}: 다시 생각해 볼까요? 힌트: ${cards[i].hint}`);
     try {
       await save({ labels: next, attempts: (record?.attempts ?? 0) + 1 });
     } catch (e) {
@@ -95,13 +98,12 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
     <>
       <div className="work-area sort">
         {set.sections.length > 1 && (
-          <div className="sort-tabs" role="tablist" aria-label="활동 순서">
+          <div className="sort-tabs" role="group" aria-label="활동 순서">
             {set.sections.map((s, si) => (
               <button
                 key={s.title}
                 type="button"
-                role="tab"
-                aria-selected={si === section}
+                aria-pressed={si === section}
                 className={`chip-btn ${si === section ? 'chip-btn--on' : ''}`}
                 onClick={() => {
                   setSection(si);
@@ -127,6 +129,9 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
             </span>
           ))}
         </div>
+        <p className="sr-only" role="status">
+          {announce}
+        </p>
         <ol className="sort-cards">
           {cards.map((card, i) => {
             if (card.section !== section) return null;

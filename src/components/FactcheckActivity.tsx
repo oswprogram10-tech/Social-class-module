@@ -130,13 +130,12 @@ export default function FactcheckActivity({ cls, store, uid, student, myRecords,
         <p className="issue">
           🗞️ 같은 일, 다른 자료: <strong>{FACT_ISSUE}</strong>
         </p>
-        <div className="item-tabs" role="tablist" aria-label="자료 고르기">
+        <div className="item-tabs" role="group" aria-label="자료 고르기">
           {items.map((it, i) => (
             <button
               key={it.id}
               type="button"
-              role="tab"
-              aria-selected={it.id === item.id}
+              aria-pressed={it.id === item.id}
               className={`item-tab ${it.id === item.id ? 'item-tab--on' : ''}`}
               onClick={() => setItemId(it.id)}
             >

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { Account } from '../data/types';
-import { useStore } from '../hooks';
+import { useStore, usePageTitle } from '../hooks';
 
 /** 다른 기기에서 Google 계정으로 로그인해 내 학급을 관리합니다 (학급 모드에서만). */
 export default function TeacherLogin() {
+  usePageTitle('내 학급 관리하기');
   const { store, error } = useStore();
   const [account, setAccount] = useState<Account | null>(null);
   const [classes, setClasses] = useState<{ code: string; name: string }[] | null>(null);
