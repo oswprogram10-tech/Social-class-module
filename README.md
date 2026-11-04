@@ -360,6 +360,7 @@ docs/roadmap.md          앞으로의 개발 계획
 - 세계 지도: Natural Earth (퍼블릭 도메인), world-atlas 패키지
 - 시도 경계: Natural Earth 1:10m Admin 1 v5.1.2 (퍼블릭 도메인)
 - 세계 지형 사진: 위키미디어 공용 (CC BY-SA, 작가·라이선스는 앱의 사진 아래와 `src/content/landforms.ts`에 적음)
+- 한국사 유물 사진 17점: 위키미디어 공용 (공공누리 제1유형·퍼블릭 도메인·CC0·CC BY·CC BY-SA, 작가·라이선스는 앱의 사진 아래와 `src/content/sorts.ts`에 적음)
 - 기후 통계: 기상청 1991~2020 기후평년값 / 인구 통계: 통계청 인구주택총조사
 - 세계 인구: 국제연합 World Population Prospects 2024 (2023년 추계)
 - 세계 기후: 1991~2020 평년값 — Meteorological Service Singapore, WMO(NOAA NCEI 제공), Met Office, 러시아 수문기상청 중앙지방청, NOAA U.S. Climate Normals, 기상청
