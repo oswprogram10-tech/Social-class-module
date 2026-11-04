@@ -3777,3 +3777,19 @@ button.choice-card {
     scroll-behavior: auto !important;
   }
 }
+
+/* 인터넷이 끊겼을 때 알림 */
+.offline-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 3000;
+  max-width: calc(100% - 32px);
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--text);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
