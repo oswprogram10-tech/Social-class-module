@@ -1,5 +1,7 @@
 import { ACTIVITIES, UNITS } from '../activities';
+import { useState } from 'react';
 import { isClassMode } from '../config';
+import { NOTICE_CHECKLIST, PARENT_NOTICE } from '../content/parentNotice';
 
 const REPO = 'https://github.com/oswprogram10-tech/Social-class-module';
 
@@ -100,8 +102,9 @@ export default function Guide() {
             <li>연표·미션·퀴즈형 기록은 학생 본인과 선생님만 볼 수 있어요(보안 규칙으로도 막혀 있어요). 발표 화면에는 이름 없이 반 전체 요약만 나와요.</li>
             <li>한 크롬북을 여러 학생이 번갈아 써도, 학생은 자기 번호로 남긴 기록만 이어서 고칠 수 있어요.</li>
             <li>로컬 AI 도우미는 선생님 PC 안에서만 동작하고, 학생 이름을 보내지 않아요. 학생은 AI를 쓰지 않아요.</li>
-            <li>학교에서 쓰기 전에 학교의 개인정보 처리 절차(학부모 안내 등)를 확인해 주세요.</li>
+            <li>학교에서 쓰기 전에 학교의 개인정보 처리 절차를 확인하고, 아래 견본으로 학부모님께 안내해 주세요.</li>
           </ul>
+          <ParentNotice />
         </section>
 
         <section id="copy" className="card">
@@ -148,5 +151,41 @@ export default function Guide() {
         </section>
       </main>
     </div>
+  );
+}
+
+/** 학부모 안내문 견본: 복사해서 학교 가정통신문 양식에 붙여 씁니다 */
+function ParentNotice() {
+  const [msg, setMsg] = useState('');
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(PARENT_NOTICE);
+      setMsg('복사했어요. 학교 가정통신문 양식에 붙여 넣고 [ ] 빈칸을 채워 주세요.');
+    } catch {
+      setMsg('복사하지 못했어요. 아래 글을 직접 선택해서 복사해 주세요.');
+    }
+  }
+  return (
+    <details className="notice-box" id="parent-notice">
+      <summary>
+        <strong>📄 학부모 안내문 견본</strong> (복사해서 가정통신문에 붙여 쓰기)
+      </summary>
+      <h3>보내기 전에 확인해 주세요</h3>
+      <ul className="guide-steps">
+        {NOTICE_CHECKLIST.map((t) => (
+          <li key={t}>{t}</li>
+        ))}
+      </ul>
+      <div className="row">
+        <button type="button" className="btn btn--primary" onClick={copy}>
+          📋 안내문 복사하기
+        </button>
+        <span className="hint" role="status">
+          {msg}
+        </span>
+      </div>
+      <textarea className="notice-text" readOnly value={PARENT_NOTICE} rows={18} aria-label="학부모 안내문 견본" />
+      <p className="hint">이 견본은 법률 자문이 아니에요. 학교의 절차와 양식이 우선이에요.</p>
+    </details>
   );
 }

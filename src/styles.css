@@ -3716,3 +3716,27 @@ button.choice-card {
   aspect-ratio: auto;
   height: 160px;
 }
+
+/* 학부모 안내문 견본 */
+.notice-box {
+  margin-top: 12px;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.notice-box summary {
+  cursor: pointer;
+}
+.notice-box h3 {
+  margin: 12px 0 4px;
+  font-size: 1rem;
+}
+.notice-text {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
