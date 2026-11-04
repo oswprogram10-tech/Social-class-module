@@ -118,7 +118,11 @@ export default function Guide() {
           <h2>5. 우리 학교에서 수업에 쓰기 (학급 모드)</h2>
           <p>
             공개 주소는 체험 모드로만 동작해요. 학생 크롬북들을 연결하려면 이 앱을 복사(Fork)해 우리 학교만의 주소와 저장소를
-            만들어요. 기록이 다른 학교와 섞이지 않고, 비용은 들지 않아요. GitHub 계정과 Google 계정이 필요해요.
+            만들어요. 기록이 다른 학교와 섞이지 않고, 비용은 들지 않아요. GitHub 계정과 Google 계정이 필요해요. 이 앱은{' '}
+            <a href={`${REPO}/blob/main/LICENSE`} target="_blank" rel="noreferrer">
+              MIT 라이선스
+            </a>
+            라서 누구나 자유롭게 복사하고 고쳐 쓸 수 있어요.
           </p>
           <ol className="guide-steps">
             <li>

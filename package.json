@@ -1,6 +1,7 @@
 {
   "name": "social-class-module",
   "private": true,
+  "license": "MIT",
   "version": "0.1.0",
   "type": "module",
   "description": "초등 사회과 수업용 웹앱 - 우리 동네 장소감 지도",
