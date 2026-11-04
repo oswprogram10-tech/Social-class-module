@@ -41,7 +41,8 @@ service cloud.firestore {
       return ['feel', 'better', 'timeline', 'mission', 'legend', 'market', 'solve', 'promote', 'election', 'factcheck',
               'climate', 'population', 'history', 'globe', 'worldclimate', 'trade', 'worldpop', 'global', 'landform',
               'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
-              'oldthings', 'exchange', 'powers', 'economy', 'growth'];
+              'oldthings', 'exchange', 'powers', 'economy', 'growth',
+              'prehistory', 'joseon', 'colonial'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -80,7 +81,10 @@ service cloud.firestore {
         && (!('exchange' in d.questions) || (d.questions.exchange is list && d.questions.exchange.size() <= 5))
         && (!('powers' in d.questions) || (d.questions.powers is list && d.questions.powers.size() <= 5))
         && (!('economy' in d.questions) || (d.questions.economy is list && d.questions.economy.size() <= 5))
-        && (!('growth' in d.questions) || (d.questions.growth is list && d.questions.growth.size() <= 5)));
+        && (!('growth' in d.questions) || (d.questions.growth is list && d.questions.growth.size() <= 5))
+        && (!('prehistory' in d.questions) || (d.questions.prehistory is list && d.questions.prehistory.size() <= 5))
+        && (!('joseon' in d.questions) || (d.questions.joseon is list && d.questions.joseon.size() <= 5))
+        && (!('colonial' in d.questions) || (d.questions.colonial is list && d.questions.colonial.size() <= 5)));
     }
 
     // 교사가 만든 팩트체크 자료: 최대 10개

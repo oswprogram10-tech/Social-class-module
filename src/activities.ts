@@ -36,7 +36,10 @@ export type ActivityId =
   | 'exchange'
   | 'powers'
   | 'economy'
-  | 'growth';
+  | 'growth'
+  | 'prehistory'
+  | 'joseon'
+  | 'colonial';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -107,7 +110,9 @@ export const UNITS: UnitDef[] = [
   { grade: '5-1', title: '(1) 우리나라 국토 여행', activities: ['territory'] },
   { grade: '5-1', title: '(2) 우리나라 지리 탐구', activities: ['climate', 'population'] },
   { grade: '5-1', title: '(3) 법과 인권의 보장', activities: ['rights'] },
-  { grade: '5-2', title: '(4)~(6) 한국사', activities: ['history'] },
+  { grade: '5-2', title: '(4) 유적과 유물로 살펴본 옛 사람들의 생활', activities: ['prehistory'] },
+  { grade: '5-2', title: '(5) 달라지는 시대, 변화하는 생활 모습', activities: ['joseon'] },
+  { grade: '5-2', title: '(6) 식민 통치와 저항, 전쟁이 바꾼 사회와 생활', activities: ['colonial', 'history'] },
   { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'powers', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
@@ -271,7 +276,7 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
   history: {
     id: 'history',
     kind: 'history',
-    title: '한국사 연표 순서',
+    title: '한국사 연표 순서 (전체 정리)',
     standard: '[6사04~06]',
     standardText: '선사 시대부터 광복까지, 유적·유물과 기록을 통해 각 시대 사람들의 생활을 추론한다.',
     guide: '우리 역사의 큰 사건 8가지를 옛날부터 차례대로 놓아 연표를 완성해요.',
@@ -410,6 +415,36 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
     standardText: '경제성장이 우리 생활에 미치는 영향을 파악하고, 빠른 경제성장으로 발생한 문제의 해결 방안을 탐색한다.',
     guide: '경제성장으로 좋아진 점과 생긴 문제를 나누고, 문제마다 알맞은 해결 방안을 짝지어요.',
     questions: ['할머니, 할아버지가 어렸을 때와 지금 생활은 어떻게 다를까요?', '경제가 성장하면 모든 사람이 똑같이 행복해질까요?', '문제를 해결하려면 누가 무엇을 해야 할까요?'],
+  },
+  prehistory: {
+    id: 'prehistory',
+    kind: 'sort',
+    title: '유물로 옛 생활 추론하기',
+    standard: '[6사04-01·02·03]',
+    standardText:
+      '선사 시대와 고조선의 유적과 유물을 활용하여 당시 사람들의 생활을 추론한다. / 역사 기록이나 유적과 유물에 나타난 고대 사람들의 생각과 생활을 추론한다. / 다양한 역사 자료를 활용하여 고려 시대 사회 모습과 사람들의 생활을 추론한다.',
+    guide: '유물과 생활 모습으로 시대를 구분하고, 고인돌·금관·석굴암·직지 같은 유물에서 옛 사람들의 생활과 생각을 추론해요.',
+    questions: ['이 유물은 무엇으로, 어떻게 만들었을까요?', '이 유물을 쓴 사람은 어떤 일을 했을까요?', '유물만 보고 알 수 없는 것은 무엇일까요?'],
+  },
+  joseon: {
+    id: 'joseon',
+    kind: 'sort',
+    title: '조선의 유교 문화와 생활 변화',
+    standard: '[6사05-01·02]',
+    standardText:
+      '조선 시대 사람들의 생각과 생활에 유교 문화가 미친 영향을 파악한다. / 조선 후기 사회⋅문화적 변화와 개항기 근대 문물 수용 과정에서 달라진 사람들의 생활을 이해한다.',
+    guide: '유교 문화가 조선 사람들의 생활에 남긴 모습을 찾고, 조선 후기와 개항기에 생활이 어떻게 달라졌는지 나누어 봐요.',
+    questions: ['오늘날에도 남아 있는 유교 문화는 무엇일까요?', '신분에 따라 생활이 다르면 어떤 점이 불공평했을까요?', '기차와 전등이 처음 생겼을 때 사람들은 어떤 마음이었을까요?'],
+  },
+  colonial: {
+    id: 'colonial',
+    kind: 'sort',
+    title: '식민 통치와 저항, 광복과 전쟁',
+    standard: '[6사06-01·02]',
+    standardText:
+      '일제의 식민 통치와 이에 대한 저항이 사회와 생활에 미친 영향을 이해한다. / 8⋅15 광복과 6⋅25 전쟁이 사회와 생활에 미친 영향을 파악한다.',
+    guide: '일제의 수탈·탄압과 이에 맞선 독립운동을 구분하고, 광복과 6·25 전쟁이 사람들의 생활을 어떻게 바꾸었는지 알아봐요.',
+    questions: ['일제는 왜 우리말과 이름을 빼앗으려 했을까요?', '독립운동가들은 어떤 방법으로 맞섰나요?', '6·25 전쟁은 사람들의 생활에 어떤 아픔을 남겼을까요?'],
   },
   modern: {
     id: 'modern',

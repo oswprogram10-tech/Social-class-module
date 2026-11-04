@@ -67,7 +67,7 @@ const MIN_REASON = 10;
 const REASON_ACTIVITIES: ActivityId[] = [
   'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade', 'global', 'landform',
   'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
-  'oldthings', 'exchange', 'powers', 'economy', 'growth',
+  'oldthings', 'exchange', 'powers', 'economy', 'growth', 'prehistory', 'joseon', 'colonial', 'prehistory', 'joseon', 'colonial',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
