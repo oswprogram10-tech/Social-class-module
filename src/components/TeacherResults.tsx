@@ -8,12 +8,14 @@ import { aiFactDraft } from '../ai/prompts';
 import { loadAiConfig } from '../ai/localAi';
 import { AiButton, AiDraftNote, useAiConfig } from './LocalAi';
 import { QUIZZES, isCorrect, parseAnswers, quizScore } from '../content/quizzes';
-import { HISTORY_ANSWER, HISTORY_EVENTS, findEvent, historyScore } from '../content/history';
+import { orderScore, orderSetFor } from '../content/history';
+import { SORT_SETS, categoryLabel, sortCards, sortScore, sortTried } from '../content/sorts';
 import { CITIES, PROVINCES } from '../content/korea-data';
 import { COUNTRY_KO } from '../content/countries-ko';
 import { CONTINENTS } from '../content/world-pop';
 import { worldCityName } from '../content/world-climate';
 import { landformName } from '../content/landforms';
+import { territoryName } from '../content/territory';
 import { ACTORS, findActor, findProblem } from '../content/global';
 import {
   TRADE_CHECKS,
@@ -475,7 +477,9 @@ function eventSummary(pins: Pin[]): string {
 
 /** 선택한 기록의 자세한 내용 (교사 화면 오른쪽) */
 export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
-  if (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'landform', 'history'].includes(pin.activity)) return <QuizDetail pin={pin} />;
+  if (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'landform', 'territory'].includes(pin.activity) || orderSetFor(pin.activity))
+    return <QuizDetail pin={pin} />;
+  if (SORT_SETS[pin.activity]) return <SortDetail pin={pin} />;
   if (pin.activity === 'factcheck') {
     const item = factItemsFor(cls).find((i) => i.id === pin.itemId);
     if (!item) return <p className="hint">지워진 자료의 기록이에요.</p>;
@@ -611,8 +615,9 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
   const students = byStudent(pins).length;
   const activity = pins[0]?.activity;
   if (!activity) return <p className="summary__total">참여 학생 0명</p>;
-  if (activity === 'history') {
-    const done = pins.filter((p) => p.labels === HISTORY_ANSWER).length;
+  const orderSet = orderSetFor(activity);
+  if (orderSet) {
+    const done = pins.filter((p) => p.labels === orderSet.answer).length;
     return (
       <section className="summary">
         <p className="summary__total">
@@ -621,8 +626,37 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
       </section>
     );
   }
+  const sortSet = SORT_SETS[activity];
+  if (sortSet) {
+    const cards = sortCards(sortSet);
+    const missed = cards
+      .map((c, i) => ({ c, n: pins.filter((p) => sortTried(p.labels) > 0 && p.labels?.[i] !== c.answer).length }))
+      .filter((x) => x.n > 0)
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 3);
+    const done = pins.filter((p) => sortScore(sortSet, p.labels) === cards.length).length;
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명 · 모두 맞힌 학생 <strong>{done}</strong>명
+        </p>
+        {missed.length > 0 && (
+          <>
+            <p className="hint">아직 헷갈리는 카드 (함께 이야기해 봐요):</p>
+            <ul className="summary__list">
+              {missed.map((x) => (
+                <li key={x.c.text}>
+                  {x.c.emoji} {x.c.text} <small>({x.n}명)</small>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
+    );
+  }
   const quiz = QUIZZES[activity];
-  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe' || activity === 'worldclimate' || activity === 'worldpop' || activity === 'landform')) {
+  if (quiz && (activity === 'climate' || activity === 'population' || activity === 'globe' || activity === 'worldclimate' || activity === 'worldpop' || activity === 'landform' || activity === 'territory')) {
     const per = quiz.questions.map((q, i) => pins.filter((p) => isCorrect(q, parseAnswers(p.picks)[i])).length);
     return (
       <section className="summary">
@@ -748,7 +782,7 @@ export function QuizResults({
   onSelect,
 }: {
   pins: Pin[];
-  activity: 'climate' | 'population' | 'globe' | 'worldclimate' | 'worldpop' | 'landform';
+  activity: 'climate' | 'population' | 'globe' | 'worldclimate' | 'worldpop' | 'landform' | 'territory';
   onSelect: (p: Pin) => void;
 }) {
   const set = QUIZZES[activity]!;
@@ -796,13 +830,87 @@ export function QuizResults({
   );
 }
 
+/** 분류하기 활동의 학생별 결과표 */
+export function SortResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  const set = SORT_SETS[pins[0].activity]!;
+  const cards = sortCards(set);
+  const secScore = (labels: string | undefined, si: number) => {
+    const idx = cards.map((c, i) => (c.section === si ? i : -1)).filter((i) => i >= 0);
+    return `${idx.filter((i) => labels?.[i] === cards[i].answer).length}/${idx.length}`;
+  };
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 분류하기 결과</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            {set.sections.map((sec) => (
+              <th key={sec.title} scope="col">
+                {sec.title}
+              </th>
+            ))}
+            <th scope="col">시도</th>
+            <th scope="col">생각</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                {set.sections.map((sec, si) => (
+                  <td key={sec.title}>{secScore(p.labels, si)}</td>
+                ))}
+                <td>{p.attempts ?? 0}</td>
+                <td>{p.text ? '✍️' : ''}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SortDetail({ pin }: { pin: Pin }) {
+  const set = SORT_SETS[pin.activity]!;
+  const cards = sortCards(set);
+  return (
+    <div className="record">
+      <ol className="record__sentences">
+        {cards.map((c, i) => {
+          const a = pin.labels?.[i];
+          return (
+            <li key={i} className={a === c.answer ? 'ok' : 'no'}>
+              {a === c.answer ? '✅' : a && a !== '-' ? '❌' : '·'} {c.text}
+              {a && a !== '-' && a !== c.answer && <small> (고른 답: {categoryLabel(set, i, a)})</small>}
+            </li>
+          );
+        })}
+      </ol>
+      <p>
+        맞힘 {sortScore(set, pin.labels)}/{cards.length} · 시도 {pin.attempts ?? 0}번
+      </p>
+      {pin.text && <p className="hint">생각: {pin.text}</p>}
+    </div>
+  );
+}
+
 export function HistoryResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
   const rows = byStudent(pins);
   if (rows.length === 0) return <Empty />;
   return (
     <div className="table-wrap">
       <table className="progress-table">
-        <caption className="sr-only">학생별 한국사 연표 결과</caption>
+        <caption className="sr-only">학생별 연표 순서 결과</caption>
         <thead>
           <tr>
             <th scope="col">번호</th>
@@ -814,7 +922,8 @@ export function HistoryResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: 
         <tbody>
           {rows.map((r) => {
             const p = r.pins[0];
-            const sc = historyScore(p.labels);
+            const set = orderSetFor(p.activity)!;
+            const sc = orderScore(set, p.labels);
             return (
               <tr key={r.label}>
                 <th scope="row">
@@ -823,10 +932,10 @@ export function HistoryResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: 
                   </button>
                 </th>
                 <td>
-                  {sc}/{HISTORY_EVENTS.length}
+                  {sc}/{set.events.length}
                 </td>
                 <td>{p.attempts ?? 0}</td>
-                <td>{p.labels === HISTORY_ANSWER ? '🎉' : ''}</td>
+                <td>{p.labels === set.answer ? '🎉' : ''}</td>
               </tr>
             );
           })}
@@ -842,17 +951,19 @@ const QUIZ_NAMES: Record<string, (id: string) => string> = {
   globe: (id) => COUNTRY_KO[id] ?? id,
   worldclimate: worldCityName,
   landform: landformName,
+  territory: territoryName,
   worldpop: (id) => COUNTRY_KO[id] ?? CONTINENT_NAME[id] ?? id,
 };
 
 export function QuizDetail({ pin }: { pin: Pin }) {
-  if (pin.activity === 'history') {
+  const orderSet = orderSetFor(pin.activity);
+  if (orderSet) {
     return (
       <div className="record">
         <ol className="record__sentences">
           {(pin.labels ?? '').split('').map((id, i) => (
-            <li key={i} className={HISTORY_ANSWER[i] === id ? 'ok' : 'no'}>
-              {HISTORY_ANSWER[i] === id ? '✅' : '❌'} {findEvent(id)?.label}
+            <li key={i} className={orderSet.answer[i] === id ? 'ok' : 'no'}>
+              {orderSet.answer[i] === id ? '✅' : '❌'} {orderSet.events.find((e) => e.id === id)?.label}
             </li>
           ))}
         </ol>

@@ -5,7 +5,7 @@ import {
   FIXES,
   PLACE_TYPES,
   PROBLEMS,
-  PROMO_CATS,
+  HERITAGE_TYPES, PROMO_CATS,
   SYMBOLS,
   type ActivityId,
   type Choice,
@@ -81,6 +81,7 @@ const PLACEHOLDER: Partial<Record<ActivityId, string>> = {
   better: '예: 학교 앞 큰길',
   legend: '예: 행복소아과, 꿈나무도서관',
   promote: '예: 한강 공원, ○○ 축제',
+  heritage: '예: ○○ 향교, ○○ 3·1 운동 기념비',
 };
 
 const TEXT_LABEL: Partial<Record<ActivityId, string>> = {
@@ -88,6 +89,7 @@ const TEXT_LABEL: Partial<Record<ActivityId, string>> = {
   better: '왜 그렇게 하면 좋아질까요?',
   legend: '왜 이 기호를 골랐나요?',
   promote: '무엇을 자랑하고 싶나요?',
+  heritage: '이 문화유산은 왜 소중할까요?',
 };
 
 export default function PinForm({ activity, initial, saving, onSubmit, onCancel }: Props) {
@@ -121,6 +123,12 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
         if (!placeType || !symbol) return setMsg('장소 종류와 기호를 골라 주세요.');
         if (!text.trim()) return setMsg('이 기호를 고른 까닭을 적어 주세요.');
         extra = { placeType, symbol };
+        break;
+      case 'heritage':
+        if (!category) return setMsg('문화유산 종류를 골라 주세요.');
+        if (!text.trim()) return setMsg('왜 소중한지 적어 주세요.');
+        if (!slogan.trim()) return setMsg('지키는 방법을 적어 주세요.');
+        extra = { category, slogan: slogan.trim() };
         break;
       case 'promote':
         if (!category) return setMsg('자랑거리 종류를 골라 주세요.');
@@ -181,6 +189,10 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
         </>
       )}
 
+      {activity === 'heritage' && (
+        <ChoiceGrid legend="어떤 문화유산인가요?" name="category" choices={HERITAGE_TYPES} value={category} onChange={setCategory} columns={3} />
+      )}
+
       <label className="field">
         <span>
           {textLabel} <Speak text={textLabel} />
@@ -196,6 +208,15 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
           {text.length}/{LIMITS.text}
         </span>
       </label>
+
+      {activity === 'heritage' && (
+        <label className="field">
+          <span>
+            🛡️ 이 문화유산을 지키려면? <Speak text="이 문화유산을 지키려면 우리가 무엇을 할 수 있을까요?" />
+          </span>
+          <input value={slogan} onChange={(e) => setSlogan(e.target.value)} placeholder="예: 낙서하지 않고 친구들에게 알리기" maxLength={LIMITS.slogan} />
+        </label>
+      )}
 
       {msg && (
         <p className="error" role="alert">

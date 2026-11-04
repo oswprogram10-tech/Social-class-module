@@ -34,12 +34,13 @@ service cloud.firestore {
 
     // 친구끼리 볼 수 있는 활동 (연표·미션·퀴즈형 기록은 본인과 교사만)
     function sharedActivities() {
-      return ['feel', 'better', 'legend', 'solve', 'promote'];
+      return ['feel', 'better', 'legend', 'solve', 'promote', 'heritage'];
     }
 
     function activities() {
       return ['feel', 'better', 'timeline', 'mission', 'legend', 'market', 'solve', 'promote', 'election', 'factcheck',
-              'climate', 'population', 'history', 'globe', 'worldclimate', 'trade', 'worldpop', 'global', 'landform'];
+              'climate', 'population', 'history', 'globe', 'worldclimate', 'trade', 'worldpop', 'global', 'landform',
+              'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -65,7 +66,15 @@ service cloud.firestore {
         && (!('trade' in d.questions) || (d.questions.trade is list && d.questions.trade.size() <= 5))
         && (!('worldpop' in d.questions) || (d.questions.worldpop is list && d.questions.worldpop.size() <= 5))
         && (!('global' in d.questions) || (d.questions.global is list && d.questions.global.size() <= 5))
-        && (!('landform' in d.questions) || (d.questions.landform is list && d.questions.landform.size() <= 5)));
+        && (!('landform' in d.questions) || (d.questions.landform is list && d.questions.landform.size() <= 5))
+        && (!('change' in d.questions) || (d.questions.change is list && d.questions.change.size() <= 5))
+        && (!('oldnew' in d.questions) || (d.questions.oldnew is list && d.questions.oldnew.size() <= 5))
+        && (!('heritage' in d.questions) || (d.questions.heritage is list && d.questions.heritage.size() <= 5))
+        && (!('democracy' in d.questions) || (d.questions.democracy is list && d.questions.democracy.size() <= 5))
+        && (!('villages' in d.questions) || (d.questions.villages is list && d.questions.villages.size() <= 5))
+        && (!('territory' in d.questions) || (d.questions.territory is list && d.questions.territory.size() <= 5))
+        && (!('rights' in d.questions) || (d.questions.rights is list && d.questions.rights.size() <= 5))
+        && (!('modern' in d.questions) || (d.questions.modern is list && d.questions.modern.size() <= 5)));
     }
 
     // 교사가 만든 팩트체크 자료: 최대 10개

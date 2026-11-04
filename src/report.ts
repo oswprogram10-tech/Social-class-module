@@ -11,7 +11,8 @@ import { electionScore } from './components/ElectionActivity';
 import { factItemsFor } from './components/FactcheckActivity';
 import { SCENARIOS } from './content/election';
 import { gradeLabels } from './content/factcheck';
-import { HISTORY_EVENTS, historyScore } from './content/history';
+import { ORDER_SETS, orderScore } from './content/history';
+import { SORT_SETS, sortCards, sortScore, sortTried } from './content/sorts';
 import { QUIZZES, quizScore } from './content/quizzes';
 import { TRADE_CHECKS, tradeScore } from './content/trade';
 import type { ClassRoom, Pin } from './data/types';
@@ -65,15 +66,16 @@ const MIN_REASON = 10;
 /** 까닭·생각을 적는 칸이 있는 활동 */
 const REASON_ACTIVITIES: ActivityId[] = [
   'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade', 'global', 'landform',
+  'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
 const VALUE_ACTIVITIES: ActivityId[] = [
-  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global', 'landform',
+  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global', 'landform', 'change', 'oldnew', 'heritage', 'democracy', 'villages', 'rights', 'modern',
 ];
 
 /** 우리 동네·공동체를 위한 참여 기록 */
-const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote', 'global'];
+const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote', 'global', 'heritage'];
 
 export function studentKey(p: Pin): string {
   return `${p.authorUid}:${p.studentNo}`;
@@ -121,7 +123,7 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
         knowledge.push({ activity: 'factcheck', label: `사실·의견 구분: ${item.title}`, correct: g.correct, total: g.total, all: g.total });
         retries += Math.max(0, (p.attempts ?? 1) - 1);
       });
-      (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'landform'] as const).forEach((a) => {
+      (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'landform', 'territory'] as const).forEach((a) => {
         const set = QUIZZES[a]!;
         by(a).forEach((p) => {
           const tried = (p.picks ?? '').split(',').filter(Boolean).length;
@@ -135,9 +137,20 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
         if (tried) knowledge.push({ activity: 'trade', label: '무역 확인 문제', correct: tradeScore(p.labels), total: tried, all: TRADE_CHECKS.length });
         retries += Math.max(0, (p.attempts ?? 0) - TRADE_CHECKS.length);
       });
-      by('history').forEach((p) => {
-        knowledge.push({ activity: 'history', label: '한국사 연표 순서', correct: historyScore(p.labels), total: HISTORY_EVENTS.length, all: HISTORY_EVENTS.length });
-        retries += Math.max(0, (p.attempts ?? 1) - 1);
+      (['history', 'modern'] as const).forEach((a) => {
+        const set = ORDER_SETS[a];
+        by(a).forEach((p) => {
+          knowledge.push({ activity: a, label: set.title, correct: orderScore(set, p.labels), total: set.events.length, all: set.events.length });
+          retries += Math.max(0, (p.attempts ?? 1) - 1);
+        });
+      });
+      (Object.keys(SORT_SETS) as ActivityId[]).forEach((a) => {
+        const set = SORT_SETS[a]!;
+        by(a).forEach((p) => {
+          const tried = sortTried(p.labels);
+          if (tried) knowledge.push({ activity: a, label: `${title(a)} 분류하기`, correct: sortScore(set, p.labels), total: tried, all: sortCards(set).length });
+          retries += Math.max(0, (p.attempts ?? 0) - sortCards(set).length);
+        });
       });
       const kc = knowledge.reduce((s, k) => s + k.correct, 0);
       const kt = knowledge.reduce((s, k) => s + k.total, 0);

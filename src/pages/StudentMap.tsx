@@ -18,6 +18,10 @@ import { ClimateActivity, PopulationActivity } from '../components/KoreaActiviti
 // 세계 지도 자료가 커서 이 활동을 열 때만 내려받습니다.
 const GlobeActivity = lazy(() => import('../components/GlobeActivity'));
 import TradeActivity from '../components/TradeActivity';
+import { orderSetFor } from '../content/history';
+import { SORT_SETS } from '../content/sorts';
+import SortActivity from '../components/SortActivity';
+import TerritoryActivity from '../components/TerritoryActivity';
 import GlobalActivity from '../components/GlobalActivity';
 const WorldPopActivity = lazy(() => import('../components/WorldPopActivity'));
 const WorldClimateActivity = lazy(() => import('../components/WorldClimateActivity'));
@@ -43,6 +47,7 @@ const STEP3: Partial<Record<ActivityId, string>> = {
   better: '문제와 바꾸고 싶은 것을 골라요.',
   legend: '장소 종류와 기호를 고르고, 그 기호를 고른 까닭을 적어요.',
   promote: '자랑거리 종류를 고르고 한 줄 홍보 문구를 만들어요.',
+  heritage: '문화유산 종류를 고르고, 왜 소중한지와 지키는 방법을 적어요.',
 };
 
 const OTHERS_HINT: Partial<Record<ActivityId, string>> = {
@@ -50,13 +55,18 @@ const OTHERS_HINT: Partial<Record<ActivityId, string>> = {
   better: '친구들이 찾은 문제와 개선 방법을 눌러 보세요.',
   legend: '오른쪽 아래 범례를 보세요. 같은 장소를 친구들은 어떤 기호로 나타냈나요?',
   promote: '친구들이 만든 홍보 문구를 눌러 보고 💛 공감해 보세요.',
+  heritage: '친구들이 찾은 문화유산을 눌러 보고, 내가 몰랐던 곳이 있는지 살펴보세요.',
 };
 
 type ActivityProps = Parameters<typeof MarketActivity>[0];
 
 /** 지도 없이 화면 전체를 쓰는 활동 */
-function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }) {
+function SelfActivity({ kind, activity, ...props }: ActivityProps & { kind: ActivityKind; activity: ActivityId }) {
   switch (kind) {
+    case 'sort':
+      return <SortActivity key={activity} {...props} activity={activity} set={SORT_SETS[activity]!} />;
+    case 'territory':
+      return <TerritoryActivity {...props} />;
     case 'factcheck':
       return <FactcheckActivity {...props} />;
     case 'global':
@@ -70,7 +80,7 @@ function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }
     case 'population':
       return <PopulationActivity {...props} />;
     case 'history':
-      return <HistoryActivity {...props} />;
+      return <HistoryActivity key={activity} {...props} activity={activity} set={orderSetFor(activity)!} />;
     case 'globe':
       return (
         <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
@@ -285,7 +295,7 @@ export default function StudentMap({ code }: { code: string }) {
 
       <div className="split">
         {isSelfKind(kind) ? (
-          <SelfActivity kind={kind} {...activityProps} />
+          <SelfActivity kind={kind} activity={activity} {...activityProps} />
         ) : (
           <>
         {kind === 'timeline' ? (

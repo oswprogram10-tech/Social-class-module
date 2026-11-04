@@ -3589,3 +3589,118 @@ button.choice-card {
   flex-wrap: wrap;
   gap: 4px 14px;
 }
+
+/* ---------- 분류하기 ---------- */
+.sort {
+  gap: 10px;
+}
+
+.sort-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sort-title {
+  margin: 4px 0 0;
+}
+
+.sort-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.sort-legend__item {
+  display: flex;
+  flex-direction: column;
+}
+
+.sort-legend__item small {
+  color: var(--muted);
+}
+
+.sort-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.sort-card {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sort-card--ok {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.sort-card--no {
+  border-color: #fcd34d;
+}
+
+.sort-card__text {
+  margin: 0;
+  font-weight: 700;
+}
+
+.sort-card__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sort-choice {
+  border: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.sort-choice:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.sort-choice:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.sort-choice--ok {
+  border-color: #16a34a;
+  background: #dcfce7;
+  font-weight: 700;
+}
+
+.sort-choice--no {
+  border-color: #f59e0b;
+  background: #fef3c7;
+}
+
+.sort-card__ok,
+.sort-card__hint {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.sort-card__hint {
+  color: #92400e;
+}
+
+.summary__list {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
