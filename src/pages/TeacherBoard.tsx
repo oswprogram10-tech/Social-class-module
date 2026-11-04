@@ -46,6 +46,7 @@ import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
 import { isMissionCorrect } from '../geo';
 import { joinUrl, rememberClass, useClassRoom, usePins, useStore } from '../hooks';
 import { ModeBanner } from './Home';
+import { issueUrl } from '../config';
 
 const TEACHER_OPTS: WatchPinsOptions = { role: 'teacher' };
 
@@ -412,6 +413,15 @@ export default function TeacherBoard({ code }: { code: string }) {
                   선생님이 승인한 장소만 친구에게 공개
                 </label>
                 <p className="hint">{ACTIVITIES[activity].standardText}</p>
+                <p className="hint">
+                  <a
+                    href={issueUrl('2-content.yml', { activity: `${ACTIVITIES[activity].standard} ${ACTIVITIES[activity].title}` })}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    🛠️ 이 활동 의견 보내기 (틀린 내용 바로잡기)
+                  </a>
+                </p>
                 <QuestionEditor
                   key={activity}
                   cls={cls}

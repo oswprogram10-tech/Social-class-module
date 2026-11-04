@@ -1,0 +1,52 @@
+name: 🐞 고칠 점 알리기
+description: 앱이 멈추거나, 기록이 저장되지 않거나, 화면이 이상하게 보일 때
+title: "[고칠 점] "
+labels: ["고칠 점"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        알려 주셔서 고맙습니다. **학생 이름, 학급 코드, 학교 이름, 학생 글이 보이는 화면 사진은 올리지 마세요.** 이 게시판은 누구나 볼 수 있어요.
+  - type: input
+    id: activity
+    attributes:
+      label: 어떤 화면이나 활동인가요?
+      placeholder: 예) 교사 화면 / 5-2 (4) 선사 시대와 고대 국가 분류하기
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 무엇을 했고, 어떻게 되었나요?
+      description: 누른 버튼을 차례대로 적어 주시면 고치기 쉬워요.
+      placeholder: |
+        1. 학생 화면에서 ○○을 눌렀어요.
+        2. ○○이 나와야 하는데 ○○이 나왔어요.
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: 어떤 모드였나요?
+      options:
+        - 체험 모드 (공개 주소)
+        - 학급 모드 (우리 학교 주소)
+        - 잘 모르겠어요
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: 어떤 기기였나요?
+      multiple: true
+      options:
+        - 크롬북
+        - 윈도우 PC
+        - 맥
+        - 태블릿·스마트폰
+        - 기타
+  - type: textarea
+    id: more
+    attributes:
+      label: 더 알려 주실 것 (선택)
+      description: 화면 사진은 학생 정보가 보이지 않게 가린 뒤 올려 주세요.

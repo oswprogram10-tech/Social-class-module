@@ -32,3 +32,17 @@ export const useEmulator = import.meta.env.VITE_FIREBASE_EMULATOR === '1';
 
 /** Firebase 설정이 채워져 있으면 학급 모드로 동작합니다. */
 export const isClassMode = useEmulator || Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
+
+/**
+ * 고칠 점과 제안을 받는 GitHub 저장소.
+ * 복사(Fork)해서 쓰는 학교도 기본값을 그대로 두면 원래 저장소로 의견이 모여, 모든 학교가 함께 고친 내용을 받습니다.
+ */
+export const feedbackRepo = 'https://github.com/oswprogram10-tech/Social-class-module';
+
+export type FeedbackTemplate = '1-bug.yml' | '2-content.yml' | '3-idea.yml';
+
+/** 의견 보내기 주소. fields의 값은 이슈 양식의 같은 id 칸에 미리 채워집니다. */
+export function issueUrl(template: FeedbackTemplate, fields: Record<string, string> = {}): string {
+  const q = new URLSearchParams({ template, ...fields });
+  return `${feedbackRepo}/issues/new?${q.toString().replace(/\+/g, '%20')}`;
+}
