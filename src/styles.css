@@ -3704,3 +3704,15 @@ button.choice-card {
   margin: 4px 0 0;
   padding-left: 20px;
 }
+
+.sort-photo img {
+  aspect-ratio: auto;
+  height: 160px;
+  object-fit: contain;
+  background: #f1f5f9;
+}
+
+.sort-photo.lf-photo--none {
+  aspect-ratio: auto;
+  height: 160px;
+}
