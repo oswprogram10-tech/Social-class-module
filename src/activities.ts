@@ -39,7 +39,18 @@ export type ActivityId =
   | 'growth'
   | 'prehistory'
   | 'joseon'
-  | 'colonial';
+  | 'colonial'
+  | 'perspective'
+  | 'continuity'
+  | 'heritagetypes'
+  | 'meeting'
+  | 'devmeeting'
+  | 'rivers'
+  | 'rightswants'
+  | 'evidence'
+  | 'sources'
+  | 'peaceplaces'
+  | 'whichmap';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -99,23 +110,23 @@ export interface UnitDef {
 export const UNITS: UnitDef[] = [
   { grade: '3-1', title: '(1) 우리가 사는 곳', activities: ['feel', 'better'] },
   { grade: '3-1', title: '(2) 일상에서 만나는 과거', activities: ['timeline', 'oldthings'] },
-  { grade: '3-2', title: '(3) 사회 변화와 다양한 문화', activities: ['change'] },
-  { grade: '3-2', title: '(4) 옛날과 오늘날의 생활 모습', activities: ['oldnew'] },
+  { grade: '3-2', title: '(3) 사회 변화와 다양한 문화', activities: ['change', 'perspective'] },
+  { grade: '3-2', title: '(4) 옛날과 오늘날의 생활 모습', activities: ['oldnew', 'continuity'] },
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
-  { grade: '4-1', title: '(6) 우리 지역의 문화유산', activities: ['heritage'] },
+  { grade: '4-1', title: '(6) 우리 지역의 문화유산', activities: ['heritage', 'heritagetypes'] },
   { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market', 'exchange'] },
-  { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy'] },
+  { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy', 'meeting'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
-  { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages'] },
-  { grade: '5-1', title: '(1) 우리나라 국토 여행', activities: ['territory'] },
+  { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages', 'devmeeting'] },
+  { grade: '5-1', title: '(1) 우리나라 국토 여행', activities: ['territory', 'rivers'] },
   { grade: '5-1', title: '(2) 우리나라 지리 탐구', activities: ['climate', 'population'] },
-  { grade: '5-1', title: '(3) 법과 인권의 보장', activities: ['rights'] },
-  { grade: '5-2', title: '(4) 유적과 유물로 살펴본 옛 사람들의 생활', activities: ['prehistory'] },
-  { grade: '5-2', title: '(5) 달라지는 시대, 변화하는 생활 모습', activities: ['joseon'] },
+  { grade: '5-1', title: '(3) 법과 인권의 보장', activities: ['rights', 'rightswants'] },
+  { grade: '5-2', title: '(4) 유적과 유물로 살펴본 옛 사람들의 생활', activities: ['prehistory', 'evidence'] },
+  { grade: '5-2', title: '(5) 달라지는 시대, 변화하는 생활 모습', activities: ['joseon', 'sources'] },
   { grade: '5-2', title: '(6) 식민 통치와 저항, 전쟁이 바꾼 사회와 생활', activities: ['colonial', 'history'] },
-  { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern'] },
+  { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern', 'peaceplaces'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'powers', 'factcheck'] },
-  { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
+  { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe', 'whichmap'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['landform', 'worldclimate'] },
   { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['economy', 'growth', 'trade'] },
   { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop', 'global'] },
@@ -533,6 +544,116 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '우리 지역은 축제나 캐릭터로 무엇을 알리고 있나요?',
       '홍보 문구를 들은 사람이 가 보고 싶어지려면 어떤 말을 넣으면 좋을까요?',
     ],
+  },
+  perspective: {
+    id: 'perspective',
+    kind: 'sort',
+    title: '그 친구의 마음이 되어 보기',
+    standard: '[4사03-02]',
+    standardText:
+      '최근 사회 변화의 양상과 특징을 파악하고, 그로 인해 나타난 생활모습의 변화를 탐색한다. / 우리 사회에 나타나는 다양한 문화의 특징을 이해하고, 편견과 차별의 문제를 해결하는 방안을 탐구한다.',
+    guide: '편견과 차별을 겪은 사람의 이야기를 읽고, 그 사람의 마음이 되어 무엇이 문제였는지와 존중하는 행동을 찾아요.',
+    questions: ['내가 그 친구였다면 어떤 말을 듣고 싶었을까요?', '편견은 어떻게 생길까요?', '우리 반에서 차별 없이 지내려면 무엇을 약속할 수 있을까요?'],
+  },
+  continuity: {
+    id: 'continuity',
+    kind: 'sort',
+    title: '바뀐 것? 이어진 것?',
+    standard: '[4사04-01·02]',
+    standardText:
+      '옛날 풍습에 대해 알아보고, 오늘날과 비교하여 변화상을 파악한다. / 옛날부터 오늘날까지 이어져 오는 생활 모습을 살펴보고, 그 의미를 탐색한다.',
+    guide: '옛날부터 해 온 풍습이 오늘날 그대로 이어지는지, 모습이 바뀌어 이어지는지, 거의 사라졌는지 나누어 봐요.',
+    questions: ['우리 집에서 명절에 하는 일은 무엇인가요?', '어떤 풍습은 사라지고 어떤 풍습은 이어진 까닭은 무엇일까요?', '풍습이 바뀌어도 이어지는 마음은 무엇일까요?'],
+  },
+  heritagetypes: {
+    id: 'heritagetypes',
+    kind: 'sort',
+    title: '국가유산, 세 갈래로 나눠 봐요',
+    standard: '[4사06-01]',
+    standardText:
+      '지역의 문화유산을 통해 문화유산의 의미와 유형을 알아보고, 문화유산의 가치를 탐색한다. / 지역의 박물관, 기념관 등을 활용하여 지역의 역사적 인물이나 사건을 조사하고, 그 의미를 탐구한다.',
+    guide: '국가유산을 문화유산·자연유산·무형유산으로 나누고, 오래된 건물을 지킬지 고쳐 쓸지 생각해 봐요.',
+    questions: ['눈에 보이지 않는 유산도 지켜야 하는 까닭은 무엇일까요?', '우리 지역에는 어떤 국가유산이 있을까요?', '문화유산을 보존하면서 활용하는 방법은 무엇일까요?'],
+  },
+  meeting: {
+    id: 'meeting',
+    kind: 'sort',
+    title: '모두의 의견을 듣는 회의',
+    standard: '[4사08-01·02]',
+    standardText:
+      '학교 자치 사례를 통하여 민주주의의 의미를 이해하고, 학교생활에서 민주주의를 실천하는 능력을 기른다. / 지역에서 주민 자치를 실천하는 사례를 조사하고, 지역 문제 해결에 참여하는 태도를 기른다.',
+    guide: '학급 회의와 동네 이야기를 읽고, 다수결과 소수 의견 존중, 대화와 타협, 주민 참여 방법을 알아봐요.',
+    questions: ['다수결로 정해도 소수의 의견을 들어야 하는 까닭은?', '의견이 다를 때 어떻게 이야기 나누면 좋을까요?', '우리 동네 일에 내가 참여할 수 있는 방법은?'],
+  },
+  devmeeting: {
+    id: 'devmeeting',
+    kind: 'sort',
+    title: '바닷가 마을 개발 회의',
+    standard: '[4사10-01·02]',
+    standardText:
+      '여러 지역의 자연환경과 인문환경의 특징을 살펴보고, 환경의 이용과 개발에 따른 변화를 탐구한다. / 여러 지역의 사례를 통해 환경에 따라 다양한 삶의 모습을 비교한다.',
+    guide: '갯벌을 메워 관광 단지를 짓자는 계획을 두고 마을 사람마다 생각이 어떻게 다를지 알아보고, 촌락에 대한 오해를 바로잡아요.',
+    questions: ['개발하면 누구에게 좋고 누구에게 걱정일까요?', '자연을 지키면서 마을이 잘 사는 방법은 무엇일까요?', '오늘날 촌락은 옛날과 어떻게 달라졌을까요?'],
+  },
+  rivers: {
+    id: 'rivers',
+    kind: 'sort',
+    title: '강은 어느 바다로? 해안은 어떤 모습?',
+    standard: '[6사01-01]',
+    standardText:
+      '우리나라 산지, 하천, 해안 지형의 위치를 확인하고 지형의 분포 특징을 탐구한다. / 독도의 지리적 특성에 대한 이해를 바탕으로 영토로서 독도가 지니는 중요성을 탐구한다.',
+    guide: '우리나라 강이 어느 바다로 흘러드는지, 서해안·남해안·동해안이 어떻게 다른지 나누어 보고 그 까닭을 찾아요.',
+    questions: ['큰 강이 서쪽으로 흐르는 까닭은 무엇일까요?', '갯벌이 넓은 해안은 어디일까요?', '해안마다 사람들의 생활은 어떻게 다를까요?'],
+  },
+  rightswants: {
+    id: 'rightswants',
+    kind: 'sort',
+    title: '권리일까, 그냥 바람일까?',
+    standard: '[6사03-01·02]',
+    standardText:
+      '일상 사례에서 법의 의미와 역할을 이해하고, 헌법에 규정된 인권이 일상생활에서 구현되는 사례를 조사하여 인권 친화적 태도를 기른다. / 생활 속에서 인권 보장이 필요한 사례를 탐구하여 인권 의식을 기르고, 인권 보호를 실천하는 태도를 기른다.',
+    guide: '모든 사람이 누려야 할 권리와 그냥 갖고 싶은 바람을 구별하고, 권리와 권리가 부딪칠 때 법과 약속이 하는 일을 알아봐요.',
+    questions: ['권리와 바람은 어떻게 다를까요?', '두 사람의 권리가 부딪칠 때 어떻게 해야 할까요?', '법은 왜 필요할까요?'],
+  },
+  evidence: {
+    id: 'evidence',
+    kind: 'sort',
+    title: '유물 탐정: 보이는 것과 짐작한 것',
+    standard: '[6사04-01·02]',
+    standardText:
+      '선사 시대와 고조선의 유적과 유물을 활용하여 당시 사람들의 생활을 추론한다. / 역사 기록이나 유적과 유물에 나타난 고대 사람들의 생각과 생활을 추론한다. / 다양한 역사 자료를 활용하여 고려 시대 사회 모습과 사람들의 생활을 추론한다.',
+    guide: '유물 사진을 보고, 문장이 보이는 사실인지 근거 있는 짐작인지 근거 없는 상상인지 가려내요.',
+    questions: ['보이는 사실과 짐작은 어떻게 다를까요?', '짐작이 맞는지 확인하려면 무엇이 더 필요할까요?', '유물만으로 알 수 없는 것은 무엇일까요?'],
+  },
+  sources: {
+    id: 'sources',
+    kind: 'sort',
+    title: '누가, 왜 이렇게 썼을까?',
+    standard: '[6사05-01·02]',
+    standardText:
+      '조선 시대 사람들의 생각과 생활에 유교 문화가 미친 영향을 파악한다. / 조선 후기 사회⋅문화적 변화와 개항기 근대 문물 수용 과정에서 달라진 사람들의 생활을 이해한다.',
+    guide: '단발령과 전차를 두고 쓴 옛 자료(가상)를 읽고, 누가 왜 그렇게 썼는지와 유교 가치가 생각에 미친 영향을 찾아요.',
+    questions: ['같은 일을 두고 생각이 다른 까닭은 무엇일까요?', '옛 자료를 읽을 때 먼저 확인할 것은?', '새 문물을 반긴 사람과 두려워한 사람의 마음은 어땠을까요?'],
+  },
+  peaceplaces: {
+    id: 'peaceplaces',
+    kind: 'sort',
+    title: '분단의 장소, 평화의 장소로',
+    standard: '[6사07-01]',
+    standardText:
+      '분단으로 나타난 문제점과 분단과 관련된 장소를 평화의 장소로 바꾸는 노력을 탐구한다. / 민주화와 산업화 과정에서 일어난 변화를 탐구하고 그 의미를 이해한다.',
+    guide: '판문점, 도라산역, 비무장 지대 이야기를 읽고, 분단의 장소를 평화의 장소로 바꾸려는 노력을 알아봐요.',
+    questions: ['분단으로 생긴 어려움은 무엇일까요?', '분단의 장소를 평화의 장소로 바꾸면 무엇이 달라질까요?', '평화를 위해 우리가 할 수 있는 일은?'],
+  },
+  whichmap: {
+    id: 'whichmap',
+    kind: 'sort',
+    title: '이럴 땐 어떤 지도?',
+    standard: '[6사09-01]',
+    standardText:
+      '세계를 표현하는 다양한 공간 자료의 특징을 이해하고, 지구본과 세계지도에서 위치를 표현하는 방법을 익힌다. / 세계 주요 대륙과 대양을 파악하고, 우리나라 및 세계 여러 국가의 위치와 영토의 특징을 이해한다.',
+    guide: '하려는 일에 알맞은 공간 자료(지구본, 세계지도, 디지털 지도)를 고르고, 평면 세계지도의 특징을 알아봐요.',
+    questions: ['지구본과 세계지도는 각각 어떤 점이 좋을까요?', '완벽한 평면 세계지도가 없는 까닭은?', '디지털 지도는 언제 쓰면 좋을까요?'],
   },
 };
 

@@ -3,9 +3,15 @@
  *
  * 저장 형식(labels): 모든 카드의 고른 무리 ID를 차례로 이은 문자열. 아직 안 고른 카드는 '-'.
  * 무리 ID는 반드시 한 글자여야 합니다.
+ *
+ * 같은 엔진으로 "읽고 판단하기"도 만듭니다.
+ *  - 무리(section)에 story(이야기·자료)를 두면 카드 위에 읽을거리가 나옵니다.
+ *  - 카드에 choices를 두면 그 카드만의 보기가 나옵니다(무리 공통 categories 대신).
+ *  - answer에 여러 글자를 쓰면 그중 하나를 골라도 맞습니다(예: 'AB').
  */
 import type { ActivityId } from '../activities';
 import type { Photo } from './photos';
+import { MORE_SORT_SETS } from './sortsMore';
 
 export interface SortCategory {
   /** 한 글자 */
@@ -19,7 +25,10 @@ export interface SortCategory {
 export interface SortCard {
   text: string;
   emoji?: string;
+  /** 맞는 무리 ID. 여러 글자면 그중 하나를 골라도 맞아요. */
   answer: string;
+  /** 이 카드만의 보기 (없으면 무리 공통 보기) */
+  choices?: SortCategory[];
   /** 틀렸을 때 생각을 돕는 질문 */
   hint: string;
   /** 유물 사진 (위키미디어 공용, 자유 라이선스) */
@@ -29,8 +38,19 @@ export interface SortCard {
 export interface SortSection {
   title: string;
   prompt: string;
+  /** 공통 보기. 카드마다 보기가 다르면 빈 배열로 둡니다. */
   categories: SortCategory[];
   cards: SortCard[];
+  /** 카드 위에 보여 줄 읽을거리(이야기, 옛 자료) */
+  story?: SortStory;
+}
+
+export interface SortStory {
+  /** 예: '가상 이야기', '가상 일기 · 1895년 겨울' */
+  label: string;
+  paragraphs: string[];
+  photo?: Photo;
+  emoji?: string;
 }
 
 export interface SortSet {
@@ -603,12 +623,38 @@ Object.assign(SORT_SETS, {
   },
 } satisfies Partial<Record<ActivityId, SortSet>>);
 
+// 활동이 하나뿐이던 단원을 보강한 활동 (sortsMore.ts)
+Object.assign(SORT_SETS, MORE_SORT_SETS);
+
 export function sortCards(set: SortSet) {
   return set.sections.flatMap((s, si) => s.cards.map((c) => ({ ...c, section: si })));
 }
 
+/** 고른 무리가 맞는지 */
+export function isRight(card: SortCard, label?: string): boolean {
+  return !!label && label !== '-' && card.answer.includes(label);
+}
+
+/** 글자로 정해지는 순서 섞기: 같은 카드는 늘 같은 순서라 다시 열어도 그대로예요. */
+function stableShuffle<T>(items: T[], seed: string): T[] {
+  let h = 2166136261;
+  for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0;
+    const j = h % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/** 이 카드에서 고를 수 있는 보기. 카드만의 보기는 정답 위치를 짐작하지 못하게 섞어요. */
+export function cardChoices(set: SortSet, card: SortCard & { section: number }): SortCategory[] {
+  return card.choices ? stableShuffle(card.choices, card.text) : set.sections[card.section].categories;
+}
+
 export function sortScore(set: SortSet, labels?: string): number {
-  return sortCards(set).filter((c, i) => labels?.[i] === c.answer).length;
+  return sortCards(set).filter((c, i) => isRight(c, labels?.[i])).length;
 }
 
 export function sortTried(labels?: string): number {
@@ -617,6 +663,6 @@ export function sortTried(labels?: string): number {
 
 export function categoryLabel(set: SortSet, cardIndex: number, id?: string): string {
   const card = sortCards(set)[cardIndex];
-  const cat = card && set.sections[card.section].categories.find((c) => c.id === id);
+  const cat = card && cardChoices(set, card).find((c) => c.id === id);
   return cat ? `${cat.emoji} ${cat.label}` : '';
 }
