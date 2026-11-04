@@ -21,7 +21,7 @@ export default function Guide() {
           <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('lesson')?.scrollIntoView(); }}>2. 수업 흐름</a>
           <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('acts')?.scrollIntoView(); }}>3. 활동 목록</a>
           <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('safety')?.scrollIntoView(); }}>4. 안전과 개인정보</a>
-          <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('copy')?.scrollIntoView(); }}>5. 우리 학교에서 따로 쓰기</a>
+          <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('copy')?.scrollIntoView(); }}>5. 우리 학교에서 수업에 쓰기</a>
         </nav>
 
         <section id="start" className="card">
@@ -45,11 +45,8 @@ export default function Guide() {
           </ol>
           {!isClassMode && (
             <p className="hint">
-              여러 크롬북을 연결하려면 무료 Firebase 설정이 필요해요(약 10분). 방법은{' '}
-              <a href={`${REPO}#3-학급-모드-켜기-firebase-무료`} target="_blank" rel="noreferrer">
-                README “학급 모드 켜기”
-              </a>
-              를 보세요.
+              지금은 체험 모드라 기록이 이 브라우저에만 저장돼요. 학생 크롬북들을 연결하려면 아래 “5. 우리 학교에서 수업에
+              쓰기”를 따라 우리 학교용 주소를 만들어 주세요(처음 한 번, 약 20분, 무료).
             </p>
           )}
         </section>
@@ -108,8 +105,11 @@ export default function Guide() {
         </section>
 
         <section id="copy" className="card">
-          <h2>5. 우리 학교에서 따로 쓰기 (다른 선생님용)</h2>
-          <p>이 앱은 무료로 복제해서 우리 학교만의 주소와 저장소로 쓸 수 있어요. 비용은 들지 않아요.</p>
+          <h2>5. 우리 학교에서 수업에 쓰기 (학급 모드)</h2>
+          <p>
+            공개 주소는 체험 모드로만 동작해요. 학생 크롬북들을 연결하려면 이 앱을 복사(Fork)해 우리 학교만의 주소와 저장소를
+            만들어요. 기록이 다른 학교와 섞이지 않고, 비용은 들지 않아요. GitHub 계정과 Google 계정이 필요해요.
+          </p>
           <ol className="guide-steps">
             <li>
               GitHub 계정을 만들고{' '}
@@ -119,11 +119,20 @@ export default function Guide() {
               에서 <strong>Fork</strong>를 눌러 내 계정으로 복사해요.
             </li>
             <li>
-              내 저장소의 <strong>Settings → Pages → Source</strong>를 <strong>GitHub Actions</strong>로 바꿔요. 잠시 뒤 내 주소가 생겨요.
+              내 저장소의 <strong>Settings → Pages → Source</strong>를 <strong>GitHub Actions</strong>로 바꾸고,{' '}
+              <strong>Actions</strong> 탭에서 워크플로를 켠 뒤 <strong>Run workflow</strong>를 눌러요. 1~2분 뒤 내 주소가 생겨요.
             </li>
             <li>
-              (여러 크롬북 연결이 필요하면) 내 Firebase 프로젝트를 만들고, 설정값을 <code>src/config.ts</code>에 넣고,{' '}
-              <code>firestore.rules</code>를 붙여 넣어요. 자세한 순서는 README “학급 모드 켜기”에 있어요.
+              무료 Firebase 프로젝트를 만들어 익명 로그인과 Firestore를 켜고, <code>firestore.rules</code>를 규칙 탭에 붙여 넣어
+              게시한 뒤, 설정값을 내 저장소의 <code>src/config.ts</code>에 넣어요. 자세한 순서는{' '}
+              <a href={REPO} target="_blank" rel="noreferrer">
+                README
+              </a>
+              의 “② 우리 학교에서 수업에 쓰기”에 있어요.
+            </li>
+            <li>
+              새 활동이 나오면 내 저장소 첫 화면의 <strong>Sync fork</strong>를 눌러 받아요. 보안 규칙이 바뀌었다면 Firebase 규칙 탭에도
+              다시 붙여 넣어 주세요.
             </li>
             <li>
               학교 검색이 잘 안 되면 지도에서 학교를 직접 눌러 위치를 정하면 돼요.

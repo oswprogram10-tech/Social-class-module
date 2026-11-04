@@ -8,8 +8,8 @@ export function ModeBanner() {
   if (isClassMode) return null;
   return (
     <div className="banner" role="note">
-      <strong>체험 모드</strong> 기록이 이 브라우저에만 저장돼요. 탭을 여러 개 열면 한 크롬북에서 교사·학생 화면을 함께
-      시연할 수 있어요. 여러 크롬북을 연결하려면 README의 “학급 모드 켜기”를 따라 하세요.
+      <strong>체험 모드</strong> 기록이 이 브라우저에만 저장돼요. 탭을 두 개 열어 교사·학생 화면을 미리 살펴보세요. 학생
+      크롬북들을 연결해 수업에 쓰려면 <a href="#/guide">📖 사용 안내</a>의 “우리 학교에서 수업에 쓰기”를 보세요.
     </div>
   );
 }
