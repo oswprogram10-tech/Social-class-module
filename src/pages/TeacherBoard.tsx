@@ -295,7 +295,7 @@ export default function TeacherBoard({ code }: { code: string }) {
         {!projector && <span className="tabs__hint">누른 활동이 학생 화면에 바로 나타나요.</span>}
       </nav>
 
-      <div className="split">
+      <div className="split" role="main">
         {isSelf ? (
           <div className="work-area">
             {projector ? (

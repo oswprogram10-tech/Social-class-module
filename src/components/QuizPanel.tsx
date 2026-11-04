@@ -5,6 +5,7 @@ import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
 import Speak from './Speak';
+import { eulReul } from '../content/josa';
 
 interface Props {
   activity: ActivityId;
@@ -84,7 +85,7 @@ export default function QuizPanel({
 
   async function check() {
     if (!pick) {
-      setMsg(q.choices ? '보기에서 하나를 골라 주세요.' : `지도에서 ${targetWord}을(를) 눌러 골라 주세요.`);
+      setMsg(q.choices ? '보기에서 하나를 골라 주세요.' : `지도에서 ${eulReul(targetWord)} 눌러 골라 주세요.`);
       return;
     }
     setMsg('');
@@ -162,7 +163,7 @@ export default function QuizPanel({
           </div>
         ) : (
           <p className={`hint ${selection ? 'hint--ok' : ''}`}>
-            {selection ? `고른 ${targetWord}: ${nameOf(selection)}` : `지도에서 ${targetWord}을(를) 눌러 골라요.`}
+            {selection ? `고른 ${targetWord}: ${nameOf(selection)}` : `지도에서 ${eulReul(targetWord)} 눌러 골라요.`}
           </p>
         )}
         {feedback && (
@@ -174,7 +175,7 @@ export default function QuizPanel({
           </div>
         )}
         <div className="row">
-          <button type="button" className="btn" onClick={() => go(idx - 1)} disabled={idx === 0}>
+          <button type="button" className="btn" onClick={() => go(idx - 1)} disabled={idx === 0} aria-label="이전 질문">
             ←
           </button>
           {feedback?.ok && idx < n - 1 ? (
@@ -186,7 +187,7 @@ export default function QuizPanel({
               확인하기
             </button>
           )}
-          <button type="button" className="btn" onClick={() => go(idx + 1)} disabled={idx === n - 1}>
+          <button type="button" className="btn" onClick={() => go(idx + 1)} disabled={idx === n - 1} aria-label="다음 질문">
             →
           </button>
         </div>

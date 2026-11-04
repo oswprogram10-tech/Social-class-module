@@ -97,7 +97,7 @@ export default function TeacherCreate() {
         <h1>학급 만들기</h1>
       </header>
       {error && <p className="error">{error}</p>}
-      <div className="split">
+      <div className="split" role="main">
         <form className="panel" onSubmit={create}>
           <label className="field">
             <span>학급 이름</span>

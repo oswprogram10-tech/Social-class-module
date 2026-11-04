@@ -18,7 +18,9 @@ export default function CountryPicker({ selected, onPick }: Props) {
   );
   return (
     <p className="country-picker">
-      <label htmlFor={id}>⌨️ 목록에서 나라 고르기</label>{' '}
+      <label htmlFor={id}>
+        <span aria-hidden>⌨️ </span>목록에서 나라 고르기
+      </label>{' '}
       <select id={id} value={selected ?? ''} onChange={(e) => e.target.value && onPick(e.target.value)}>
         <option value="">나라를 고르세요</option>
         {options.map((o) => (

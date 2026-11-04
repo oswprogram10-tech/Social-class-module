@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useId } from 'react';
 import {
   ACTIVITIES,
   FEELINGS,
@@ -93,6 +93,7 @@ const TEXT_LABEL: Partial<Record<ActivityId, string>> = {
 };
 
 export default function PinForm({ activity, initial, saving, onSubmit, onCancel }: Props) {
+  const fieldId = useId();
   const [placeName, setPlaceName] = useState(initial?.placeName ?? '');
   const [text, setText] = useState(initial?.text ?? '');
   const [feeling, setFeeling] = useState(initial?.feeling);
@@ -144,18 +145,18 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
       <h2>
         {initial ? '고치기' : ACTIVITIES[activity].title}
       </h2>
-      <label className="field">
+      <div className="field">
         <span>
-          장소 이름 <Speak text="장소 이름을 적어 주세요" />
+          <label htmlFor={`${fieldId}-1`}>장소 이름</label> <Speak text="장소 이름을 적어 주세요" />
         </span>
-        <input
+        <input id={`${fieldId}-1`}
           value={placeName}
           onChange={(e) => setPlaceName(e.target.value)}
           placeholder={PLACEHOLDER[activity]}
           maxLength={LIMITS.placeName}
           autoFocus
         />
-      </label>
+      </div>
 
       {activity === 'feel' && (
         <ChoiceGrid legend="어떤 느낌이 드나요?" name="feeling" choices={FEELINGS} value={feeling} onChange={setFeeling} />
@@ -175,17 +176,17 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
       {activity === 'promote' && (
         <>
           <ChoiceGrid legend="어떤 자랑거리인가요?" name="category" choices={PROMO_CATS} value={category} onChange={setCategory} columns={3} />
-          <label className="field">
+          <div className="field">
             <span>
-              한 줄 홍보 문구 <Speak text="다른 지역 사람이 가 보고 싶어지는 한 줄 홍보 문구를 만들어요" />
+              <label htmlFor={`${fieldId}-2`}>한 줄 홍보 문구</label> <Speak text="다른 지역 사람이 가 보고 싶어지는 한 줄 홍보 문구를 만들어요" />
             </span>
-            <input
+            <input id={`${fieldId}-2`}
               value={slogan}
               onChange={(e) => setSlogan(e.target.value)}
               placeholder="예: 봄꽃이 가득한 우리 동네로 놀러 오세요!"
               maxLength={LIMITS.slogan}
             />
-          </label>
+          </div>
         </>
       )}
 
@@ -193,11 +194,11 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
         <ChoiceGrid legend="어떤 문화유산인가요?" name="category" choices={HERITAGE_TYPES} value={category} onChange={setCategory} columns={3} />
       )}
 
-      <label className="field">
+      <div className="field">
         <span>
-          {textLabel} <Speak text={textLabel} />
+          <label htmlFor={`${fieldId}-3`}>{textLabel}</label> <Speak text={textLabel} />
         </span>
-        <textarea
+        <textarea id={`${fieldId}-3`}
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={3}
@@ -207,15 +208,15 @@ export default function PinForm({ activity, initial, saving, onSubmit, onCancel 
         <span className="counter">
           {text.length}/{LIMITS.text}
         </span>
-      </label>
+      </div>
 
       {activity === 'heritage' && (
-        <label className="field">
+        <div className="field">
           <span>
-            🛡️ 이 문화유산을 지키려면? <Speak text="이 문화유산을 지키려면 우리가 무엇을 할 수 있을까요?" />
+            <label htmlFor={`${fieldId}-4`}>🛡️ 이 문화유산을 지키려면?</label> <Speak text="이 문화유산을 지키려면 우리가 무엇을 할 수 있을까요?" />
           </span>
-          <input value={slogan} onChange={(e) => setSlogan(e.target.value)} placeholder="예: 낙서하지 않고 친구들에게 알리기" maxLength={LIMITS.slogan} />
-        </label>
+          <input id={`${fieldId}-4`} value={slogan} onChange={(e) => setSlogan(e.target.value)} placeholder="예: 낙서하지 않고 친구들에게 알리기" maxLength={LIMITS.slogan} />
+        </div>
       )}
 
       {msg && (

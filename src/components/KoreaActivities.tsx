@@ -176,7 +176,7 @@ export function ClimateActivity(props: Props) {
             <span>
               <strong>{month + 1}월</strong>
             </span>
-            <input type="range" min={0} max={11} value={month} onChange={(e) => setMonth(Number(e.target.value))} aria-label="달 고르기" />
+            <input type="range" min={0} max={11} value={month} onChange={(e) => setMonth(Number(e.target.value))} aria-label="달 고르기" aria-valuetext={`${month + 1}월`} />
           </label>
         </div>
         <div className="map-box">
@@ -282,6 +282,7 @@ export function PopulationActivity(props: Props) {
               value={yearIdx}
               onChange={(e) => setYearIdx(Number(e.target.value))}
               aria-label="연도 고르기"
+              aria-valuetext={`${POP_YEARS[yearIdx]}년`}
             />
           </label>
           <div className="stat">

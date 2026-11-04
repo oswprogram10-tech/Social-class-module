@@ -3793,3 +3793,9 @@ button.choice-card {
   font-weight: 700;
   box-shadow: var(--shadow);
 }
+
+.join-main {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}

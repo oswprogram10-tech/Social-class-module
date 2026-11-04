@@ -16,6 +16,7 @@ import type { Pin } from '../data/types';
 import { isMissionCorrect, type LatLng } from '../geo';
 import { pinEmoji } from './MapView';
 import Speak from './Speak';
+import { eulReul, iGa } from '../content/josa';
 
 function optionText(type?: string, detail?: string): string {
   const c = findChoice(SOLUTIONS, type);
@@ -27,14 +28,14 @@ export function describePin(pin: Pin): string {
     case 'better': {
       const p = findChoice(PROBLEMS, pin.problem)?.label ?? '';
       const f = findChoice(FIXES, pin.fix)?.label ?? '';
-      return `${pin.placeName}. ${p}. ${f}이(가) 있으면 좋겠어요. ${pin.text}`;
+      return `${pin.placeName}. ${p}. ${f ? iGa(f) : ''} 있으면 좋겠어요. ${pin.text}`;
     }
     case 'mission':
       return `${findMission(pin.missionId)?.title ?? '미션'}. ${pin.placeName}.`;
     case 'legend': {
       const type = findChoice(PLACE_TYPES, pin.placeType)?.label ?? '';
       const sym = findChoice(SYMBOLS, pin.symbol)?.label ?? '';
-      return `${pin.placeName}. ${type}을(를) ${sym} 기호로 나타냈어요. ${pin.text}`;
+      return `${pin.placeName}. ${type ? eulReul(type) : ''} ${sym} 기호로 나타냈어요. ${pin.text}`;
     }
     case 'promote':
       return `${pin.placeName}. ${pin.slogan ?? ''}. ${pin.text}`;
