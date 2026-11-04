@@ -302,7 +302,7 @@ export default function TeacherBoard({ code }: { code: string }) {
               <GlobalResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'trade' ? (
               <TradeResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />
-            ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldclimate' || kind === 'worldpop' ? (
+            ) : kind === 'climate' || kind === 'population' || kind === 'globe' || kind === 'worldclimate' || kind === 'worldpop' || kind === 'landform' ? (
               <QuizResults pins={actPins} activity={kind} onSelect={(p) => setSelectedId(p.id)} />
             ) : kind === 'history' ? (
               <HistoryResults pins={actPins} onSelect={(p) => setSelectedId(p.id)} />

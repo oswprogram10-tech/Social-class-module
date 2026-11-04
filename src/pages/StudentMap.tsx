@@ -21,6 +21,7 @@ import TradeActivity from '../components/TradeActivity';
 import GlobalActivity from '../components/GlobalActivity';
 const WorldPopActivity = lazy(() => import('../components/WorldPopActivity'));
 const WorldClimateActivity = lazy(() => import('../components/WorldClimateActivity'));
+const LandformActivity = lazy(() => import('../components/LandformActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
 import { go, useClassRoom, usePins, useStore } from '../hooks';
@@ -74,6 +75,12 @@ function SelfActivity({ kind, ...props }: ActivityProps & { kind: ActivityKind }
       return (
         <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
           <GlobeActivity {...props} />
+        </Suspense>
+      );
+    case 'landform':
+      return (
+        <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
+          <LandformActivity {...props} />
         </Suspense>
       );
     case 'worldclimate':
