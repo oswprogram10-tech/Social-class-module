@@ -92,7 +92,7 @@ export const QUIZZES: Partial<Record<ActivityId, QuizSet>> = {
         id: 'p4',
         text: '1980년보다 2025년에 인구가 줄어든 시도를 하나 찾아보세요.',
         answers: ['jeonnam', 'jeonbuk', 'gyeongbuk', 'gangwon', 'busan'],
-        hint: '시도를 눌러 1980년과 2025년 인구를 비교해 보세요. 수도권에서 먼 곳을 살펴볼까요?',
+        hint: '“늘고 줄기(색칠)” 지도로 바꿔 1980년과 2025년을 비교해 보세요. 붉은색으로 칠해진 곳은 어디인가요?',
         explain: '전남, 전북, 경북, 강원, 부산은 인구가 줄었어요. 일자리를 찾아 수도권과 대도시로 이동했어요.',
       },
       {

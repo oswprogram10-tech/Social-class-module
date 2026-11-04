@@ -3423,3 +3423,73 @@ button.choice-card {
   padding: 6px 12px;
   font-weight: 700;
 }
+
+/* ---------- 시도 경계 색칠 지도 ---------- */
+.dokdo-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+  transform: translate(6px, -16px);
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+  pointer-events: none;
+}
+
+.base-year {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.base-year select {
+  font: inherit;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.change-legend {
+  margin: 0;
+}
+
+.change-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+  font-size: 0.88rem;
+}
+
+.change-list li {
+  display: grid;
+  grid-template-columns: 3.5em 1fr 5em;
+  align-items: center;
+  gap: 6px;
+}
+
+.change-list__track {
+  position: relative;
+  height: 12px;
+  background: linear-gradient(to right, transparent calc(50% - 1px), #94a3b8 calc(50% - 1px), #94a3b8 calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+.change-list__bar {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 3px;
+}
+
+.change-list__bar--down {
+  right: 50%;
+  background: #dc2626;
+}
+
+.change-list__bar--up {
+  left: 50%;
+  background: #2563eb;
+}
+
+.change-list__n {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
