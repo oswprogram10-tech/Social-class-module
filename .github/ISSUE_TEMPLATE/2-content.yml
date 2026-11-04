@@ -1,0 +1,36 @@
+name: 📚 내용 바로잡기
+description: 활동의 사실, 통계, 사진 설명, 맞춤법이 틀렸을 때
+title: "[내용] "
+labels: ["내용 바로잡기"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        이 앱은 공식 출처의 자료만 씁니다. 바른 내용을 확인할 수 있는 **출처**(교과서, 국가기관 누리집, 통계청·기상청 자료 등)를 함께 적어 주세요.
+  - type: input
+    id: activity
+    attributes:
+      label: 어느 활동인가요?
+      placeholder: 예) 5-2 (5) 조선 사회 분류하기
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: 지금 앱에 나오는 내용
+      placeholder: 화면에 나온 문장을 그대로 옮겨 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: right
+    attributes:
+      label: 바른 내용
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: 근거 자료(출처)
+      placeholder: 자료 이름과 주소(URL), 교과서라면 출판사와 쪽수
+    validations:
+      required: true

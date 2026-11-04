@@ -1,9 +1,9 @@
 import { ACTIVITIES, UNITS } from '../activities';
 import { useState } from 'react';
-import { isClassMode } from '../config';
+import { feedbackRepo, isClassMode, issueUrl } from '../config';
 import { NOTICE_CHECKLIST, PARENT_NOTICE } from '../content/parentNotice';
 
-const REPO = 'https://github.com/oswprogram10-tech/Social-class-module';
+const REPO = feedbackRepo;
 
 /** 처음 쓰는 선생님과 다른 학교 선생님을 위한 안내 */
 export default function Guide() {
@@ -24,6 +24,7 @@ export default function Guide() {
           <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('acts')?.scrollIntoView(); }}>3. 활동 목록</a>
           <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('safety')?.scrollIntoView(); }}>4. 안전과 개인정보</a>
           <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('copy')?.scrollIntoView(); }}>5. 우리 학교에서 수업에 쓰기</a>
+          <a href="#/guide" onClick={(e) => { e.preventDefault(); document.getElementById('feedback')?.scrollIntoView(); }}>6. 고칠 점과 제안 보내기</a>
         </nav>
 
         <section id="start" className="card">
@@ -141,13 +142,36 @@ export default function Guide() {
               학교 검색이 잘 안 되면 지도에서 학교를 직접 눌러 위치를 정하면 돼요.
             </li>
           </ol>
-          <p className="hint">
-            궁금한 점이나 고칠 점은{' '}
+        </section>
+
+        <section id="feedback" className="card">
+          <h2>6. 고칠 점과 제안 보내기</h2>
+          <p>
+            앱을 쓰며 불편한 점, 틀린 내용, 있었으면 하는 활동을 알려 주세요. GitHub 계정으로 글을 남기면 함께
+            고쳐 나가요(고친 내용은 내 저장소의 Sync fork로 받아요). 남긴 글과 진행 상황은{' '}
             <a href={`${REPO}/issues`} target="_blank" rel="noreferrer">
-              GitHub Issues
+              의견 게시판
             </a>
-            에 남겨 주세요.
+            에서 볼 수 있어요.
           </p>
+          <div className="feedback-links">
+            <a className="btn" href={issueUrl('1-bug.yml')} target="_blank" rel="noreferrer">
+              🐞 고칠 점 알리기
+            </a>
+            <a className="btn" href={issueUrl('2-content.yml')} target="_blank" rel="noreferrer">
+              📚 내용 바로잡기
+            </a>
+            <a className="btn" href={issueUrl('3-idea.yml')} target="_blank" rel="noreferrer">
+              💡 새 활동·기능 제안
+            </a>
+          </div>
+          <ul className="guide-steps">
+            <li>
+              <strong>게시판은 누구나 볼 수 있어요.</strong> 학생 이름, 학급 코드, 학생 글이 보이는 화면 사진은 올리지 마세요.
+            </li>
+            <li>내용을 바로잡을 때는 교과서나 국가기관 자료 같은 출처를 함께 적어 주세요.</li>
+            <li>교사 화면에서 활동을 고른 뒤 아래쪽의 “이 활동 의견 보내기”를 누르면 활동 이름이 미리 채워져요.</li>
+          </ul>
         </section>
       </main>
     </div>

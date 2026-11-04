@@ -3740,3 +3740,14 @@ button.choice-card {
   line-height: 1.5;
   white-space: pre-wrap;
 }
+
+/* 의견 보내기 */
+.feedback-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.feedback-links .btn {
+  text-decoration: none;
+}

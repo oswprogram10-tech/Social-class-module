@@ -1,0 +1,30 @@
+name: 💡 새 활동·기능 제안
+description: 수업에 있으면 좋을 활동이나 기능을 제안할 때
+title: "[제안] "
+labels: ["제안"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        제안 고맙습니다. 학교마다 무료로 쓰는 도구라서 **비용이 들지 않고, 학생 개인정보를 받지 않는** 방향으로 만들어요.
+  - type: input
+    id: unit
+    attributes:
+      label: 학년과 단원 (성취기준을 알면 함께)
+      placeholder: 예) 4-2 (9) 지역문제 해결 [4사09-01]
+  - type: textarea
+    id: idea
+    attributes:
+      label: 학생이 하는 일
+      description: 수업 장면을 떠올려 학생이 화면에서 무엇을 하는지 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 왜 필요한가요?
+      description: 지금 수업에서 어려운 점이나, 이 활동으로 기르고 싶은 힘
+  - type: textarea
+    id: teacher
+    attributes:
+      label: 선생님 화면에서 보고 싶은 것 (선택)
