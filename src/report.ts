@@ -67,11 +67,12 @@ const MIN_REASON = 10;
 const REASON_ACTIVITIES: ActivityId[] = [
   'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade', 'global', 'landform',
   'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
+  'oldthings', 'exchange', 'powers', 'economy', 'growth',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
 const VALUE_ACTIVITIES: ActivityId[] = [
-  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global', 'landform', 'change', 'oldnew', 'heritage', 'democracy', 'villages', 'rights', 'modern',
+  'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global', 'landform', 'change', 'oldnew', 'heritage', 'democracy', 'villages', 'rights', 'modern', 'oldthings', 'exchange', 'powers', 'economy', 'growth',
 ];
 
 /** 우리 동네·공동체를 위한 참여 기록 */

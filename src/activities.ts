@@ -31,7 +31,12 @@ export type ActivityId =
   | 'villages'
   | 'territory'
   | 'rights'
-  | 'modern';
+  | 'modern'
+  | 'oldthings'
+  | 'exchange'
+  | 'powers'
+  | 'economy'
+  | 'growth';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -90,12 +95,12 @@ export interface UnitDef {
 
 export const UNITS: UnitDef[] = [
   { grade: '3-1', title: '(1) 우리가 사는 곳', activities: ['feel', 'better'] },
-  { grade: '3-1', title: '(2) 일상에서 만나는 과거', activities: ['timeline'] },
+  { grade: '3-1', title: '(2) 일상에서 만나는 과거', activities: ['timeline', 'oldthings'] },
   { grade: '3-2', title: '(3) 사회 변화와 다양한 문화', activities: ['change'] },
   { grade: '3-2', title: '(4) 옛날과 오늘날의 생활 모습', activities: ['oldnew'] },
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
   { grade: '4-1', title: '(6) 우리 지역의 문화유산', activities: ['heritage'] },
-  { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market'] },
+  { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market', 'exchange'] },
   { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
   { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages'] },
@@ -104,10 +109,10 @@ export const UNITS: UnitDef[] = [
   { grade: '5-1', title: '(3) 법과 인권의 보장', activities: ['rights'] },
   { grade: '5-2', title: '(4)~(6) 한국사', activities: ['history'] },
   { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern'] },
-  { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
+  { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'powers', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['landform', 'worldclimate'] },
-  { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['trade'] },
+  { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['economy', 'growth', 'trade'] },
   { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop', 'global'] },
 ];
 
@@ -359,6 +364,52 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '일상 사례에서 법의 의미와 역할을 이해하고, 헌법에 규정된 인권이 일상생활에서 구현되는 사례를 조사하여 인권 친화적 태도를 기른다. / 생활 속에서 인권 보장이 필요한 사례를 탐구하여 인권 의식을 기르고, 인권 보호를 실천하는 태도를 기른다.',
     guide: '생활 속 모습이 헌법의 어떤 기본권과 관련 있는지 찾고, 인권을 존중하는 행동을 가려내요.',
     questions: ['헌법은 왜 국민의 기본권을 적어 두었을까요?', '우리 학교에서 인권이 잘 지켜지는 모습은 무엇인가요?', '인권을 침해당했을 때 어디에 도움을 청할 수 있을까요?'],
+  },
+  oldthings: {
+    id: 'oldthings',
+    kind: 'sort',
+    title: '오래된 물건과 지역의 변화',
+    standard: '[4사02-02·03]',
+    standardText:
+      '오래된 물건이나 자료들을 주변에서 찾아보고, 이를 통해 과거의 모습을 살펴볼 수 있음을 이해한다. / 지역의 변화상을 보여주는 역사 자료를 분석하여 지역 사람들의 달라진 생활 모습을 파악한다.',
+    guide: '과거를 알려 주는 자료를 사진·물건·글·이야기로 나누고, 우리 지역의 옛날과 오늘날 모습을 비교해요.',
+    questions: ['우리 집에서 가장 오래된 물건은 무엇일까요?', '그 물건을 쓰던 때에는 생활이 어땠을까요?', '우리 동네는 옛날과 비교해 무엇이 달라졌을까요?'],
+  },
+  exchange: {
+    id: 'exchange',
+    kind: 'sort',
+    title: '생산과 소비, 지역 간 교류',
+    standard: '[4사07-02]',
+    standardText: '생산과 소비 활동을 파악하고, 인적⋅물적 교류의 사례를 통해 각 지역 및 사람들이 상호의존 관계를 맺고 있음을 탐색한다.',
+    guide: '경제활동을 생산과 소비로 나누고, 지역끼리 물건과 사람이 오가는 교류를 찾아봐요.',
+    questions: ['오늘 내가 한 소비 활동은 무엇인가요?', '우리 지역에서 많이 생산하는 것은 무엇일까요?', '다른 지역과 교류하지 않으면 어떤 점이 불편할까요?'],
+  },
+  powers: {
+    id: 'powers',
+    kind: 'sort',
+    title: '국회·행정부·법원',
+    standard: '[6사08-02]',
+    standardText: '민주 국가에서 국회, 행정부, 법원이 하는 일에 대해 이해하고, 각 국가기관의 권력을 분립하는 이유를 탐색한다.',
+    guide: '나라의 일이 국회, 행정부, 법원 중 어디의 일인지 나누고, 권력을 나누어 맡는 까닭을 생각해요.',
+    questions: ['세 기관이 하는 일은 각각 무엇인가요?', '한 기관이 모든 일을 맡으면 어떤 문제가 생길까요?', '기관들이 서로 살펴보는 방법에는 무엇이 있을까요?'],
+  },
+  economy: {
+    id: 'economy',
+    kind: 'sort',
+    title: '가계와 기업, 근로자의 권리',
+    standard: '[6사11-01]',
+    standardText: '시장경제에서 가계와 기업의 역할을 이해하고, 근로자의 권리와 기업의 자유 및 사회적 책임을 탐색한다.',
+    guide: '가계와 기업이 하는 일을 나누고, 근로자의 권리가 지켜졌는지, 기업이 사회적 책임을 다하는지 판단해요.',
+    questions: ['우리 가족은 가계로서 어떤 경제활동을 하나요?', '근로자의 권리는 왜 법으로 지켜야 할까요?', '좋은 기업은 어떤 기업일까요?'],
+  },
+  growth: {
+    id: 'growth',
+    kind: 'sort',
+    title: '경제성장과 생활의 변화',
+    standard: '[6사11-02]',
+    standardText: '경제성장이 우리 생활에 미치는 영향을 파악하고, 빠른 경제성장으로 발생한 문제의 해결 방안을 탐색한다.',
+    guide: '경제성장으로 좋아진 점과 생긴 문제를 나누고, 문제마다 알맞은 해결 방안을 짝지어요.',
+    questions: ['할머니, 할아버지가 어렸을 때와 지금 생활은 어떻게 다를까요?', '경제가 성장하면 모든 사람이 똑같이 행복해질까요?', '문제를 해결하려면 누가 무엇을 해야 할까요?'],
   },
   modern: {
     id: 'modern',
