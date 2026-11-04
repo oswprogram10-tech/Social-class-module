@@ -22,7 +22,8 @@ export type ActivityId =
   | 'worldclimate'
   | 'trade'
   | 'worldpop'
-  | 'global';
+  | 'global'
+  | 'landform';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -40,7 +41,8 @@ export type ActivityKind =
   | 'worldclimate'
   | 'trade'
   | 'worldpop'
-  | 'global';
+  | 'global'
+  | 'landform';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
@@ -86,7 +88,7 @@ export const UNITS: UnitDef[] = [
   { grade: '5-2', title: '(4)~(6) 한국사', activities: ['history'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe'] },
-  { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['worldclimate'] },
+  { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['landform', 'worldclimate'] },
   { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['trade'] },
   { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop', 'global'] },
 ];
@@ -268,6 +270,19 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '지구본과 세계지도에서 그린란드의 크기는 어떻게 다르게 보이나요?',
       '적도와 본초 자오선은 각각 어디에 있나요?',
       '우리나라의 위치를 위도와 경도로 말해 볼까요?',
+    ],
+  },
+  landform: {
+    id: 'landform',
+    kind: 'landform',
+    title: '세계의 지형 경관',
+    standard: '[6사10-01]',
+    standardText: '세계의 여러 지역의 지형 경관을 살펴보고, 이를 통해 다양한 삶의 모습을 이해한다.',
+    guide: '세계지도에서 산맥, 강, 사막, 빙하, 해안, 화산 지형을 찾아보고, 그곳 사람들이 어떻게 살아가는지 알아봐요.',
+    questions: [
+      '이 지형은 어떻게 만들어졌을까요?',
+      '이곳에 사는 사람들은 지형을 어떻게 이용하고 있나요?',
+      '우리나라에도 비슷한 지형이 있을까요?',
     ],
   },
   worldclimate: {
