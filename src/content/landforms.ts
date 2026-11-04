@@ -6,6 +6,11 @@
  * 사진마다 작가와 라이선스를 표시합니다. 학교망에서 사진이 막혀도 활동은 그대로 할 수 있습니다.
  */
 
+import type { Photo } from './photos';
+
+export type { Photo } from './photos';
+export { licenseUrl, photoUrl } from './photos';
+
 export type LandformType = 'mountain' | 'river' | 'dry' | 'glacier' | 'coast' | 'volcano';
 
 export const LANDFORM_TYPES: { id: LandformType; name: string; emoji: string; color: string }[] = [
@@ -17,14 +22,6 @@ export const LANDFORM_TYPES: { id: LandformType; name: string; emoji: string; co
   { id: 'volcano', name: '화산 지형', emoji: '🌋', color: '#dc2626' },
 ];
 
-export interface Photo {
-  /** 위키미디어 공용 파일 이름 ("File:" 없이) */
-  file: string;
-  author: string;
-  license: string;
-  /** 파일 설명 페이지 */
-  page: string;
-}
 
 export interface Landform {
   id: string;
@@ -224,25 +221,4 @@ export function findLandform(id?: string) {
 
 export function landformName(id: string): string {
   return findLandform(id)?.name ?? id;
-}
-
-/** 위키미디어 공용 사진 주소 (작은 크기로 받아 와요) */
-export function photoUrl(p: Photo, width = 640): string {
-  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(p.file.replace(/ /g, '_'))}?width=${width}`;
-}
-
-const LICENSE_URL: Record<string, string> = {
-  'CC BY 2.0': 'https://creativecommons.org/licenses/by/2.0/',
-  'CC BY 3.0': 'https://creativecommons.org/licenses/by/3.0/',
-  'CC BY 4.0': 'https://creativecommons.org/licenses/by/4.0/',
-  'CC BY-SA 2.0': 'https://creativecommons.org/licenses/by-sa/2.0/',
-  'CC BY-SA 2.0 de': 'https://creativecommons.org/licenses/by-sa/2.0/de/',
-  'CC BY-SA 2.5': 'https://creativecommons.org/licenses/by-sa/2.5/',
-  'CC BY-SA 3.0': 'https://creativecommons.org/licenses/by-sa/3.0/',
-  'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
-  CC0: 'https://creativecommons.org/publicdomain/zero/1.0/',
-};
-
-export function licenseUrl(license: string): string | undefined {
-  return LICENSE_URL[license];
 }

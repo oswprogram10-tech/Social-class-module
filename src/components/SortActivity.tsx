@@ -4,6 +4,7 @@ import { sortCards, sortScore, type SortSet } from '../content/sorts';
 import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
+import CommonsPhoto from './CommonsPhoto';
 import Speak from './Speak';
 
 interface Props {
@@ -134,6 +135,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
             const wrong = chosen !== '-' && !ok;
             return (
               <li key={i} className={`sort-card ${ok ? 'sort-card--ok' : ''} ${wrong ? 'sort-card--no' : ''}`}>
+                {card.photo && <CommonsPhoto photo={card.photo} alt={card.text} fallback={card.emoji ?? '🖼️'} width={480} className="lf-photo sort-photo" />}
                 <p className="sort-card__text">
                   {card.emoji && <span aria-hidden>{card.emoji} </span>}
                   {card.text} <Speak text={card.text} />

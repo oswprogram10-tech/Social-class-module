@@ -5,6 +5,7 @@
  * 무리 ID는 반드시 한 글자여야 합니다.
  */
 import type { ActivityId } from '../activities';
+import type { Photo } from './photos';
 
 export interface SortCategory {
   /** 한 글자 */
@@ -21,6 +22,8 @@ export interface SortCard {
   answer: string;
   /** 틀렸을 때 생각을 돕는 질문 */
   hint: string;
+  /** 유물 사진 (위키미디어 공용, 자유 라이선스) */
+  photo?: Photo;
 }
 
 export interface SortSection {

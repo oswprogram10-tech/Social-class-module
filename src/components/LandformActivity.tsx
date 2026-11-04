@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { geoMercator, geoPath } from 'd3-geo';
 import { QUIZZES } from '../content/quizzes';
-import { LANDFORMS, LANDFORM_TYPES, landformName, licenseUrl, photoUrl, type Landform, type LandformType } from '../content/landforms';
+import { LANDFORMS, LANDFORM_TYPES, landformName, type Landform, type LandformType } from '../content/landforms';
 import { COUNTRIES, GRATICULE } from '../content/worldGeo';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
+import CommonsPhoto from './CommonsPhoto';
 import QuizPanel from './QuizPanel';
 import Speak from './Speak';
 
@@ -40,34 +41,7 @@ const LABEL: Record<string, [number, number, 'start' | 'end']> = {
 };
 
 function PhotoBox({ l }: { l: Landform }) {
-  const [failed, setFailed] = useState(false);
-  if (!l.photo || failed)
-    return (
-      <div className="lf-photo lf-photo--none" aria-hidden>
-        <span>{typeOf(l).emoji}</span>
-        {l.photo && failed && <small>사진을 불러오지 못했어요 (학교 인터넷에서 막혔을 수 있어요)</small>}
-      </div>
-    );
-  const lic = licenseUrl(l.photo.license);
-  return (
-    <figure className="lf-photo">
-      <img src={photoUrl(l.photo)} alt={`${l.name} 사진`} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-      <figcaption>
-        사진: {l.photo.author} ·{' '}
-        {lic ? (
-          <a href={lic} target="_blank" rel="noreferrer">
-            {l.photo.license}
-          </a>
-        ) : (
-          l.photo.license
-        )}{' '}
-        ·{' '}
-        <a href={l.photo.page} target="_blank" rel="noreferrer">
-          위키미디어 공용
-        </a>
-      </figcaption>
-    </figure>
-  );
+  return <CommonsPhoto photo={l.photo} alt={`${l.name} 사진`} fallback={typeOf(l).emoji} />;
 }
 
 /** [6사10-01] 세계의 지형 경관: 지도에서 지형을 찾고, 그곳 사람들의 생활을 알아봐요 */
