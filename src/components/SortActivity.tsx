@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ActivityId } from '../activities';
-import { sortCards, sortScore, type SortSet } from '../content/sorts';
+import { cardChoices, isRight, sortCards, sortScore, type SortSet } from '../content/sorts';
 import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
@@ -39,7 +39,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
     setLabels(l);
     setReason(record.text ?? '');
     // 처음으로 덜 끝낸 무리부터 보여 줍니다.
-    const firstOpen = set.sections.findIndex((_, si) => cards.some((c, i) => c.section === si && l[i] !== c.answer));
+    const firstOpen = set.sections.findIndex((_, si) => cards.some((c, i) => c.section === si && !isRight(c, l[i])));
     setSection(firstOpen === -1 ? set.sections.length - 1 : firstOpen);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [record?.id]);
@@ -47,7 +47,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
   const score = sortScore(set, labels);
   const allDone = score === n;
   const sec = set.sections[section];
-  const secDone = (si: number) => cards.every((c, i) => c.section !== si || labels[i] === c.answer);
+  const secDone = (si: number) => cards.every((c, i) => c.section !== si || isRight(c, labels[i]));
 
   async function save(patch: Partial<Pin>) {
     if (record) await store.updatePin(cls.code, record.id, patch);
@@ -66,11 +66,12 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
   }
 
   async function pick(i: number, cat: string) {
-    if (labels[i] === cards[i].answer) return;
+    if (isRight(cards[i], labels[i])) return;
     const next = labels.slice(0, i) + cat + labels.slice(i + 1);
     setLabels(next);
-    setHint(cat === cards[i].answer ? null : { i, text: cards[i].hint });
-    setAnnounce(cat === cards[i].answer ? `${cards[i].text}: 맞아요!` : `${cards[i].text}: 다시 생각해 볼까요? 힌트: ${cards[i].hint}`);
+    const right = cards[i].answer.includes(cat);
+    setHint(right ? null : { i, text: cards[i].hint });
+    setAnnounce(right ? `${cards[i].text}: 맞아요!` : `${cards[i].text}: 다시 생각해 볼까요? 힌트: ${cards[i].hint}`);
     try {
       await save({ labels: next, attempts: (record?.attempts ?? 0) + 1 });
     } catch (e) {
@@ -119,6 +120,22 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
         <p className="guide__text">
           {sec.prompt} <Speak text={sec.prompt} />
         </p>
+        {sec.story && (
+          <article className="sort-story">
+            <p className="sort-story__label">
+              {sec.story.emoji && <span aria-hidden>{sec.story.emoji} </span>}
+              {sec.story.label}
+            </p>
+            {sec.story.photo && (
+              <CommonsPhoto photo={sec.story.photo} alt={sec.title} fallback={sec.story.emoji ?? '🖼️'} width={480} className="lf-photo sort-photo" />
+            )}
+            {sec.story.paragraphs.map((t) => (
+              <p key={t}>{t}</p>
+            ))}
+            <Speak text={sec.story.paragraphs.join(' ')} label="읽을거리 읽어주기" />
+          </article>
+        )}
+        {sec.categories.length > 0 && (
         <div className="sort-legend">
           {sec.categories.map((c) => (
             <span key={c.id} className="sort-legend__item">
@@ -129,6 +146,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
             </span>
           ))}
         </div>
+        )}
         <p className="sr-only" role="status">
           {announce}
         </p>
@@ -136,7 +154,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
           {cards.map((card, i) => {
             if (card.section !== section) return null;
             const chosen = labels[i];
-            const ok = chosen === card.answer;
+            const ok = isRight(card, chosen);
             const wrong = chosen !== '-' && !ok;
             return (
               <li key={i} className={`sort-card ${ok ? 'sort-card--ok' : ''} ${wrong ? 'sort-card--no' : ''}`}>
@@ -146,7 +164,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
                   {card.text} <Speak text={card.text} />
                 </p>
                 <div className="sort-card__choices" role="group" aria-label={`“${card.text}” 어디에 들어갈까요?`}>
-                  {sec.categories.map((c) => (
+                  {cardChoices(set, card).map((c) => (
                     <button
                       key={c.id}
                       type="button"

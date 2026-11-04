@@ -9,7 +9,7 @@ import { loadAiConfig } from '../ai/localAi';
 import { AiButton, AiDraftNote, useAiConfig } from './LocalAi';
 import { QUIZZES, isCorrect, parseAnswers, quizScore } from '../content/quizzes';
 import { orderScore, orderSetFor } from '../content/history';
-import { SORT_SETS, categoryLabel, sortCards, sortScore, sortTried } from '../content/sorts';
+import { SORT_SETS, categoryLabel, isRight, sortCards, sortScore, sortTried } from '../content/sorts';
 import { CITIES, PROVINCES } from '../content/korea-data';
 import { COUNTRY_KO } from '../content/countries-ko';
 import { CONTINENTS } from '../content/world-pop';
@@ -630,7 +630,7 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
   if (sortSet) {
     const cards = sortCards(sortSet);
     const missed = cards
-      .map((c, i) => ({ c, n: pins.filter((p) => sortTried(p.labels) > 0 && p.labels?.[i] !== c.answer).length }))
+      .map((c, i) => ({ c, n: pins.filter((p) => sortTried(p.labels) > 0 && !isRight(c, p.labels?.[i])).length }))
       .filter((x) => x.n > 0)
       .sort((a, b) => b.n - a.n)
       .slice(0, 3);
@@ -838,7 +838,7 @@ export function SortResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin
   const cards = sortCards(set);
   const secScore = (labels: string | undefined, si: number) => {
     const idx = cards.map((c, i) => (c.section === si ? i : -1)).filter((i) => i >= 0);
-    return `${idx.filter((i) => labels?.[i] === cards[i].answer).length}/${idx.length}`;
+    return `${idx.filter((i) => isRight(cards[i], labels?.[i])).length}/${idx.length}`;
   };
   return (
     <div className="table-wrap">
@@ -889,9 +889,9 @@ function SortDetail({ pin }: { pin: Pin }) {
         {cards.map((c, i) => {
           const a = pin.labels?.[i];
           return (
-            <li key={i} className={a === c.answer ? 'ok' : 'no'}>
-              {a === c.answer ? '✅' : a && a !== '-' ? '❌' : '·'} {c.text}
-              {a && a !== '-' && a !== c.answer && <small> (고른 답: {categoryLabel(set, i, a)})</small>}
+            <li key={i} className={isRight(c, a) ? 'ok' : 'no'}>
+              {isRight(c, a) ? '✅' : a && a !== '-' ? '❌' : '·'} {c.text}
+              {a && a !== '-' && !isRight(c, a) && <small> (고른 답: {categoryLabel(set, i, a)})</small>}
             </li>
           );
         })}

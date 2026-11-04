@@ -42,7 +42,9 @@ service cloud.firestore {
               'climate', 'population', 'history', 'globe', 'worldclimate', 'trade', 'worldpop', 'global', 'landform',
               'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
               'oldthings', 'exchange', 'powers', 'economy', 'growth',
-              'prehistory', 'joseon', 'colonial'];
+              'prehistory', 'joseon', 'colonial',
+              'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rivers',
+              'rightswants', 'evidence', 'sources', 'peaceplaces', 'whichmap'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -77,6 +79,17 @@ service cloud.firestore {
         && (!('territory' in d.questions) || (d.questions.territory is list && d.questions.territory.size() <= 5))
         && (!('rights' in d.questions) || (d.questions.rights is list && d.questions.rights.size() <= 5))
         && (!('modern' in d.questions) || (d.questions.modern is list && d.questions.modern.size() <= 5))
+        && (!('perspective' in d.questions) || (d.questions.perspective is list && d.questions.perspective.size() <= 5))
+        && (!('continuity' in d.questions) || (d.questions.continuity is list && d.questions.continuity.size() <= 5))
+        && (!('heritagetypes' in d.questions) || (d.questions.heritagetypes is list && d.questions.heritagetypes.size() <= 5))
+        && (!('meeting' in d.questions) || (d.questions.meeting is list && d.questions.meeting.size() <= 5))
+        && (!('devmeeting' in d.questions) || (d.questions.devmeeting is list && d.questions.devmeeting.size() <= 5))
+        && (!('rivers' in d.questions) || (d.questions.rivers is list && d.questions.rivers.size() <= 5))
+        && (!('rightswants' in d.questions) || (d.questions.rightswants is list && d.questions.rightswants.size() <= 5))
+        && (!('evidence' in d.questions) || (d.questions.evidence is list && d.questions.evidence.size() <= 5))
+        && (!('sources' in d.questions) || (d.questions.sources is list && d.questions.sources.size() <= 5))
+        && (!('peaceplaces' in d.questions) || (d.questions.peaceplaces is list && d.questions.peaceplaces.size() <= 5))
+        && (!('whichmap' in d.questions) || (d.questions.whichmap is list && d.questions.whichmap.size() <= 5))
         && (!('oldthings' in d.questions) || (d.questions.oldthings is list && d.questions.oldthings.size() <= 5))
         && (!('exchange' in d.questions) || (d.questions.exchange is list && d.questions.exchange.size() <= 5))
         && (!('powers' in d.questions) || (d.questions.powers is list && d.questions.powers.size() <= 5))
