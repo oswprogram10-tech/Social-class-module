@@ -1,4 +1,5 @@
 import { ACTIVITIES, UNITS } from '../activities';
+import { usePageTitle } from '../hooks';
 import { useState } from 'react';
 import { feedbackRepo, isClassMode, issueUrl } from '../config';
 import { NOTICE_CHECKLIST, PARENT_NOTICE } from '../content/parentNotice';
@@ -7,6 +8,7 @@ const REPO = feedbackRepo;
 
 /** 처음 쓰는 선생님과 다른 학교 선생님을 위한 안내 */
 export default function Guide() {
+  usePageTitle('사용 안내');
   return (
     <div className="page">
       <header className="topbar">

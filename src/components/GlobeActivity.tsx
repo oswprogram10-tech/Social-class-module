@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { geoArea, geoContains, geoMercator, geoOrthographic, geoPath, type GeoProjection } from 'd3-geo';
+import { geoArea, geoCentroid, geoContains, geoMercator, geoOrthographic, geoPath, type GeoProjection } from 'd3-geo';
 import { COUNTRIES, EARTH_R, EQUATOR, GRATICULE, PRIME, countryName, type Country } from '../content/worldGeo';
 import { QUIZZES } from '../content/quizzes';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
+import CountryPicker from './CountryPicker';
 import QuizPanel from './QuizPanel';
 
 function latLngText([lng, lat]: [number, number]): string {
@@ -62,6 +63,15 @@ export default function GlobeActivity(props: Props) {
     setPoint(pt);
     const c = findCountry(pt);
     setSelected(c ? String(c.id) : null);
+  }
+
+  function pickFromList(id: string) {
+    const c = COUNTRIES.find((x) => String(x.id) === id);
+    if (!c) return;
+    const [lng, lat] = geoCentroid(c);
+    setPoint([lng, lat]);
+    setSelected(id);
+    setRotate([-lng, Math.max(-80, Math.min(80, -lat))]);
   }
 
   function svgXY(e: PointerEvent<SVGSVGElement>, w: number, h: number): [number, number] {
@@ -163,6 +173,7 @@ export default function GlobeActivity(props: Props) {
             </svg>
           </figure>
         </div>
+        <CountryPicker selected={selected} onPick={pickFromList} />
         <div className="globe-legend">
           <span>
             <i className="swatch swatch--equator" /> 적도 (위도 0°)

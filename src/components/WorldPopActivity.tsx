@@ -13,6 +13,7 @@ import {
 import { COUNTRIES, GRATICULE, countryName } from '../content/worldGeo';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
+import CountryPicker from './CountryPicker';
 import QuizPanel from './QuizPanel';
 
 interface Props {
@@ -122,6 +123,7 @@ export default function WorldPopActivity(props: Props) {
           </div>
         </figure>
 
+        <CountryPicker selected={selected} onPick={setSelected} />
         <section className="country-card" aria-live="polite">
           {selected ? (
             sel ? (

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { WatchPinsOptions } from '../data/types';
-import { useClassRoom, usePins, useStore } from '../hooks';
+import { useClassRoom, usePins, useStore, usePageTitle } from '../hooks';
 import { activityTitle, buildReports, pct, type StudentReport } from '../report';
 import { aiReportComment } from '../ai/prompts';
 import { loadAiConfig } from '../ai/localAi';
@@ -173,6 +173,7 @@ export function ReportCard({ r, code, editable }: { r: StudentReport; code: stri
 export default function TeacherReport({ code }: { code: string }) {
   const { store, uid, error } = useStore();
   const cls = useClassRoom(store, code);
+  usePageTitle(cls ? `성장 리포트 ${cls.name}` : '성장 리포트');
   const isOwner = !!cls && !!uid && cls.teacherUid === uid;
   const pins = usePins(store, code, isOwner ? TEACHER_OPTS : null);
   const reports = useMemo(() => (cls ? buildReports(cls, pins) : []), [cls, pins]);

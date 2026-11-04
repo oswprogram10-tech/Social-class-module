@@ -91,3 +91,12 @@ export function joinUrl(code: string): string {
   const base = window.location.href.split('#')[0];
   return `${base}#/join/${code}`;
 }
+
+const APP_TITLE = '우리 동네 지도 탐구';
+
+/** 화면마다 브라우저 탭 제목을 바꿔, 화면 읽기 프로그램이 지금 어느 화면인지 알려 주게 합니다. */
+export function usePageTitle(title?: string | null) {
+  useEffect(() => {
+    document.title = title ? `${title} · ${APP_TITLE}` : APP_TITLE;
+  }, [title]);
+}

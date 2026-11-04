@@ -1,5 +1,5 @@
 import { isClassMode } from '../config';
-import { go, myClasses } from '../hooks';
+import { go, myClasses, usePageTitle } from '../hooks';
 import { ACTIVITY_ORDER } from '../activities';
 
 const ACTIVITY_COUNT = ACTIVITY_ORDER.length;
@@ -15,6 +15,7 @@ export function ModeBanner() {
 }
 
 export default function Home() {
+  usePageTitle(null);
   const classes = myClasses();
   return (
     <div className="page page--center">

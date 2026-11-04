@@ -28,7 +28,7 @@ const WorldClimateActivity = lazy(() => import('../components/WorldClimateActivi
 const LandformActivity = lazy(() => import('../components/LandformActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
-import { go, useClassRoom, usePins, useStore } from '../hooks';
+import { go, useClassRoom, usePins, useStore, usePageTitle } from '../hooks';
 import { loadStudent } from './StudentJoin';
 
 const LIKED_KEY = 'scm:liked';
@@ -116,6 +116,7 @@ export default function StudentMap({ code }: { code: string }) {
   const student = loadStudent(code);
   const { store, uid, error } = useStore();
   const cls = useClassRoom(store, code);
+  usePageTitle(cls ? ACTIVITIES[cls.activeActivity]?.title : null);
   const watchOpts = useMemo<WatchPinsOptions | null>(
     () => (uid && cls ? { role: 'student', uid, showOthers: cls.showOthers } : null),
     [uid, cls?.showOthers], // eslint-disable-line react-hooks/exhaustive-deps

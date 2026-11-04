@@ -44,7 +44,7 @@ import { LocalAiSettings } from '../components/LocalAi';
 import { SHARED_ACTIVITIES, questionsFor } from '../data/common';
 import type { ClassRoom, Pin, WatchPinsOptions } from '../data/types';
 import { isMissionCorrect } from '../geo';
-import { joinUrl, rememberClass, useClassRoom, usePins, useStore } from '../hooks';
+import { joinUrl, rememberClass, useClassRoom, usePins, useStore, usePageTitle } from '../hooks';
 import { ModeBanner } from './Home';
 import { issueUrl } from '../config';
 
@@ -124,6 +124,7 @@ function downloadCsv(cls: ClassRoom, pins: Pin[]) {
 export default function TeacherBoard({ code }: { code: string }) {
   const { store, uid, error } = useStore();
   const cls = useClassRoom(store, code);
+  usePageTitle(cls ? `교사 화면 ${cls.name} (${ACTIVITIES[cls.activeActivity]?.title ?? ''})` : '교사 화면');
   const isOwner = !!cls && !!uid && cls.teacherUid === uid;
   const pins = usePins(store, code, isOwner ? TEACHER_OPTS : null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
