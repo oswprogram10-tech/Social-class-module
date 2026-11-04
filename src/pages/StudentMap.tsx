@@ -294,7 +294,7 @@ export default function StudentMap({ code }: { code: string }) {
         </div>
       </header>
 
-      <div className="split">
+      <div className="split" role="main">
         {isSelfKind(kind) ? (
           <SelfActivity kind={kind} activity={activity} {...activityProps} />
         ) : (

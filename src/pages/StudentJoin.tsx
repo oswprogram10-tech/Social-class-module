@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useId } from 'react';
 import Speak from '../components/Speak';
 import { LIMITS, normalizeCode } from '../data/common';
 import { go, useStore, usePageTitle } from '../hooks';
@@ -28,6 +28,7 @@ function saveStudent(s: StudentSession) {
 const PROMISE_TEXT = '우리 집이나 친구 집 위치는 지도에 표시하지 않아요. 친구의 느낌을 존중해요.';
 
 export default function StudentJoin({ initialCode }: { initialCode: string }) {
+  const fieldId = useId();
   usePageTitle('학생으로 참여하기');
   const { store, error } = useStore();
   const [code, setCode] = useState(initialCode);
@@ -56,16 +57,17 @@ export default function StudentJoin({ initialCode }: { initialCode: string }) {
   return (
     <div className="page page--center">
       <ModeBanner />
+      <main className="join-main">
       <form className="card join" onSubmit={join}>
         <h1>
           <span aria-hidden>🧒</span> 학급에 들어가기
         </h1>
         {error && <p className="error">{error}</p>}
-        <label className="field">
+        <div className="field">
           <span>
-            학급 코드 <Speak text="선생님이 알려 준 학급 코드를 적어 주세요" />
+            <label htmlFor={`${fieldId}-1`}>학급 코드</label> <Speak text="선생님이 알려 준 학급 코드를 적어 주세요" />
           </span>
-          <input
+          <input id={`${fieldId}-1`}
             className="input-code"
             value={code}
             onChange={(e) => setCode(normalizeCode(e.target.value))}
@@ -75,7 +77,7 @@ export default function StudentJoin({ initialCode }: { initialCode: string }) {
             autoComplete="off"
             autoFocus={!initialCode}
           />
-        </label>
+        </div>
         <div className="row">
           <label className="field">
             <span>번호</span>
@@ -128,6 +130,7 @@ export default function StudentJoin({ initialCode }: { initialCode: string }) {
           처음으로
         </a>
       </form>
+      </main>
     </div>
   );
 }

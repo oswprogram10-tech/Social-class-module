@@ -46,6 +46,10 @@ const CompassControl = L.Control.extend({
   },
 });
 
+// 화면 읽기 프로그램이 확대·축소 단추를 우리말로 읽도록 (우리나라 지도에도 함께 적용됩니다)
+L.Control.Zoom.prototype.options.zoomInTitle = '지도 크게 보기';
+L.Control.Zoom.prototype.options.zoomOutTitle = '지도 작게 보기';
+
 export function baseLayers(): Record<string, L.Layer> {
   if (vworldKey) {
     const url = (type: string, ext: string) =>

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useId } from 'react';
 import { TIMELINE_ICONS, findChoice } from '../activities';
 import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
@@ -69,6 +69,7 @@ interface PanelProps {
 
 /** [4사02-01] 나의 연표: 사건을 연도와 함께 적습니다. 나와 선생님만 볼 수 있습니다. */
 export function TimelinePanel({ cls, store, uid, student, myPins, selected, onSelect, questions, onToast }: PanelProps) {
+  const fieldId = useId();
   const [editing, setEditing] = useState<Pin | 'new' | null>(null);
   const [year, setYear] = useState('');
   const [title, setTitle] = useState('');
@@ -144,12 +145,12 @@ export function TimelinePanel({ cls, store, uid, student, myPins, selected, onSe
               autoFocus
             />
           </label>
-          <label className="field field--grow">
+          <div className="field field--grow">
             <span>
-              어떤 일이 있었나요? <Speak text="어떤 일이 있었나요?" />
+              <label htmlFor={`${fieldId}-1`}>어떤 일이 있었나요?</label> <Speak text="어떤 일이 있었나요?" />
             </span>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={LIMITS.placeName} placeholder="예: 동생이 태어났어요" />
-          </label>
+            <input id={`${fieldId}-1`} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={LIMITS.placeName} placeholder="예: 동생이 태어났어요" />
+          </div>
         </div>
         <ChoiceGrid legend="그림 고르기" name="icon" choices={TIMELINE_ICONS} value={icon} onChange={setIcon} columns={5} />
         <label className="field">

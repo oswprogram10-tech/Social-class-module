@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useId } from 'react';
 import { PROBLEMS, SOLUTIONS, SOLVE_STEPS, findChoice } from '../activities';
 import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, PinPatch, Store } from '../data/types';
@@ -87,6 +87,7 @@ export default function SolvePanel({
   questions,
   onToast,
 }: Props) {
+  const fieldId = useId();
   /** null: 목록, 'new': 새로 만들기, 그 외: 고치는 핀 ID */
   const [editing, setEditing] = useState<string | null>(null);
   const [step, setStep] = useState(1);
@@ -359,12 +360,12 @@ export default function SolvePanel({
             <input value={form.placeName} onChange={(e) => set('placeName', e.target.value)} maxLength={LIMITS.placeName} placeholder="예: 학교 앞 횡단보도" />
           </label>
           <ChoiceGrid legend="어떤 문제인가요?" name="problem" choices={PROBLEMS} value={form.problem} onChange={(v) => set('problem', v)} columns={3} />
-          <label className="field">
+          <div className="field">
             <span>
-              무엇이 문제인가요? 누가 불편한가요? <Speak text="무엇이 문제인가요? 누가 불편한가요?" />
+              <label htmlFor={`${fieldId}-1`}>무엇이 문제인가요? 누가 불편한가요?</label> <Speak text="무엇이 문제인가요? 누가 불편한가요?" />
             </span>
-            <textarea rows={2} value={form.problemText ?? ''} onChange={(e) => set('problemText', e.target.value)} maxLength={LIMITS.text} />
-          </label>
+            <textarea id={`${fieldId}-1`} rows={2} value={form.problemText ?? ''} onChange={(e) => set('problemText', e.target.value)} maxLength={LIMITS.text} />
+          </div>
         </>
       )}
 
@@ -373,12 +374,12 @@ export default function SolvePanel({
           <div className="recap">
             <strong>문제</strong> {form.placeName}: {form.problemText}
           </div>
-          <label className="field">
+          <div className="field">
             <span>
-              왜 이런 문제가 생겼을까요? <Speak text="왜 이런 문제가 생겼을까요?" />
+              <label htmlFor={`${fieldId}-2`}>왜 이런 문제가 생겼을까요?</label> <Speak text="왜 이런 문제가 생겼을까요?" />
             </span>
-            <textarea rows={3} value={form.cause ?? ''} onChange={(e) => set('cause', e.target.value)} maxLength={LIMITS.text} placeholder="예: 차들이 빨리 달리는데 신호등이 없어서" />
-          </label>
+            <textarea id={`${fieldId}-2`} rows={3} value={form.cause ?? ''} onChange={(e) => set('cause', e.target.value)} maxLength={LIMITS.text} placeholder="예: 차들이 빨리 달리는데 신호등이 없어서" />
+          </div>
           <ul className="questions">
             {questions.map((q) => (
               <li key={q}>
@@ -402,12 +403,12 @@ export default function SolvePanel({
             <legend>더 좋은 방법은? <Speak text="두 방법 중 더 좋은 방법을 골라요." /></legend>
             <div className="choice-cards">{(['A', 'B'] as const).map(optSummary)}</div>
           </fieldset>
-          <label className="field">
+          <div className="field">
             <span>
-              왜 이 방법을 골랐나요? <Speak text="왜 이 방법을 골랐나요?" />
+              <label htmlFor={`${fieldId}-3`}>왜 이 방법을 골랐나요?</label> <Speak text="왜 이 방법을 골랐나요?" />
             </span>
-            <textarea rows={3} value={form.text} onChange={(e) => set('text', e.target.value)} maxLength={LIMITS.text} />
-          </label>
+            <textarea id={`${fieldId}-3`} rows={3} value={form.text} onChange={(e) => set('text', e.target.value)} maxLength={LIMITS.text} />
+          </div>
         </>
       )}
 

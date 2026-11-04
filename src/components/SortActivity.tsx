@@ -145,7 +145,7 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
                   {card.emoji && <span aria-hidden>{card.emoji} </span>}
                   {card.text} <Speak text={card.text} />
                 </p>
-                <div className="sort-card__choices" role="group" aria-label="무리 고르기">
+                <div className="sort-card__choices" role="group" aria-label={`“${card.text}” 어디에 들어갈까요?`}>
                   {sec.categories.map((c) => (
                     <button
                       key={c.id}

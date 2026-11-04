@@ -85,7 +85,7 @@ function HoursSlider({ value, onChange }: { value: number; onChange: (v: number)
       <span>
         12시간 중 🌾 밀 기르기 <strong>{value}시간</strong> · 📱 휴대폰 만들기 <strong>{HOURS - value}시간</strong>
       </span>
-      <input type="range" min={0} max={HOURS} step={1} value={value} onChange={(e) => onChange(Number(e.target.value))} aria-label="밀 기르는 시간" />
+      <input type="range" min={0} max={HOURS} step={1} value={value} onChange={(e) => onChange(Number(e.target.value))} aria-label="밀 기르는 시간" aria-valuetext={`밀 ${value}시간, 휴대폰 ${HOURS - value}시간`} />
       <div className="hours-bar" aria-hidden>
         {Array.from({ length: HOURS }, (_, i) => (
           <span key={i} className={i < value ? 'hours-bar__w' : 'hours-bar__p'}>

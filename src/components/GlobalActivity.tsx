@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useId } from 'react';
 import { ACTORS, GLOBAL_PROBLEMS, GLOBAL_STEPS, SDG_ABOUT, findActor, findProblem } from '../content/global';
 import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
@@ -47,6 +47,7 @@ function SdgChips({ sdgs }: { sdgs: { n: number; name: string }[] }) {
 
 /** [6사12-02] 지구촌 문제 해결 4단계: 문제 → 원인 → 주체별 방법 비교 → 결론과 실천 약속 */
 export default function GlobalActivity({ cls, store, uid, student, myRecords, questions, onToast }: Props) {
+  const fieldId = useId();
   const record = myRecords[0];
   const [form, setForm] = useState<Form>({ text: '' });
   const [step, setStep] = useState(1);
@@ -230,12 +231,12 @@ export default function GlobalActivity({ cls, store, uid, student, myRecords, qu
                 <Speak text={`${problem.label}. ${problem.about}`} /> 고른 문제: {problem.emoji} {problem.label}
               </p>
             )}
-            <label className="field">
+            <div className="field">
               <span>
-                누가, 어떤 어려움을 겪고 있을까요? <Speak text="누가, 어떤 어려움을 겪고 있을까요?" />
+                <label htmlFor={`${fieldId}-1`}>누가, 어떤 어려움을 겪고 있을까요?</label> <Speak text="누가, 어떤 어려움을 겪고 있을까요?" />
               </span>
-              <textarea rows={2} value={form.problemText ?? ''} onChange={(e) => set('problemText', e.target.value)} maxLength={LIMITS.text} placeholder="예: 바다거북이 비닐을 먹이로 알고 먹어서 아파요." />
-            </label>
+              <textarea id={`${fieldId}-1`} rows={2} value={form.problemText ?? ''} onChange={(e) => set('problemText', e.target.value)} maxLength={LIMITS.text} placeholder="예: 바다거북이 비닐을 먹이로 알고 먹어서 아파요." />
+            </div>
             <p className="hint sdg-about">🎯 {SDG_ABOUT}</p>
           </>
         )}
@@ -249,12 +250,12 @@ export default function GlobalActivity({ cls, store, uid, student, myRecords, qu
               {form.problemText}
             </div>
             {problem && <p className="hint">💡 {problem.causeHint}</p>}
-            <label className="field">
+            <div className="field">
               <span>
-                왜 이런 문제가 생겼을까요? <Speak text="왜 이런 문제가 생겼을까요?" />
+                <label htmlFor={`${fieldId}-2`}>왜 이런 문제가 생겼을까요?</label> <Speak text="왜 이런 문제가 생겼을까요?" />
               </span>
-              <textarea rows={3} value={form.cause ?? ''} onChange={(e) => set('cause', e.target.value)} maxLength={LIMITS.text} />
-            </label>
+              <textarea id={`${fieldId}-2`} rows={3} value={form.cause ?? ''} onChange={(e) => set('cause', e.target.value)} maxLength={LIMITS.text} />
+            </div>
           </>
         )}
 
@@ -276,18 +277,18 @@ export default function GlobalActivity({ cls, store, uid, student, myRecords, qu
               </legend>
               <div className="choice-cards">{(['A', 'B'] as const).map(optSummary)}</div>
             </fieldset>
-            <label className="field">
+            <div className="field">
               <span>
-                왜 이 방법을 골랐나요? <Speak text="왜 이 방법을 골랐나요?" />
+                <label htmlFor={`${fieldId}-3`}>왜 이 방법을 골랐나요?</label> <Speak text="왜 이 방법을 골랐나요?" />
               </span>
-              <textarea rows={3} value={form.text} onChange={(e) => set('text', e.target.value)} maxLength={LIMITS.text} />
-            </label>
-            <label className="field">
+              <textarea id={`${fieldId}-3`} rows={3} value={form.text} onChange={(e) => set('text', e.target.value)} maxLength={LIMITS.text} />
+            </div>
+            <div className="field">
               <span>
-                🌱 나의 실천 약속 (한 줄) <Speak text="내가 지금부터 실천할 약속을 한 줄로 적어요." />
+                <label htmlFor={`${fieldId}-4`}>🌱 나의 실천 약속 (한 줄)</label> <Speak text="내가 지금부터 실천할 약속을 한 줄로 적어요." />
               </span>
-              <input value={form.slogan ?? ''} onChange={(e) => set('slogan', e.target.value)} maxLength={LIMITS.slogan} placeholder="예: 급식 남기지 않기, 개인 컵 쓰기" />
-            </label>
+              <input id={`${fieldId}-4`} value={form.slogan ?? ''} onChange={(e) => set('slogan', e.target.value)} maxLength={LIMITS.slogan} placeholder="예: 급식 남기지 않기, 개인 컵 쓰기" />
+            </div>
           </>
         )}
 
