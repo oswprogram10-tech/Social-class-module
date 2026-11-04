@@ -51,6 +51,18 @@ export interface SortStory {
   paragraphs: string[];
   photo?: Photo;
   emoji?: string;
+  /** 공식 통계 막대그래프 */
+  chart?: StoryChart;
+}
+
+export interface StoryChart {
+  title: string;
+  /** 값 뒤에 붙는 단위 (예: '만 명', '%') */
+  unit: string;
+  points: { label: string; value: number }[];
+  /** 출처 (기관, 자료 이름, 발표 연도) */
+  source: string;
+  note?: string;
 }
 
 export interface SortSet {

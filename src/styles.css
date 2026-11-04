@@ -3816,3 +3816,33 @@ button.choice-card {
   font-weight: 800;
   color: #92400e;
 }
+
+/* 읽을거리 속 통계 막대그래프 */
+.story-chart {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+}
+.story-chart__svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  display: block;
+}
+.story-chart__axis {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.story-chart__bar {
+  fill: var(--primary);
+}
+.story-chart__value {
+  font-size: 15px;
+  font-weight: 800;
+  fill: var(--text);
+}
+.story-chart__label {
+  font-size: 14px;
+  fill: var(--text);
+}

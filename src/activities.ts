@@ -50,7 +50,9 @@ export type ActivityId =
   | 'evidence'
   | 'sources'
   | 'peaceplaces'
-  | 'whichmap';
+  | 'whichmap'
+  | 'stats'
+  | 'industry';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -110,7 +112,7 @@ export interface UnitDef {
 export const UNITS: UnitDef[] = [
   { grade: '3-1', title: '(1) 우리가 사는 곳', activities: ['feel', 'better'] },
   { grade: '3-1', title: '(2) 일상에서 만나는 과거', activities: ['timeline', 'oldthings'] },
-  { grade: '3-2', title: '(3) 사회 변화와 다양한 문화', activities: ['change', 'perspective'] },
+  { grade: '3-2', title: '(3) 사회 변화와 다양한 문화', activities: ['change', 'perspective', 'stats'] },
   { grade: '3-2', title: '(4) 옛날과 오늘날의 생활 모습', activities: ['oldnew', 'continuity'] },
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
   { grade: '4-1', title: '(6) 우리 지역의 문화유산', activities: ['heritage', 'heritagetypes'] },
@@ -124,7 +126,7 @@ export const UNITS: UnitDef[] = [
   { grade: '5-2', title: '(4) 유적과 유물로 살펴본 옛 사람들의 생활', activities: ['prehistory', 'evidence'] },
   { grade: '5-2', title: '(5) 달라지는 시대, 변화하는 생활 모습', activities: ['joseon', 'sources'] },
   { grade: '5-2', title: '(6) 식민 통치와 저항, 전쟁이 바꾼 사회와 생활', activities: ['colonial', 'history'] },
-  { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern', 'peaceplaces'] },
+  { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern', 'peaceplaces', 'industry'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'powers', 'factcheck'] },
   { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe', 'whichmap'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['landform', 'worldclimate'] },
@@ -654,6 +656,26 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '세계를 표현하는 다양한 공간 자료의 특징을 이해하고, 지구본과 세계지도에서 위치를 표현하는 방법을 익힌다. / 세계 주요 대륙과 대양을 파악하고, 우리나라 및 세계 여러 국가의 위치와 영토의 특징을 이해한다.',
     guide: '하려는 일에 알맞은 공간 자료(지구본, 세계지도, 디지털 지도)를 고르고, 평면 세계지도의 특징을 알아봐요.',
     questions: ['지구본과 세계지도는 각각 어떤 점이 좋을까요?', '완벽한 평면 세계지도가 없는 까닭은?', '디지털 지도는 언제 쓰면 좋을까요?'],
+  },
+  stats: {
+    id: 'stats',
+    kind: 'sort',
+    title: '숫자로 보는 우리 사회 변화',
+    standard: '[4사03-01]',
+    standardText:
+      '최근 사회 변화의 양상과 특징을 파악하고, 그로 인해 나타난 생활모습의 변화를 탐색한다. / 우리 사회에 나타나는 다양한 문화의 특징을 이해하고, 편견과 차별의 문제를 해결하는 방안을 탐구한다.',
+    guide: '공식 통계 그래프로 태어나는 아이 수와 65세 이상 인구의 비율이 어떻게 변했는지 읽고, 그 때문에 달라진 생활 모습을 찾아요.',
+    questions: ['그래프에서 가장 크게 달라진 것은 무엇인가요?', '숫자로 보면 무엇을 더 정확히 알 수 있을까요?', '이런 변화에 우리 사회는 어떻게 대비해야 할까요?'],
+  },
+  industry: {
+    id: 'industry',
+    kind: 'sort',
+    title: '숫자로 보는 산업화',
+    standard: '[6사07-02]',
+    standardText:
+      '분단으로 나타난 문제점과 분단과 관련된 장소를 평화의 장소로 바꾸는 노력을 탐구한다. / 민주화와 산업화 과정에서 일어난 변화를 탐구하고 그 의미를 이해한다.',
+    guide: '공식 통계로 1위 수출품, 수도권 인구 비율, 평균 가구원 수가 어떻게 변했는지 읽고, 산업화가 생활을 어떻게 바꾸었는지 생각해요.',
+    questions: ['산업화로 가장 크게 달라진 것은 무엇일까요?', '산업화가 모두에게 좋기만 했을까요?', '그래프에 나타나지 않는 사람들의 이야기는 무엇일까요?'],
   },
 };
 

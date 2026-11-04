@@ -5,6 +5,7 @@ import { LIMITS } from '../data/common';
 import type { ClassRoom, Pin, Store } from '../data/types';
 import type { StudentSession } from '../pages/StudentJoin';
 import CommonsPhoto from './CommonsPhoto';
+import StoryChart from './StoryChart';
 import Speak from './Speak';
 
 interface Props {
@@ -132,7 +133,16 @@ export default function SortActivity({ activity, set, cls, store, uid, student, 
             {sec.story.paragraphs.map((t) => (
               <p key={t}>{t}</p>
             ))}
-            <Speak text={sec.story.paragraphs.join(' ')} label="읽을거리 읽어주기" />
+            {sec.story.chart && <StoryChart chart={sec.story.chart} />}
+            <Speak
+              text={[
+                ...sec.story.paragraphs,
+                ...(sec.story.chart
+                  ? [`${sec.story.chart.title}, 단위 ${sec.story.chart.unit}.`, ...sec.story.chart.points.map((p) => `${p.label}년 ${p.value}`)]
+                  : []),
+              ].join(' ')}
+              label="읽을거리 읽어주기"
+            />
           </article>
         )}
         {sec.categories.length > 0 && (
