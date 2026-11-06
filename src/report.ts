@@ -68,13 +68,13 @@ const REASON_ACTIVITIES: ActivityId[] = [
   'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade', 'global', 'landform',
   'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
   'oldthings', 'exchange', 'powers', 'economy', 'growth', 'prehistory', 'joseon', 'colonial',
-  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rivers', 'rightswants', 'evidence', 'sources', 'peaceplaces', 'whichmap', 'stats', 'industry', 'schoolbudget',
+  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rivers', 'rightswants', 'evidence', 'sources', 'peaceplaces', 'whichmap', 'stats', 'industry', 'schoolbudget', 'truesize', 'devbalance',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
 const VALUE_ACTIVITIES: ActivityId[] = [
   'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global', 'landform', 'change', 'oldnew', 'heritage', 'democracy', 'villages', 'rights', 'modern', 'oldthings', 'exchange', 'powers', 'economy', 'growth',
-  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rightswants', 'sources', 'peaceplaces', 'stats', 'industry', 'schoolbudget',
+  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rightswants', 'sources', 'peaceplaces', 'stats', 'industry', 'schoolbudget', 'devbalance',
 ];
 
 /** 우리 동네·공동체를 위한 참여 기록 */
@@ -126,7 +126,7 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
         knowledge.push({ activity: 'factcheck', label: `사실·의견 구분: ${item.title}`, correct: g.correct, total: g.total, all: g.total });
         retries += Math.max(0, (p.attempts ?? 1) - 1);
       });
-      (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'landform', 'territory'] as const).forEach((a) => {
+      (['climate', 'population', 'globe', 'worldclimate', 'worldpop', 'landform', 'territory', 'truesize'] as const).forEach((a) => {
         const set = QUIZZES[a]!;
         by(a).forEach((p) => {
           const tried = (p.picks ?? '').split(',').filter(Boolean).length;
@@ -177,6 +177,10 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
         const s = p.step ?? 1;
         processEvidence.push({ activity: 'global', text: `지구촌 문제 해결 “${p.placeName}”: ${s >= 4 ? '4단계 모두 완성' : `${s}단계까지`}` });
         if (s >= 4 && p.slogan) quotes.push({ activity: 'global', text: `실천 약속: ${p.slogan}` });
+      });
+      by('devbalance').forEach((p) => {
+        const s = p.step ?? 1;
+        processEvidence.push({ activity: 'devbalance', text: `땅 나누기: 내 계획 세우기${s >= 2 ? ', 사람마다 다른 반응을 보고 계획 고치기' : ''}` });
       });
       by('schoolbudget').forEach((p) => {
         const s = p.step ?? 1;

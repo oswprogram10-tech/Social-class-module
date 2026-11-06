@@ -16,6 +16,7 @@ import { CONTINENTS } from '../content/world-pop';
 import { worldCityName } from '../content/world-climate';
 import { landformName } from '../content/landforms';
 import { territoryName } from '../content/territory';
+import { BALANCE_SETS, parsePlan, planText, sadCount } from '../content/balance';
 import { BUDGET_SETS, changedMind, firstPicks, labelsOf, optionLabel, parsePicks } from '../content/budget';
 import { ACTORS, findActor, findProblem } from '../content/global';
 import {
@@ -242,6 +243,62 @@ export function BudgetResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: P
                 <td>{optionLabel(set, p.giveUp) || '–'}</td>
                 <td>{(p.step ?? 1) >= 3 ? labelsOf(set, parsePicks(p.picks)) : '–'}</td>
                 <td>{(p.step ?? 1) >= 3 ? (changedMind(set, p.checks, p.picks) ? '🔄' : '–') : ''}</td>
+                <td>{p.text ? '✍️' : ''}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** CSV 열: 땅 나누기 처음 계획, 고친 계획 */
+export function balanceCsv(p: Pin): string[] {
+  const set = BALANCE_SETS[p.activity];
+  if (!set) return ['', ''];
+  return [planText(set, parsePlan(set, p.giveUp)), planText(set, parsePlan(set, p.picks))];
+}
+
+export function BalanceResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  const set = BALANCE_SETS[pins[0].activity]!;
+  const sad = (s?: string) => {
+    const p = parsePlan(set, s);
+    return p ? `${sadCount(set, p)}명` : '–';
+  };
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 땅 나누기 계획</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">단계</th>
+            <th scope="col">처음 계획</th>
+            <th scope="col">처음 걱정</th>
+            <th scope="col">고친 계획</th>
+            <th scope="col">고친 뒤 걱정</th>
+            <th scope="col">생각</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            const s = p.step ?? 1;
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                <td>{s}/3</td>
+                <td>{planText(set, parsePlan(set, p.giveUp)) || '–'}</td>
+                <td>{sad(p.giveUp)}</td>
+                <td>{s >= 2 ? planText(set, parsePlan(set, p.picks)) : '–'}</td>
+                <td>{s >= 2 ? sad(p.picks) : '–'}</td>
                 <td>{p.text ? '✍️' : ''}</td>
               </tr>
             );
@@ -597,6 +654,27 @@ export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
       </div>
     );
   }
+  if (BALANCE_SETS[pin.activity]) {
+    const set = BALANCE_SETS[pin.activity]!;
+    const first = parsePlan(set, pin.giveUp);
+    const last = parsePlan(set, pin.picks);
+    return (
+      <div className="record">
+        <p>진행: {pin.step ?? 1}/3단계</p>
+        {first && (
+          <p>
+            처음 계획: {planText(set, first)} (걱정 {sadCount(set, first)}명)
+          </p>
+        )}
+        {last && (pin.step ?? 1) >= 2 && (
+          <p>
+            고친 계획: {planText(set, last)} (걱정 {sadCount(set, last)}명)
+          </p>
+        )}
+        {pin.text && <p className="hint">생각: {pin.text}</p>}
+      </div>
+    );
+  }
   if (BUDGET_SETS[pin.activity]) {
     const set = BUDGET_SETS[pin.activity]!;
     return (
@@ -770,6 +848,25 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
       </section>
     );
   }
+  const balanceSet = BALANCE_SETS[activity];
+  if (balanceSet) {
+    const decided = pins.map((p) => ((p.step ?? 1) >= 2 ? parsePlan(balanceSet, p.picks) : null)).filter((x): x is number[] => !!x);
+    const noSad = decided.filter((p) => sadCount(balanceSet, p) === 0).length;
+    const avg = (i: number) => (decided.length ? Math.round((decided.reduce((s, p) => s + p[i], 0) / decided.length) * 10) / 10 : 0);
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명 · 계획을 정한 학생 <strong>{decided.length}</strong>명 · 걱정하는 사람이 없는 계획을 찾은 학생{' '}
+          <strong>{noSad}</strong>명
+        </p>
+        {decided.length > 0 && (
+          <p className="hint">
+            고친 계획 평균: {balanceSet.uses.map((u, i) => `${u.emoji}${u.label} ${avg(i)}칸`).join(' · ')}
+          </p>
+        )}
+      </section>
+    );
+  }
   const budgetSet = BUDGET_SETS[activity];
   if (budgetSet) {
     const decided = pins.filter((p) => (p.step ?? 1) >= 3);
@@ -870,7 +967,7 @@ export function QuizResults({
   onSelect,
 }: {
   pins: Pin[];
-  activity: 'climate' | 'population' | 'globe' | 'worldclimate' | 'worldpop' | 'landform' | 'territory';
+  activity: 'climate' | 'population' | 'globe' | 'worldclimate' | 'worldpop' | 'landform' | 'territory' | 'truesize';
   onSelect: (p: Pin) => void;
 }) {
   const set = QUIZZES[activity]!;

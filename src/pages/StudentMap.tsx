@@ -19,6 +19,8 @@ import { ClimateActivity, PopulationActivity } from '../components/KoreaActiviti
 const GlobeActivity = lazy(() => import('../components/GlobeActivity'));
 import TradeActivity from '../components/TradeActivity';
 import BudgetActivity from '../components/BudgetActivity';
+import BalanceActivity from '../components/BalanceActivity';
+import { BALANCE_SETS } from '../content/balance';
 import { BUDGET_SETS } from '../content/budget';
 import { orderSetFor } from '../content/history';
 import { SORT_SETS } from '../content/sorts';
@@ -28,6 +30,7 @@ import GlobalActivity from '../components/GlobalActivity';
 const WorldPopActivity = lazy(() => import('../components/WorldPopActivity'));
 const WorldClimateActivity = lazy(() => import('../components/WorldClimateActivity'));
 const LandformActivity = lazy(() => import('../components/LandformActivity'));
+const TrueSizeActivity = lazy(() => import('../components/TrueSizeActivity'));
 import { questionsFor, visibleToStudent } from '../data/common';
 import type { Pin, WatchPinsOptions } from '../data/types';
 import { go, useClassRoom, usePins, useStore, usePageTitle } from '../hooks';
@@ -75,6 +78,14 @@ function SelfActivity({ kind, activity, ...props }: ActivityProps & { kind: Acti
       return <GlobalActivity {...props} />;
     case 'trade':
       return <TradeActivity {...props} />;
+    case 'balance':
+      return <BalanceActivity key={activity} {...props} activity={activity} set={BALANCE_SETS[activity]!} />;
+    case 'truesize':
+      return (
+        <Suspense fallback={<p className="page-msg">세계 지도를 불러오는 중…</p>}>
+          <TrueSizeActivity {...props} />
+        </Suspense>
+      );
     case 'budget':
       return <BudgetActivity key={activity} {...props} activity={activity} set={BUDGET_SETS[activity]!} />;
     case 'market':
