@@ -204,6 +204,70 @@ export const QUIZZES: Partial<Record<ActivityId, QuizSet>> = {
     ],
     open: '국토 여행을 간다면 어떤 지형을 가 보고 싶나요? 독도를 지키기 위해 내가 할 수 있는 일도 적어 보세요.',
   },
+  truesize: {
+    questions: [
+      {
+        id: 't1',
+        text: '대한민국을 북쪽 끝(북위 72°) 가까이 옮기면 메르카토르 지도에서 어떻게 보이나요?',
+        answers: ['big'],
+        choices: [
+          { id: 'big', label: '원래보다 훨씬 크게 보여요' },
+          { id: 'same', label: '크기가 그대로예요' },
+          { id: 'small', label: '원래보다 작게 보여요' },
+        ],
+        hint: '대한민국을 고르고 “북쪽 끝으로” 단추를 눌러 보세요.',
+        explain: '메르카토르 지도는 적도에서 멀어질수록 땅을 크게 늘려 그려요.',
+      },
+      {
+        id: 't2',
+        text: '그때 대한민국의 실제 넓이는 어떻게 되었나요?',
+        answers: ['same'],
+        choices: [
+          { id: 'big', label: '실제로도 넓어졌어요' },
+          { id: 'same', label: '실제 넓이는 그대로예요' },
+          { id: 'small', label: '실제로 좁아졌어요' },
+        ],
+        hint: '아래 칸의 “실제 넓이” 숫자가 바뀌었는지 보세요.',
+        explain: '나라를 옮겨도 실제 넓이는 같아요. 지도에서만 크기가 달라 보여요.',
+      },
+      {
+        id: 't3',
+        text: '그린란드를 적도로 옮기면 지도에서 어떻게 보이나요?',
+        answers: ['small'],
+        choices: [
+          { id: 'big', label: '더 크게 보여요' },
+          { id: 'same', label: '그대로예요' },
+          { id: 'small', label: '훨씬 작게 보여요' },
+        ],
+        hint: '그린란드를 고르고 “적도로” 단추를 눌러 보세요.',
+        explain: '그린란드는 북극 가까이 있어서 메르카토르 지도에서 실제보다 아주 크게 그려져 있었어요.',
+      },
+      {
+        id: 't4',
+        text: '그린란드와 콩고 민주 공화국 가운데 실제로 더 넓은 나라는?',
+        answers: ['congo'],
+        choices: [
+          { id: 'greenland', label: '그린란드' },
+          { id: 'congo', label: '콩고 민주 공화국' },
+          { id: 'same', label: '정확히 똑같아요' },
+        ],
+        hint: '두 나라를 차례로 골라 “실제 넓이” 숫자를 비교해 보세요.',
+        explain: '콩고 민주 공화국이 조금 더 넓어요. 그런데 메르카토르 지도에서는 그린란드가 훨씬 커 보이지요.',
+      },
+      {
+        id: 't5',
+        text: '메르카토르 지도에서 실제보다 가장 크게 그려지는 곳은 어디인가요?',
+        answers: ['pole'],
+        choices: [
+          { id: 'equator', label: '적도 가까운 곳' },
+          { id: 'pole', label: '북극·남극 가까운 곳' },
+          { id: 'none', label: '모든 곳이 똑같아요' },
+        ],
+        hint: '나라를 적도와 북쪽 끝으로 옮겨 보며 언제 가장 커지는지 보세요.',
+      },
+    ],
+    open: '메르카토르 지도만 보고 나라의 크기를 비교하면 어떤 오해가 생길까요? 나라의 넓이를 비교할 때는 어떤 자료를 함께 보면 좋을까요?',
+  },
   landform: {
     questions: [
       {

@@ -3923,3 +3923,89 @@ button.choice-card {
 .budget-compare td {
   text-align: left;
 }
+
+/* 실제 크기 비교 지도 */
+.truesize-map .merc-svg {
+  touch-action: none;
+  cursor: ns-resize;
+}
+.truesize-home {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.truesize-moved {
+  fill: #f97316;
+  fill-opacity: 0.85;
+  stroke: #9a3412;
+  stroke-width: 1;
+}
+.truesize-ref {
+  fill: none;
+  stroke: #16a34a;
+  stroke-width: 2;
+}
+.truesize-controls {
+  margin: 8px 0;
+}
+.truesize-swatch--home {
+  border: 2px dashed #334155;
+  background: transparent;
+}
+.truesize-swatch--moved {
+  background: #f97316;
+}
+
+/* 개발과 보전 배분 시뮬레이션 */
+.balance-uses {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.balance-use {
+  flex-wrap: wrap;
+}
+.balance-cells {
+  letter-spacing: 2px;
+}
+.balance-meters {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: grid;
+  gap: 6px;
+}
+.balance-meters li {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.balance-people {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+.balance-person {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+}
+.balance-person--happy {
+  border-color: var(--good);
+}
+.balance-person--sad {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+.balance-person__face {
+  font-size: 1.8rem;
+  line-height: 1;
+}

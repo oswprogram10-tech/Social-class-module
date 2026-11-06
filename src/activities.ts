@@ -53,7 +53,9 @@ export type ActivityId =
   | 'whichmap'
   | 'stats'
   | 'industry'
-  | 'schoolbudget';
+  | 'schoolbudget'
+  | 'truesize'
+  | 'devbalance';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -75,7 +77,9 @@ export type ActivityKind =
   | 'landform'
   | 'sort'
   | 'territory'
-  | 'budget';
+  | 'budget'
+  | 'truesize'
+  | 'balance';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
@@ -121,7 +125,7 @@ export const UNITS: UnitDef[] = [
   { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market', 'exchange'] },
   { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy', 'meeting', 'schoolbudget'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
-  { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages', 'devmeeting'] },
+  { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages', 'devmeeting', 'devbalance'] },
   { grade: '5-1', title: '(1) 우리나라 국토 여행', activities: ['territory', 'rivers'] },
   { grade: '5-1', title: '(2) 우리나라 지리 탐구', activities: ['climate', 'population'] },
   { grade: '5-1', title: '(3) 법과 인권의 보장', activities: ['rights', 'rightswants'] },
@@ -130,7 +134,7 @@ export const UNITS: UnitDef[] = [
   { grade: '5-2', title: '(6) 식민 통치와 저항, 전쟁이 바꾼 사회와 생활', activities: ['colonial', 'history'] },
   { grade: '6-1', title: '(7) 평화 통일을 위한 노력, 민주화와 산업화', activities: ['modern', 'peaceplaces', 'industry'] },
   { grade: '6-1', title: '(8) 민주주의와 시민 참여', activities: ['election', 'powers', 'factcheck'] },
-  { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe', 'whichmap'] },
+  { grade: '6-1', title: '(9) 지구, 대륙 그리고 국가들', activities: ['globe', 'whichmap', 'truesize'] },
   { grade: '6-2', title: '(10) 세계의 자연환경', activities: ['landform', 'worldclimate'] },
   { grade: '6-2', title: '(11) 시장경제와 국가 간 거래', activities: ['economy', 'growth', 'trade'] },
   { grade: '6-2', title: '(12) 지구촌 사람들', activities: ['worldpop', 'global'] },
@@ -688,6 +692,26 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '학교 자치 사례를 통하여 민주주의의 의미를 이해하고, 학교생활에서 민주주의를 실천하는 능력을 기른다. / 지역에서 주민 자치를 실천하는 사례를 조사하고, 지역 문제 해결에 참여하는 태도를 기른다.',
     guide: '가상 예산 100만 원으로 학교에 필요한 것을 고르고, 포기한 것(기회비용)을 따져 본 뒤, 소수 의견을 듣고 다시 결정해요.',
     questions: ['모두 할 수 없을 때 무엇을 먼저 해야 할까요?', '적은 사람에게 꼭 필요한 것은 어떻게 해야 할까요?', '우리 동네 주민 참여 예산에는 무엇을 제안하고 싶나요?'],
+  },
+  truesize: {
+    id: 'truesize',
+    kind: 'truesize',
+    title: '나라의 실제 크기 비교',
+    standard: '[6사09-01]',
+    standardText:
+      '세계를 표현하는 다양한 공간 자료의 특징을 이해하고, 지구본과 세계지도에서 위치를 표현하는 방법을 익힌다. / 세계 주요 대륙과 대양을 파악하고, 우리나라 및 세계 여러 국가의 위치와 영토의 특징을 이해한다.',
+    guide: '메르카토르 세계지도에서 나라를 다른 위도로 옮겨 보고, 지도에서 보이는 크기와 실제 넓이가 어떻게 다른지 알아봐요.',
+    questions: ['왜 북쪽으로 옮기면 지도에서 커 보일까요?', '실제 넓이를 비교하려면 어떤 자료를 보면 좋을까요?', '내가 알던 나라의 크기 가운데 오해한 것이 있었나요?'],
+  },
+  devbalance: {
+    id: 'devbalance',
+    kind: 'balance',
+    title: '푸른갯마을 땅 나누기',
+    standard: '[4사10-01·02]',
+    standardText:
+      '여러 지역의 자연환경과 인문환경의 특징을 살펴보고, 환경의 이용과 개발에 따른 변화를 탐구한다. / 여러 지역의 사례를 통해 환경에 따라 다양한 삶의 모습을 비교한다.',
+    guide: '가상 바닷가 마을의 땅을 관광 단지, 갯벌 보전, 양식장·어업에 나누고, 마을 사람마다 반응이 어떻게 다른지 보며 모두가 받아들일 계획을 찾아요.',
+    questions: ['개발하면 누구에게 좋고 누구에게 걱정일까요?', '모두가 조금씩 양보하는 계획은 어떤 모습일까요?', '우리 지역에도 개발과 보전이 부딪치는 곳이 있을까요?'],
   },
 };
 

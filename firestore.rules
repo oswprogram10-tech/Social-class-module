@@ -45,7 +45,7 @@ service cloud.firestore {
               'prehistory', 'joseon', 'colonial',
               'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rivers',
               'rightswants', 'evidence', 'sources', 'peaceplaces', 'whichmap',
-              'stats', 'industry', 'schoolbudget'];
+              'stats', 'industry', 'schoolbudget', 'truesize', 'devbalance'];
     }
 
     // 교사가 고친 생각 도우미 질문: 활동별 최대 5개
@@ -94,6 +94,8 @@ service cloud.firestore {
         && (!('stats' in d.questions) || (d.questions.stats is list && d.questions.stats.size() <= 5))
         && (!('industry' in d.questions) || (d.questions.industry is list && d.questions.industry.size() <= 5))
         && (!('schoolbudget' in d.questions) || (d.questions.schoolbudget is list && d.questions.schoolbudget.size() <= 5))
+        && (!('truesize' in d.questions) || (d.questions.truesize is list && d.questions.truesize.size() <= 5))
+        && (!('devbalance' in d.questions) || (d.questions.devbalance is list && d.questions.devbalance.size() <= 5))
         && (!('oldthings' in d.questions) || (d.questions.oldthings is list && d.questions.oldthings.size() <= 5))
         && (!('exchange' in d.questions) || (d.questions.exchange is list && d.questions.exchange.size() <= 5))
         && (!('powers' in d.questions) || (d.questions.powers is list && d.questions.powers.size() <= 5))
