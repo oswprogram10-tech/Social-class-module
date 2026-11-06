@@ -52,7 +52,8 @@ export type ActivityId =
   | 'peaceplaces'
   | 'whichmap'
   | 'stats'
-  | 'industry';
+  | 'industry'
+  | 'schoolbudget';
 
 /** 활동 종류: 핀 남기기 / 미션(자동 확인) / 단계별 문제 해결 */
 export type ActivityKind =
@@ -73,7 +74,8 @@ export type ActivityKind =
   | 'global'
   | 'landform'
   | 'sort'
-  | 'territory';
+  | 'territory'
+  | 'budget';
 
 /** 지도를 쓰는 활동인지 */
 export function isMapKind(kind: ActivityKind): boolean {
@@ -117,7 +119,7 @@ export const UNITS: UnitDef[] = [
   { grade: '4-1', title: '(5) 지도로 만나는 우리 지역', activities: ['mission', 'legend'] },
   { grade: '4-1', title: '(6) 우리 지역의 문화유산', activities: ['heritage', 'heritagetypes'] },
   { grade: '4-1', title: '(7) 경제활동과 지역 간 교류', activities: ['market', 'exchange'] },
-  { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy', 'meeting'] },
+  { grade: '4-2', title: '(8) 민주주의와 자치', activities: ['democracy', 'meeting', 'schoolbudget'] },
   { grade: '4-2', title: '(9) 지역문제를 해결하고 지역을 알리는 노력', activities: ['solve', 'promote'] },
   { grade: '4-2', title: '(10) 다양한 환경과 삶의 모습', activities: ['villages', 'devmeeting'] },
   { grade: '5-1', title: '(1) 우리나라 국토 여행', activities: ['territory', 'rivers'] },
@@ -676,6 +678,16 @@ export const ACTIVITIES: Record<ActivityId, ActivityDef> = {
       '분단으로 나타난 문제점과 분단과 관련된 장소를 평화의 장소로 바꾸는 노력을 탐구한다. / 민주화와 산업화 과정에서 일어난 변화를 탐구하고 그 의미를 이해한다.',
     guide: '공식 통계로 1위 수출품, 수도권 인구 비율, 평균 가구원 수가 어떻게 변했는지 읽고, 산업화가 생활을 어떻게 바꾸었는지 생각해요.',
     questions: ['산업화로 가장 크게 달라진 것은 무엇일까요?', '산업화가 모두에게 좋기만 했을까요?', '그래프에 나타나지 않는 사람들의 이야기는 무엇일까요?'],
+  },
+  schoolbudget: {
+    id: 'schoolbudget',
+    kind: 'budget',
+    title: '우리 학교 참여 예산 회의',
+    standard: '[4사08-01·02]',
+    standardText:
+      '학교 자치 사례를 통하여 민주주의의 의미를 이해하고, 학교생활에서 민주주의를 실천하는 능력을 기른다. / 지역에서 주민 자치를 실천하는 사례를 조사하고, 지역 문제 해결에 참여하는 태도를 기른다.',
+    guide: '가상 예산 100만 원으로 학교에 필요한 것을 고르고, 포기한 것(기회비용)을 따져 본 뒤, 소수 의견을 듣고 다시 결정해요.',
+    questions: ['모두 할 수 없을 때 무엇을 먼저 해야 할까요?', '적은 사람에게 꼭 필요한 것은 어떻게 해야 할까요?', '우리 동네 주민 참여 예산에는 무엇을 제안하고 싶나요?'],
   },
 };
 

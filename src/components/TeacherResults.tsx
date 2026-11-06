@@ -16,6 +16,7 @@ import { CONTINENTS } from '../content/world-pop';
 import { worldCityName } from '../content/world-climate';
 import { landformName } from '../content/landforms';
 import { territoryName } from '../content/territory';
+import { BUDGET_SETS, changedMind, firstPicks, labelsOf, optionLabel, parsePicks } from '../content/budget';
 import { ACTORS, findActor, findProblem } from '../content/global';
 import {
   TRADE_CHECKS,
@@ -191,6 +192,57 @@ export function GlobalResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: P
                 <td>{actor(p.optBType)}</td>
                 <td>{p.chosen ?? '–'}</td>
                 <td>{p.slogan ?? '–'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** CSV 열: 참여 예산 처음 결정, 최종 결정 */
+export function budgetCsv(p: Pin): string[] {
+  const set = BUDGET_SETS[p.activity];
+  if (!set) return ['', ''];
+  return [labelsOf(set, firstPicks(set, p.checks)), labelsOf(set, parsePicks(p.picks))];
+}
+
+export function BudgetResults({ pins, onSelect }: { pins: Pin[]; onSelect: (p: Pin) => void }) {
+  const rows = byStudent(pins);
+  if (rows.length === 0) return <Empty />;
+  const set = BUDGET_SETS[pins[0].activity]!;
+  return (
+    <div className="table-wrap">
+      <table className="progress-table">
+        <caption className="sr-only">학생별 참여 예산 결정</caption>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">단계</th>
+            <th scope="col">처음 결정</th>
+            <th scope="col">가장 아쉬운 것</th>
+            <th scope="col">최종 결정</th>
+            <th scope="col">바꿈</th>
+            <th scope="col">생각</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = r.pins[0];
+            return (
+              <tr key={r.label}>
+                <th scope="row">
+                  <button type="button" className="cell" onClick={() => onSelect(p)}>
+                    {r.label}
+                  </button>
+                </th>
+                <td>{p.step ?? 1}/4</td>
+                <td>{labelsOf(set, firstPicks(set, p.checks)) || '–'}</td>
+                <td>{optionLabel(set, p.giveUp) || '–'}</td>
+                <td>{(p.step ?? 1) >= 3 ? labelsOf(set, parsePicks(p.picks)) : '–'}</td>
+                <td>{(p.step ?? 1) >= 3 ? (changedMind(set, p.checks, p.picks) ? '🔄' : '–') : ''}</td>
+                <td>{p.text ? '✍️' : ''}</td>
               </tr>
             );
           })}
@@ -545,6 +597,22 @@ export function RecordDetail({ pin, cls }: { pin: Pin; cls: ClassRoom }) {
       </div>
     );
   }
+  if (BUDGET_SETS[pin.activity]) {
+    const set = BUDGET_SETS[pin.activity]!;
+    return (
+      <div className="record">
+        <p>진행: {pin.step ?? 1}/4단계</p>
+        <p>처음 결정: {labelsOf(set, firstPicks(set, pin.checks)) || '–'}</p>
+        <p>가장 아쉬운 것: {optionLabel(set, pin.giveUp) || '–'}</p>
+        {(pin.step ?? 1) >= 3 && (
+          <p>
+            최종 결정: {labelsOf(set, parsePicks(pin.picks))} {changedMind(set, pin.checks, pin.picks) ? '(바꾸었어요)' : '(그대로)'}
+          </p>
+        )}
+        {pin.text && <p className="hint">생각: {pin.text}</p>}
+      </div>
+    );
+  }
   if (pin.activity === 'trade') {
     const o = tradeOutcomes(pin);
     const s = pin.step ?? 1;
@@ -699,6 +767,26 @@ export function SelfSummary({ pins, cls }: { pins: Pin[]; cls: ClassRoom }) {
             </ul>
           </>
         )}
+      </section>
+    );
+  }
+  const budgetSet = BUDGET_SETS[activity];
+  if (budgetSet) {
+    const decided = pins.filter((p) => (p.step ?? 1) >= 3);
+    const changed = decided.filter((p) => changedMind(budgetSet, p.checks, p.picks)).length;
+    const count = (id: string, sel: (p: Pin) => string[]) => pins.filter((p) => sel(p).includes(id)).length;
+    return (
+      <section className="summary">
+        <p className="summary__total">
+          참여 학생 <strong>{students}</strong>명 · 최종 결정 <strong>{decided.length}</strong>명 · 다른 의견을 듣고 바꾼 학생 <strong>{changed}</strong>명
+        </p>
+        <ul className="summary__list">
+          {budgetSet.options.map((o) => (
+            <li key={o.id}>
+              {o.emoji} {o.label}: 처음 {count(o.id, (p) => firstPicks(budgetSet, p.checks))}명 → 최종 {count(o.id, (p) => ((p.step ?? 1) >= 3 ? parsePicks(p.picks) : []))}명
+            </li>
+          ))}
+        </ul>
       </section>
     );
   }

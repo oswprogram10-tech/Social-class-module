@@ -68,17 +68,17 @@ const REASON_ACTIVITIES: ActivityId[] = [
   'feel', 'better', 'legend', 'promote', 'solve', 'market', 'election', 'factcheck', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'trade', 'global', 'landform',
   'change', 'oldnew', 'heritage', 'democracy', 'villages', 'territory', 'rights', 'modern',
   'oldthings', 'exchange', 'powers', 'economy', 'growth', 'prehistory', 'joseon', 'colonial',
-  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rivers', 'rightswants', 'evidence', 'sources', 'peaceplaces', 'whichmap', 'stats', 'industry',
+  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rivers', 'rightswants', 'evidence', 'sources', 'peaceplaces', 'whichmap', 'stats', 'industry', 'schoolbudget',
 ];
 
 /** 가치 판단이 드러나는 생각 (점수 없이 그대로 보여 줌) */
 const VALUE_ACTIVITIES: ActivityId[] = [
   'better', 'solve', 'promote', 'election', 'market', 'climate', 'population', 'globe', 'worldclimate', 'worldpop', 'history', 'factcheck', 'trade', 'global', 'landform', 'change', 'oldnew', 'heritage', 'democracy', 'villages', 'rights', 'modern', 'oldthings', 'exchange', 'powers', 'economy', 'growth',
-  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rightswants', 'sources', 'peaceplaces', 'stats', 'industry',
+  'perspective', 'continuity', 'heritagetypes', 'meeting', 'devmeeting', 'rightswants', 'sources', 'peaceplaces', 'stats', 'industry', 'schoolbudget',
 ];
 
 /** 우리 동네·공동체를 위한 참여 기록 */
-const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote', 'global', 'heritage'];
+const COMMUNITY_ACTIVITIES: ActivityId[] = ['better', 'solve', 'promote', 'global', 'heritage', 'schoolbudget'];
 
 export function studentKey(p: Pin): string {
   return `${p.authorUid}:${p.studentNo}`;
@@ -177,6 +177,10 @@ export function buildReports(cls: ClassRoom, pins: Pin[]): StudentReport[] {
         const s = p.step ?? 1;
         processEvidence.push({ activity: 'global', text: `지구촌 문제 해결 “${p.placeName}”: ${s >= 4 ? '4단계 모두 완성' : `${s}단계까지`}` });
         if (s >= 4 && p.slogan) quotes.push({ activity: 'global', text: `실천 약속: ${p.slogan}` });
+      });
+      by('schoolbudget').forEach((p) => {
+        const s = p.step ?? 1;
+        processEvidence.push({ activity: 'schoolbudget', text: `참여 예산: 예산 안에서 고르기${s >= 2 ? ', 포기한 것(기회비용) 따지기' : ''}${s >= 3 ? ', 소수 의견을 듣고 다시 결정' : ''}` });
       });
       by('trade').forEach((p) => {
         const s = p.step ?? 1;
