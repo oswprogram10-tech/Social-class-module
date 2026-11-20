@@ -52,7 +52,7 @@ export default function TeacherLogin() {
   }
 
   return (
-    <div className="page page--center">
+    <div className="page page--center tool">
       <main className="card join">
         <h1>🔑 다른 기기에서 내 학급 관리하기</h1>
         {error && <p className="error">{error}</p>}

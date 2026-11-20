@@ -88,7 +88,7 @@ export default function TeacherCreate() {
   }
 
   return (
-    <div className="page">
+    <div className="page tool">
       <ModeBanner />
       <header className="topbar">
         <a href="#/" className="topbar__back" aria-label="처음으로">

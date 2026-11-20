@@ -204,7 +204,7 @@ export default function TeacherReport({ code }: { code: string }) {
   const current = reports.find((r) => r.key === selected);
 
   return (
-    <div className={`page report-page ${printAll ? 'print-all' : ''}`}>
+    <div className={`page report-page tool ${printAll ? 'print-all' : ''}`}>
       <header className="topbar no-print">
         <div className="topbar__main">
           <a href={`#/teacher/${code}`} className="topbar__back" aria-label="교사 화면으로">

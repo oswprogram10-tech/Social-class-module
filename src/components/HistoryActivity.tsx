@@ -128,7 +128,7 @@ export default function HistoryActivity({ activity, set, cls, store, uid, studen
                     className={`slot ${ev ? 'slot--filled' : ''} ${wrongSet.has(i) ? 'slot--wrong' : ''} ${done ? 'slot--done' : ''}`}
                     onClick={() => ev && removeAt(i)}
                     disabled={!ev || done}
-                    aria-label={ev ? `${i + 1}번째: ${ev.label}. 누르면 빼요.` : `${i + 1}번째 빈칸`}
+                    aria-label={ev ? `${i + 1} 번째: ${ev.label}. 누르면 빼요.` : `${i + 1} 번째 빈칸`}
                   >
                     <span className="slot__n">{i + 1}</span>
                     {ev ? (
@@ -140,7 +140,7 @@ export default function HistoryActivity({ activity, set, cls, store, uid, studen
                         {done && <span className="slot__when">{ev.when}</span>}
                       </>
                     ) : (
-                      <span className="slot__empty">?</span>
+                      <span className="slot__empty" aria-hidden>?</span>
                     )}
                   </button>
                 </li>

@@ -236,7 +236,7 @@ export default function TeacherBoard({ code }: { code: string }) {
   );
 
   return (
-    <div className={`page page--map ${projector ? 'projector' : ''}`}>
+    <div className={`page page--map page--teacher tool ${projector ? 'projector' : ''}`}>
       {!projector && <ModeBanner />}
       <header className="topbar">
         <div className="topbar__main">
