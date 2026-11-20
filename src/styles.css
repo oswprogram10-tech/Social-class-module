@@ -98,7 +98,7 @@
     --good-soft: #13301f;
     --good-ink: #86efac;
     --good-line: #1f6b3a;
-    --good-fill: #15803d;
+    --good-fill: #166534; /* 위 글자(#e6e8ec)와 5.8:1 */
     --warn: #fbbf24;
     --warn-soft: #3a2a10;
     --warn-ink: #fcd34d;
@@ -434,8 +434,6 @@ form.panel {
 
 .btn:active:not(:disabled) {
   transform: translateY(2px);
-  border-bottom-width: 2px;
-  margin-bottom: 2px;
 }
 
 .btn:disabled {
@@ -1166,7 +1164,6 @@ form.panel {
   min-height: 44px;
   border-width: 1px;
   border-bottom-width: 1px;
-  border-color: var(--line);
   border-radius: var(--radius-sm);
   font-weight: 600;
   box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04);
@@ -1174,13 +1171,10 @@ form.panel {
 
 .tool .btn:hover:not(:disabled) {
   background: var(--surface-3);
-  border-color: var(--line);
 }
 
 .tool .btn:active:not(:disabled) {
   transform: none;
-  margin-bottom: 0;
-  border-bottom-width: 1px;
   background: var(--line);
 }
 
@@ -1312,10 +1306,11 @@ form.panel {
   background: var(--surface-3);
 }
 
+/* 고른 활동: 옅은 파랑 바탕 + 왼쪽 파란 띠(바탕과 3:1 이상) + 굵은 글자 */
 .page--teacher .tab--on,
 .page--teacher .tab--on:hover {
   background: var(--primary-soft);
-  box-shadow: inset 0 0 0 1px var(--primary-line);
+  box-shadow: inset 4px 0 0 var(--primary), inset 0 0 0 1px var(--primary-line);
   font-weight: 800;
 }
 
@@ -1594,7 +1589,7 @@ form.panel {
   background: var(--surface-3);
   border-radius: 999px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
 .progress__bar {
@@ -1775,6 +1770,11 @@ form.panel {
   position: relative;
 }
 
+/* 3단계짜리 단계 표시는 세 칸으로 나눠 오른쪽이 비지 않게 합니다. */
+.stepper:has(> li:nth-child(3):last-child) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 /* 단계 사이를 잇는 선(장식) */
 .stepper > li + li::before {
   content: '';
@@ -1784,6 +1784,7 @@ form.panel {
   width: calc(100% - 34px);
   height: 2px;
   background: var(--line);
+  pointer-events: none;
 }
 
 .stepper > li.stepper__item--done + li::before,
@@ -1924,7 +1925,7 @@ form.panel {
   place-items: center;
 }
 
-.choice-card:hover {
+.choice-card:not(.choice-card--ok):not(.choice-card--no):hover {
   border-color: var(--primary-line);
   background: var(--primary-soft);
 }
@@ -2574,6 +2575,7 @@ form.panel {
 
 .goods__badge--lost {
   background: var(--accent);
+  color: #1f2329; /* 주황 칠은 두 화면 모두 밝아서 늘 진한 글자(7:1 이상) */
 }
 
 .result-card {

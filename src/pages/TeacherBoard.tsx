@@ -141,6 +141,10 @@ export default function TeacherBoard({ code }: { code: string }) {
 
   const activity = cls?.activeActivity ?? 'feel';
   const actPins = useMemo(() => pins.filter((p) => p.activity === activity), [pins, activity]);
+  // 왼쪽 활동 목록에서 고른 활동이 보이도록 목록만 스크롤합니다(화면 모양만 돕는 처리).
+  useEffect(() => {
+    document.querySelector('.page--teacher .tab--on')?.scrollIntoView({ block: 'nearest' });
+  }, [activity, cls === undefined]);
   const kind = ACTIVITIES[activity].kind;
   /** 지도 없이 결과표를 보여 주는 활동 */
   const isSelf = isSelfKind(kind);
